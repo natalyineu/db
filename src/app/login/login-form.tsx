@@ -48,6 +48,12 @@ export default function LoginForm() {
       setIsSubmitting(true);
       setMessage(null);
 
+      console.log("Signing in with:", email);
+      
+      // First clear any existing session
+      await supabase.auth.signOut();
+      
+      // Attempt to sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -57,7 +63,7 @@ export default function LoginForm() {
         throw new Error(error.message);
       }
 
-      console.log("Login successful, session:", data.session);
+      console.log("Login successful, session:", data.session ? "present" : "missing");
 
       // Create profile if needed
       if (data.session?.access_token) {
@@ -65,40 +71,21 @@ export default function LoginForm() {
           await ensureUserProfile(data.session.access_token);
 
           console.log("Setting session manually");
-          const sessionResult = await supabase.auth.setSession({
+          await supabase.auth.setSession({
             access_token: data.session.access_token,
             refresh_token: data.session.refresh_token,
           });
-          console.log("Session set result:", sessionResult);
-
-          // Helper function to check session status
-          const checkSessionAndRedirect = async (attempts = 0) => {
-            if (attempts > 5) {
-              console.log("Too many attempts to verify session, redirecting anyway");
-              router.push('/data');
-              return;
-            }
-
-            try {
-              const { data: { session } } = await supabase.auth.getSession();
-              if (session) {
-                console.log("Verified session exists, now redirecting");
-                // Force a hard navigation to make sure all cookies are sent
-                window.location.href = '/data';
-              } else {
-                console.log(`Session not detected, waiting longer... (attempt ${attempts + 1})`);
-                // Try again after a short delay
-                setTimeout(() => checkSessionAndRedirect(attempts + 1), 500);
-              }
-            } catch (err) {
-              console.error("Error checking session:", err);
-              setTimeout(() => checkSessionAndRedirect(attempts + 1), 500);
-            }
-          };
-
-          // Wait a moment for the session to be properly set, then check
-          console.log("Waiting for session to be properly set");
-          setTimeout(() => checkSessionAndRedirect(), 300);
+          
+          console.log("Successfully set session, retrieving it again to verify");
+          const { data: sessionData } = await supabase.auth.getSession();
+          
+          if (sessionData.session) {
+            console.log("Session verified, proceeding with hard redirect");
+            // Use a hard browser redirect instead of Next.js router
+            window.location.href = '/data';
+          } else {
+            throw new Error("Failed to verify session after login");
+          }
         } catch (loginError) {
           console.error("Error during login process:", loginError);
           setMessage({
@@ -107,15 +94,15 @@ export default function LoginForm() {
           });
           setIsSubmitting(false);
         }
+      } else {
+        throw new Error("Login succeeded but no session was created");
       }
-
     } catch (error) {
       console.error('Login error:', error);
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
-    } finally {
       setIsSubmitting(false);
     }
   };

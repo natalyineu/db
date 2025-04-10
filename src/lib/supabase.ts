@@ -2,30 +2,40 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import type { CookieOptions } from '@supabase/ssr';
 
+// Enable this for debugging
+const DEBUG = true;
+
 // Create a singleton Supabase client for client-side rendering
 let browserClient: ReturnType<typeof createClient> | null = null;
 
 export const createBrowserClient = () => {
   if (browserClient) return browserClient;
   
-  browserClient = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        persistSession: true,
-        storageKey: 'personal-account-auth-key',
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        flowType: 'pkce'
-      },
-      global: {
-        fetch: fetch.bind(globalThis)
-      }
-    }
-  );
+  if (DEBUG) console.log('Creating new Supabase browser client');
   
-  return browserClient;
+  try {
+    browserClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          persistSession: true,
+          storageKey: 'personal-account-auth-key',
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce',
+          debug: DEBUG
+        },
+        global: {
+          fetch: fetch.bind(globalThis)
+        }
+      }
+    );
+    return browserClient;
+  } catch (error) {
+    console.error('Error creating Supabase client:', error);
+    throw error;
+  }
 };
 
 // Create a server-side Supabase client with cookie support

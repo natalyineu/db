@@ -3,13 +3,17 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  // Only apply middleware to /data routes
-  if (!req.nextUrl.pathname.startsWith('/data')) {
+  // Only apply middleware to /data routes, allow debug route
+  if (req.nextUrl.pathname === '/debug' || !req.nextUrl.pathname.startsWith('/data')) {
     return NextResponse.next();
   }
 
   // Create a response object
   const res = NextResponse.next();
+  
+  // Log request details
+  console.log(`Middleware processing request for: ${req.nextUrl.pathname}`);
+  console.log(`Request headers:`, Object.fromEntries([...req.headers.entries()]));
   
   // Create a Supabase client for the middleware
   const supabase = createServerClient(
@@ -81,5 +85,5 @@ export async function middleware(req: NextRequest) {
 
 // Only run middleware on specific paths
 export const config = {
-  matcher: ['/data/:path*'],
+  matcher: ['/data/:path*', '/debug'],
 }; 
