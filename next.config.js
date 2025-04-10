@@ -30,7 +30,9 @@ const nextConfig = {
           },
           {
             key: 'Access-Control-Allow-Origin',
-            value: '*'
+            value: process.env.NODE_ENV === 'production' 
+              ? process.env.NEXT_PUBLIC_SITE_URL || 'https://your-production-domain.com' 
+              : 'http://localhost:3000'
           },
           {
             key: 'Access-Control-Allow-Methods',
