@@ -25,7 +25,7 @@ export default function RootLayout({
         <meta name="referrer" content="no-referrer" />
       </head>
       <body className="min-h-screen bg-gray-50 flex flex-col">
-        <header className="w-full bg-indigo-700 text-white py-2 px-4 flex items-center justify-between shadow-md">
+        <header className="w-full bg-white text-gray-800 py-4 px-4 flex items-center justify-between border-b border-gray-200">
           <div className="flex items-center">
             <Link 
               href="https://ai-vertise.com" 
@@ -33,8 +33,10 @@ export default function RootLayout({
               rel="noopener"
               className="flex items-center hover:opacity-90 transition-opacity"
             >
-              <span className="font-bold text-xl">AI-Vertise</span>
-              <span className="mx-2 text-xs bg-white text-indigo-700 px-2 py-0.5 rounded-full">Account</span>
+              <span className="font-bold text-2xl">
+                <span className="ai-vertise-gradient-text">AI-Vertise</span>
+                <span className="mx-2 text-sm ai-vertise-gradient-indigo text-white px-2 py-0.5 rounded-full">Account</span>
+              </span>
             </Link>
           </div>
           <div>
@@ -42,7 +44,7 @@ export default function RootLayout({
               href="https://ai-vertise.com" 
               target="_blank"
               rel="noopener"
-              className="text-xs text-indigo-200 hover:text-white transition-colors"
+              className="text-sm px-4 py-2 rounded-full ai-vertise-gradient-bg text-white hover:opacity-90 transition-opacity"
             >
               Back to main site
             </Link>

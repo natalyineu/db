@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* AI-Vertise Brand Colors */
+  --ai-vertise-purple: #8a5cf6;
+  --ai-vertise-pink: #ec4899;
+  --ai-vertise-indigo: #4f46e5;
+  --ai-vertise-indigo-dark: #3730a3;
 }
 
 @theme inline {
@@ -23,4 +29,20 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Custom gradient classes */
+.ai-vertise-gradient-text {
+  background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ai-vertise-gradient-bg {
+  background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
+}
+
+.ai-vertise-gradient-indigo {
+  background-image: linear-gradient(to right, var(--ai-vertise-indigo), var(--ai-vertise-indigo-dark));
 }
