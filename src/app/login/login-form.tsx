@@ -67,6 +67,9 @@ export default function LoginForm() {
           refresh_token: data.session.refresh_token,
         });
 
+        // Refresh router to ensure state is updated
+        router.refresh();
+        
         // ⬇️ После этого редирект точно сработает
         router.push('/data');
       }

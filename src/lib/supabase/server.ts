@@ -1,28 +1,13 @@
-import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Creates a Supabase client for server components with proper cookie handling
+ * Creates a Supabase server client
  */
 export const createClient = async () => {
-  // Dynamically import cookies to avoid issues with client components
-  const { cookies } = await import('next/headers');
-  
-  return createServerClient(
+  // Create a standard Supabase client for server components
+  // Session handling is managed by middleware
+  return createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        async get(name) {
-          const cookieStore = await cookies();
-          return cookieStore.get(name)?.value;
-        },
-        set(name, value, options) {
-          // This is a server component, we may need to handle cookies in the future
-        },
-        remove(name, options) {
-          // This is a server component, we may need to handle cookies in the future
-        },
-      },
-    }
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 }; 

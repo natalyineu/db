@@ -20,6 +20,9 @@ export async function middleware(req: NextRequest) {
             name,
             value,
             ...options,
+            secure: process.env.NODE_ENV === 'production', // Only use secure in production
+            sameSite: 'lax',
+            httpOnly: true,
           });
         },
         remove(name, options) {
@@ -27,6 +30,9 @@ export async function middleware(req: NextRequest) {
             name,
             value: '',
             ...options,
+            secure: process.env.NODE_ENV === 'production', // Only use secure in production
+            sameSite: 'lax',
+            httpOnly: true,
             maxAge: 0,
           });
         },
