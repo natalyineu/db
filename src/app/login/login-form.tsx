@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { createBrowserClient } from '@/lib/supabase';
+import { useSupabase } from '@/lib/supabase/client-provider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -10,7 +10,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const supabase = createBrowserClient();
+  const supabase = useSupabase();
   const router = useRouter();
 
   const ensureUserProfile = async (accessToken: string) => {

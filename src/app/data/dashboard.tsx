@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { createBrowserClient } from '@/lib/supabase';
+import { useSupabase } from '@/lib/supabase/client-provider';
 import { UserProfile } from '@/types';
 import { useRouter } from 'next/navigation';
 
@@ -9,7 +9,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const supabase = createBrowserClient();
+  const supabase = useSupabase();
   const router = useRouter();
 
   useEffect(() => {
@@ -68,9 +68,30 @@ export default function Dashboard() {
             throw new Error(`Error fetching new profile: ${newProfileError.message}`);
           }
           
-          setUser(newProfileData as UserProfile);
-        } else {
-          setUser(profileData as UserProfile);
+          // Cast with proper type handling
+          if (newProfileData && 
+              typeof newProfileData.id === 'string' && 
+              typeof newProfileData.email === 'string' && 
+              typeof newProfileData.created_at === 'string') {
+            setUser({
+              id: newProfileData.id,
+              email: newProfileData.email,
+              created_at: newProfileData.created_at,
+              updated_at: newProfileData.updated_at as string | undefined
+            });
+          }
+        } else if (profileData) {
+          // Cast with proper type handling
+          if (typeof profileData.id === 'string' && 
+              typeof profileData.email === 'string' && 
+              typeof profileData.created_at === 'string') {
+            setUser({
+              id: profileData.id,
+              email: profileData.email,
+              created_at: profileData.created_at,
+              updated_at: profileData.updated_at as string | undefined
+            });
+          }
         }
       } catch (err) {
         console.error('Error fetching user data:', err);

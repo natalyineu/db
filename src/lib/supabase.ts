@@ -2,18 +2,19 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import type { CookieOptions } from '@supabase/ssr';
 
-// Create a Supabase client for client-side rendering
-export const createBrowserClient = () => 
-  createClient(
+// Create a singleton Supabase client for client-side rendering
+let browserClient: ReturnType<typeof createClient> | null = null;
+
+export const createBrowserClient = () => {
+  if (browserClient) return browserClient;
+  
+  browserClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
-
-// Create a Supabase client for server-side operations
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+  
+  return browserClient;
+};
 
 // Create a server-side Supabase client with cookie support
 export async function createServerSupabaseClient() {
