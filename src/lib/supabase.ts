@@ -10,7 +10,14 @@ export const createBrowserClient = () => {
   
   browserClient = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: true,
+        storageKey: 'personal-account-auth-key',
+        autoRefreshToken: true
+      }
+    }
   );
   
   return browserClient;

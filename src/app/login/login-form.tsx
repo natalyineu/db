@@ -57,18 +57,23 @@ export default function LoginForm() {
         throw new Error(error.message);
       }
 
+      console.log("Login successful, session:", data.session);
+
       // Create profile if needed
       if (data.session?.access_token) {
         await ensureUserProfile(data.session.access_token);
 
         // ⬇️ ВАЖНО: вручную установить сессию в cookie
-        await supabase.auth.setSession({
+        console.log("Setting session manually");
+        const sessionResult = await supabase.auth.setSession({
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token,
         });
+        console.log("Session set result:", sessionResult);
 
         // Refresh router to ensure state is updated
         router.refresh();
+        console.log("Router refreshed, redirecting to /data");
         
         // ⬇️ После этого редирект точно сработает
         router.push('/data');

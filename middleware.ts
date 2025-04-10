@@ -43,17 +43,22 @@ export async function middleware(req: NextRequest) {
   // Refresh the session
   const { data: { session } } = await supabase.auth.getSession();
   
+  console.log("Middleware checking session for path:", req.nextUrl.pathname);
+  console.log("Session exists:", !!session);
+  
   // Check authentication for protected routes
   const isAuthRoute = req.nextUrl.pathname.startsWith('/data');
   
   if (isAuthRoute && !session) {
     // Redirect unauthenticated users to login page
+    console.log("No session found, redirecting to login");
     const redirectUrl = new URL('/login', req.url);
     return NextResponse.redirect(redirectUrl);
   }
   
   // Add session data to request headers for server components
   if (session) {
+    console.log("Session found, user ID:", session.user.id);
     res.headers.set('x-auth-user-id', session.user.id);
   }
   
