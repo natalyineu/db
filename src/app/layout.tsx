@@ -8,6 +8,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
   title: "Personal Account System",
   description: "A simple personal account management system",
+  other: {
+    "referrer": "no-referrer"
+  }
 };
 
 export default function RootLayout({
@@ -17,6 +20,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={inter.variable}>
+      <head>
+        <meta name="referrer" content="no-referrer" />
+      </head>
       <body className="min-h-screen bg-gray-50">
         <ClientProviders>
           {children}

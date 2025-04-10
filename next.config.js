@@ -17,6 +17,10 @@ const nextConfig = {
               : "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.supabase.co https://*.vercel-analytics.com; object-src 'none'; base-uri 'self'; form-action 'self';"
           },
           {
+            key: 'Referrer-Policy',
+            value: 'no-referrer'
+          },
+          {
             key: 'X-Content-Type-Options',
             value: 'nosniff'
           },
