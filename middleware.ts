@@ -2,18 +2,25 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// For development and debugging - set this to true to temporarily bypass auth checks
+const BYPASS_AUTH = false;
+
 export async function middleware(req: NextRequest) {
   // Only apply middleware to /data routes, allow debug route
   if (req.nextUrl.pathname === '/debug' || !req.nextUrl.pathname.startsWith('/data')) {
     return NextResponse.next();
   }
 
+  console.log(`Middleware processing request for: ${req.nextUrl.pathname}`);
+  
+  // ⚠️ BYPASS AUTH for debugging - REMOVE THIS IN PRODUCTION
+  if (BYPASS_AUTH) {
+    console.log('⚠️ BYPASSING AUTHENTICATION FOR DEBUGGING');
+    return NextResponse.next();
+  }
+
   // Create a response object
   const res = NextResponse.next();
-  
-  // Log request details
-  console.log(`Middleware processing request for: ${req.nextUrl.pathname}`);
-  console.log(`Request headers:`, Object.fromEntries([...req.headers.entries()]));
   
   // Create a Supabase client for the middleware
   const supabase = createServerClient(
@@ -33,11 +40,10 @@ export async function middleware(req: NextRequest) {
             name,
             value,
             ...options,
-            secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            httpOnly: true,
+            httpOnly: true, // Set httpOnly to true for better security
             path: '/',
-            // Don't set domain to allow it to work on both localhost and production domain
           });
         },
         remove(name, options) {
@@ -46,12 +52,11 @@ export async function middleware(req: NextRequest) {
             name,
             value: '',
             ...options,
-            secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            httpOnly: true,
+            httpOnly: true, // Set httpOnly to true for better security
             maxAge: 0,
             path: '/',
-            // Don't set domain to allow it to work on both localhost and production domain
           });
         },
       },
@@ -69,17 +74,19 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
     
-    // If session exists, add user info to request
+    // If session exists, add user info to request and refresh the session if needed
     if (session) {
       console.log('Session found for user:', session.user.email);
       res.headers.set('x-user-id', session.user.id);
+      
+      // Refresh the session so the cookies are constantly updated
+      await supabase.auth.setSession(session);
     }
     
     return res;
   } catch (error) {
-    console.error('Error in middleware:', error);
-    // On error, allow the request to continue
-    return res;
+    console.error('Middleware error:', error);
+    return NextResponse.redirect(new URL('/login', req.url));
   }
 }
 

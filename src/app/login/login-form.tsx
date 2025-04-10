@@ -68,24 +68,17 @@ export default function LoginForm() {
       // Create profile if needed
       if (data.session?.access_token) {
         try {
+          // Ensure user profile exists in database
           await ensureUserProfile(data.session.access_token);
 
-          console.log("Setting session manually");
-          await supabase.auth.setSession({
-            access_token: data.session.access_token,
-            refresh_token: data.session.refresh_token,
-          });
-          
-          console.log("Successfully set session, retrieving it again to verify");
-          const { data: sessionData } = await supabase.auth.getSession();
-          
-          if (sessionData.session) {
-            console.log("Session verified, proceeding with hard redirect");
-            // Use a hard browser redirect instead of Next.js router
+          // Using a hard redirect after setting the session
+          // Tell the browser to store cookies properly
+          console.log("Session created, going to data page");
+          // Wait briefly to ensure cookies are set before navigation
+          setTimeout(() => {
+            console.log("Redirecting now...");
             window.location.href = '/data';
-          } else {
-            throw new Error("Failed to verify session after login");
-          }
+          }, 300);
         } catch (loginError) {
           console.error("Error during login process:", loginError);
           setMessage({
