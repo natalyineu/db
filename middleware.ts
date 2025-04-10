@@ -23,6 +23,7 @@ export async function middleware(req: NextRequest) {
             secure: process.env.NODE_ENV === 'production', // Only use secure in production
             sameSite: 'lax',
             httpOnly: true,
+            path: '/',
           });
         },
         remove(name, options) {
@@ -34,6 +35,7 @@ export async function middleware(req: NextRequest) {
             sameSite: 'lax',
             httpOnly: true,
             maxAge: 0,
+            path: '/',
           });
         },
       },
@@ -45,15 +47,21 @@ export async function middleware(req: NextRequest) {
   
   console.log("Middleware checking session for path:", req.nextUrl.pathname);
   console.log("Session exists:", !!session);
+  console.log("Cookies present:", [...req.cookies.getAll()].map(c => c.name));
   
   // Check authentication for protected routes
   const isAuthRoute = req.nextUrl.pathname.startsWith('/data');
   
-  if (isAuthRoute && !session) {
-    // Redirect unauthenticated users to login page
-    console.log("No session found, redirecting to login");
-    const redirectUrl = new URL('/login', req.url);
-    return NextResponse.redirect(redirectUrl);
+  // Special handling for the /data route
+  if (isAuthRoute) {
+    if (!session) {
+      // Redirect unauthenticated users to login page
+      console.log("No session found, redirecting to login");
+      const redirectUrl = new URL('/login', req.url);
+      return NextResponse.redirect(redirectUrl);
+    } else {
+      console.log("Valid session found, allowing access to /data");
+    }
   }
   
   // Add session data to request headers for server components

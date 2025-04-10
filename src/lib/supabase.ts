@@ -15,7 +15,12 @@ export const createBrowserClient = () => {
       auth: {
         persistSession: true,
         storageKey: 'personal-account-auth-key',
-        autoRefreshToken: true
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        flowType: 'pkce'
+      },
+      global: {
+        fetch: fetch.bind(globalThis)
       }
     }
   );

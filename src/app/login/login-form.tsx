@@ -73,10 +73,13 @@ export default function LoginForm() {
 
         // Refresh router to ensure state is updated
         router.refresh();
-        console.log("Router refreshed, redirecting to /data");
+        console.log("Router refreshed, adding delay before redirect");
         
-        // ⬇️ После этого редирект точно сработает
-        router.push('/data');
+        // Add a slight delay to ensure cookies are set properly
+        setTimeout(() => {
+          console.log("Now redirecting to /data");
+          router.push('/data');
+        }, 300);
       }
 
     } catch (error) {
