@@ -29,7 +29,11 @@ export async function middleware(req: NextRequest) {
             name,
             value,
             ...options,
+            secure: true,
+            sameSite: 'lax',
+            httpOnly: true,
             path: '/',
+            // Don't set domain to allow it to work on both localhost and production domain
           });
         },
         remove(name, options) {
@@ -38,8 +42,12 @@ export async function middleware(req: NextRequest) {
             name,
             value: '',
             ...options,
+            secure: true,
+            sameSite: 'lax',
+            httpOnly: true,
             maxAge: 0,
             path: '/',
+            // Don't set domain to allow it to work on both localhost and production domain
           });
         },
       },

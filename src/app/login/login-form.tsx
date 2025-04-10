@@ -61,32 +61,52 @@ export default function LoginForm() {
 
       // Create profile if needed
       if (data.session?.access_token) {
-        await ensureUserProfile(data.session.access_token);
+        try {
+          await ensureUserProfile(data.session.access_token);
 
-        // ⬇️ ВАЖНО: вручную установить сессию в cookie
-        console.log("Setting session manually");
-        const sessionResult = await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token,
-        });
-        console.log("Session set result:", sessionResult);
+          console.log("Setting session manually");
+          const sessionResult = await supabase.auth.setSession({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token,
+          });
+          console.log("Session set result:", sessionResult);
 
-        // Helper function to check session status
-        const checkSessionAndRedirect = async () => {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-            console.log("Verified session exists, now redirecting");
-            router.push('/data');
-          } else {
-            console.log("Session not detected, waiting longer...");
-            // Try again after a short delay
-            setTimeout(checkSessionAndRedirect, 500);
-          }
-        };
+          // Helper function to check session status
+          const checkSessionAndRedirect = async (attempts = 0) => {
+            if (attempts > 5) {
+              console.log("Too many attempts to verify session, redirecting anyway");
+              router.push('/data');
+              return;
+            }
 
-        // Wait a moment for the session to be properly set, then check
-        console.log("Waiting for session to be properly set");
-        setTimeout(checkSessionAndRedirect, 300);
+            try {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session) {
+                console.log("Verified session exists, now redirecting");
+                // Force a hard navigation to make sure all cookies are sent
+                window.location.href = '/data';
+              } else {
+                console.log(`Session not detected, waiting longer... (attempt ${attempts + 1})`);
+                // Try again after a short delay
+                setTimeout(() => checkSessionAndRedirect(attempts + 1), 500);
+              }
+            } catch (err) {
+              console.error("Error checking session:", err);
+              setTimeout(() => checkSessionAndRedirect(attempts + 1), 500);
+            }
+          };
+
+          // Wait a moment for the session to be properly set, then check
+          console.log("Waiting for session to be properly set");
+          setTimeout(() => checkSessionAndRedirect(), 300);
+        } catch (loginError) {
+          console.error("Error during login process:", loginError);
+          setMessage({
+            type: 'error',
+            text: 'Error during login process. Please try again.'
+          });
+          setIsSubmitting(false);
+        }
       }
 
     } catch (error) {
