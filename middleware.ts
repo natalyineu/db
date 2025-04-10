@@ -3,6 +3,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
+  // Only apply middleware to /data routes
+  if (!req.nextUrl.pathname.startsWith('/data')) {
+    return NextResponse.next();
+  }
+
   // Create a response object
   const res = NextResponse.next();
   
@@ -13,27 +18,26 @@ export async function middleware(req: NextRequest) {
     {
       cookies: {
         get(name) {
-          return req.cookies.get(name)?.value;
+          console.log(`Looking for cookie: ${name}`);
+          const cookie = req.cookies.get(name);
+          console.log(`Cookie ${name} found:`, !!cookie);
+          return cookie?.value;
         },
         set(name, value, options) {
+          console.log(`Setting cookie: ${name}`);
           res.cookies.set({
             name,
             value,
             ...options,
-            secure: process.env.NODE_ENV === 'production', // Only use secure in production
-            sameSite: 'lax',
-            httpOnly: true,
             path: '/',
           });
         },
         remove(name, options) {
+          console.log(`Removing cookie: ${name}`);
           res.cookies.set({
             name,
             value: '',
             ...options,
-            secure: process.env.NODE_ENV === 'production', // Only use secure in production
-            sameSite: 'lax',
-            httpOnly: true,
             maxAge: 0,
             path: '/',
           });
@@ -42,46 +46,32 @@ export async function middleware(req: NextRequest) {
     }
   );
   
-  // Refresh the session
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  console.log("Middleware checking session for path:", req.nextUrl.pathname);
-  console.log("Session exists:", !!session);
-  console.log("Cookies present:", [...req.cookies.getAll()].map(c => c.name));
-  
-  // Check authentication for protected routes
-  const isAuthRoute = req.nextUrl.pathname.startsWith('/data');
-  
-  // Special handling for the /data route
-  if (isAuthRoute) {
-    if (!session) {
-      // Redirect unauthenticated users to login page
-      console.log("No session found, redirecting to login");
-      const redirectUrl = new URL('/login', req.url);
-      return NextResponse.redirect(redirectUrl);
-    } else {
-      console.log("Valid session found, allowing access to /data");
+  try {
+    // Get the session
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log(`Middleware for ${req.nextUrl.pathname}, session exists:`, !!session);
+    
+    // If accessing /data route and no session, redirect to login
+    if (req.nextUrl.pathname.startsWith('/data') && !session) {
+      console.log('No session found, redirecting to login');
+      return NextResponse.redirect(new URL('/login', req.url));
     }
+    
+    // If session exists, add user info to request
+    if (session) {
+      console.log('Session found for user:', session.user.email);
+      res.headers.set('x-user-id', session.user.id);
+    }
+    
+    return res;
+  } catch (error) {
+    console.error('Error in middleware:', error);
+    // On error, allow the request to continue
+    return res;
   }
-  
-  // Add session data to request headers for server components
-  if (session) {
-    console.log("Session found, user ID:", session.user.id);
-    res.headers.set('x-auth-user-id', session.user.id);
-  }
-  
-  return res;
 }
 
+// Only run middleware on specific paths
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public (public files)
-     */
-    '/((?!_next/static|_next/image|favicon.ico|public).*)',
-  ],
+  matcher: ['/data/:path*'],
 }; 

@@ -1,14 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  poweredByHeader: false,
+  
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Apply these headers to all routes
+        source: '/:path*',
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} https://*.vercel-analytics.com; frame-src 'self'; object-src 'none';`
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.supabase.co https://*.vercel-analytics.com;"
           },
           {
             key: 'X-Content-Type-Options',
@@ -17,6 +19,10 @@ const nextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'DENY'
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block'
           }
         ]
       }

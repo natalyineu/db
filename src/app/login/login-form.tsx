@@ -71,15 +71,22 @@ export default function LoginForm() {
         });
         console.log("Session set result:", sessionResult);
 
-        // Refresh router to ensure state is updated
-        router.refresh();
-        console.log("Router refreshed, adding delay before redirect");
-        
-        // Add a slight delay to ensure cookies are set properly
-        setTimeout(() => {
-          console.log("Now redirecting to /data");
-          router.push('/data');
-        }, 300);
+        // Helper function to check session status
+        const checkSessionAndRedirect = async () => {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            console.log("Verified session exists, now redirecting");
+            router.push('/data');
+          } else {
+            console.log("Session not detected, waiting longer...");
+            // Try again after a short delay
+            setTimeout(checkSessionAndRedirect, 500);
+          }
+        };
+
+        // Wait a moment for the session to be properly set, then check
+        console.log("Waiting for session to be properly set");
+        setTimeout(checkSessionAndRedirect, 300);
       }
 
     } catch (error) {
