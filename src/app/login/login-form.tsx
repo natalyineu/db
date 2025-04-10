@@ -5,6 +5,9 @@ import { useSupabase } from '@/lib/supabase/client-provider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+// Only log in development
+const DEBUG = process.env.NODE_ENV !== 'production';
+
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,10 +27,10 @@ export default function LoginForm() {
       });
 
       if (!response.ok) {
-        console.error('Failed to ensure user profile:', await response.text());
+        if (DEBUG) console.error('Failed to ensure user profile:', await response.text());
       }
     } catch (error) {
-      console.error('Error ensuring user profile:', error);
+      if (DEBUG) console.error('Error ensuring user profile:', error);
     }
   };
 
@@ -48,7 +51,7 @@ export default function LoginForm() {
       setIsSubmitting(true);
       setMessage(null);
 
-      console.log("Signing in with:", email);
+      if (DEBUG) console.log("Signing in with:", email);
       
       // First clear any existing session
       await supabase.auth.signOut();
@@ -63,7 +66,7 @@ export default function LoginForm() {
         throw new Error(error.message);
       }
 
-      console.log("Login successful, session:", data.session ? "present" : "missing");
+      if (DEBUG) console.log("Login successful, session:", data.session ? "present" : "missing");
 
       // Create profile if needed
       if (data.session?.access_token) {
@@ -73,14 +76,18 @@ export default function LoginForm() {
 
           // Using a hard redirect after setting the session
           // Tell the browser to store cookies properly
-          console.log("Session created, going to data page");
+          if (DEBUG) console.log("Session created, going to data page");
           // Wait briefly to ensure cookies are set before navigation
           setTimeout(() => {
-            console.log("Redirecting now...");
+            if (DEBUG) console.log("Redirecting now...");
             window.location.href = '/data';
           }, 300);
         } catch (loginError) {
-          console.error("Error during login process:", loginError);
+          if (DEBUG) {
+            console.error("Error during login process:", loginError);
+          } else {
+            console.error("Authentication error during login");
+          }
           setMessage({
             type: 'error',
             text: 'Error during login process. Please try again.'
@@ -91,7 +98,11 @@ export default function LoginForm() {
         throw new Error("Login succeeded but no session was created");
       }
     } catch (error) {
-      console.error('Login error:', error);
+      if (DEBUG) {
+        console.error('Login error:', error);
+      } else {
+        console.error('Authentication error');
+      }
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'An unexpected error occurred'

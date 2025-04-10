@@ -5,6 +5,9 @@ import { useSupabase } from '@/lib/supabase/client-provider';
 import { useRouter } from 'next/navigation';
 import Dashboard from './dashboard';
 
+// Only log in development
+const DEBUG = process.env.NODE_ENV !== 'production';
+
 export default function DataPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -15,7 +18,7 @@ export default function DataPage() {
     async function checkAuth() {
       try {
         setLoading(true);
-        console.log('Checking client-side session');
+        if (DEBUG) console.log('Checking client-side session');
         
         // Get session from the browser client
         const { data, error } = await supabase.auth.getSession();
@@ -25,15 +28,19 @@ export default function DataPage() {
         }
         
         if (!data.session) {
-          console.log('No session found, redirecting to login');
+          if (DEBUG) console.log('No session found, redirecting to login');
           router.push('/login');
           return;
         }
         
-        console.log('Session found for user:', data.session.user.email);
+        if (DEBUG) console.log('Session found for user:', data.session.user.email);
         setLoading(false);
       } catch (err) {
-        console.error('Error checking auth:', err);
+        if (DEBUG) {
+          console.error('Error checking auth:', err);
+        } else {
+          console.error('Authentication error');
+        }
         setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         router.push('/login');
       }

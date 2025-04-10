@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { useSupabase } from '@/lib/supabase/client-provider';
 import Link from 'next/link';
 
+// This constant determines if we're in production
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
 export default function DebugPage() {
   const [sessionInfo, setSessionInfo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -16,6 +19,16 @@ export default function DebugPage() {
       try {
         // Get session
         const { data, error } = await supabase.auth.getSession();
+        
+        // Only in production: make sure the user is an admin before showing debug info
+        if (IS_PRODUCTION && (!data.session || data.session.user.email !== 'admin@ai-vertise.com')) {
+          setSessionInfo({ 
+            error: 'Access denied. Debug page is restricted in production environment.'  
+          });
+          setLoading(false);
+          return;
+        }
+        
         setSessionInfo({ 
           session: data.session ? {
             ...data.session,
@@ -72,9 +85,34 @@ export default function DebugPage() {
   if (loading) {
     return <div className="p-8">Loading debug info...</div>;
   }
+
+  // Show access denied in production if not authorized
+  if (sessionInfo.error && sessionInfo.error.includes('Access denied')) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="p-4 bg-red-100 rounded mb-4">
+          <h1 className="text-2xl font-bold text-red-800">Access Denied</h1>
+          <p className="mt-2 text-red-700">This debug page is restricted in production environment.</p>
+        </div>
+        <Link href="/" className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+          Back to Home
+        </Link>
+      </div>
+    );
+  }
   
   return (
     <div className="p-8 max-w-4xl mx-auto">
+      {IS_PRODUCTION && (
+        <div className="p-4 bg-yellow-100 rounded mb-4">
+          <h2 className="text-xl font-bold text-yellow-800">⚠️ WARNING</h2>
+          <p className="text-yellow-700">
+            This debug page exposes sensitive information and should not be accessible in production. 
+            Please disable or secure this route before deploying to production.
+          </p>
+        </div>
+      )}
+      
       <h1 className="text-2xl font-bold mb-6">Authentication Debug Page</h1>
       
       <div className="mb-8 p-4 bg-gray-100 rounded">

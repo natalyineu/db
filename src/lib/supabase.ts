@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { createServerClient } from '@supabase/ssr';
 import type { CookieOptions } from '@supabase/ssr';
 
-// Enable this for debugging
-const DEBUG = true;
+// Enable debugging only in development environment
+const DEBUG = process.env.NODE_ENV !== 'production';
 
 // Create a singleton Supabase client for client-side rendering
 let browserClient: ReturnType<typeof createClient> | null = null;
@@ -24,7 +24,7 @@ export const createBrowserClient = () => {
           autoRefreshToken: true,
           detectSessionInUrl: true,
           flowType: 'pkce',
-          debug: DEBUG
+          debug: DEBUG // Only enable debug in development
         },
         global: {
           fetch: fetch.bind(globalThis)
@@ -33,7 +33,12 @@ export const createBrowserClient = () => {
     );
     return browserClient;
   } catch (error) {
-    console.error('Error creating Supabase client:', error);
+    // Only log error details in development
+    if (DEBUG) {
+      console.error('Error creating Supabase client:', error);
+    } else {
+      console.error('Error creating authentication client');
+    }
     throw error;
   }
 };
