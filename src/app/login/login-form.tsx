@@ -20,6 +20,8 @@ export default function LoginForm() {
   useEffect(() => {
     if (isAuthenticated) {
       router.push('/data');
+      // Reset submitting state when auth state changes
+      setIsSubmitting(false);
     }
   }, [isAuthenticated, router]);
 
@@ -43,9 +45,8 @@ export default function LoginForm() {
       // Use the auth context sign in method
       await signIn(email, password);
       
-      // Reset submitting state immediately
-      // Auth context will handle the redirect
-      setIsSubmitting(false);
+      // Don't reset isSubmitting here - the useEffect will handle it
+      // when isAuthenticated changes
     } catch (error) {
       if (DEBUG) {
         console.error('Login error:', error);

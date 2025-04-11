@@ -50,6 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     
+    // Initialize timeout ID
+    let timeoutId: NodeJS.Timeout | undefined;
+    
     try {
       isFetchingProfile.current = true;
       lastFetchTime.current = now;
@@ -65,14 +68,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Set up a race with a timeout promise
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Profile fetch timed out after 5 seconds')), 5000);
+        timeoutId = setTimeout(() => reject(new Error('Profile fetch timed out after 5 seconds')), 5000);
       });
       
       // Race the fetch against the timeout
       const { data, error } = await Promise.race([
         fetchPromise,
-        timeoutPromise.then(() => { throw new Error('Fetch timed out'); })
+        timeoutPromise
       ]) as any;
+      
+      // Clear the timeout now that we have a result
+      if (timeoutId) clearTimeout(timeoutId);
       
       if (error) {
         throw error;

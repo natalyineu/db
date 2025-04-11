@@ -42,46 +42,42 @@ export default function DataPage() {
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
-    // If loading takes more than 10 seconds, try a direct database approach
+    // If loading takes more than 8 seconds, try a direct API approach via server
     const timeoutId = setTimeout(() => {
-      if (isLoading) {
-        if (DEBUG) console.log('Loading timeout exceeded, attempting direct database access');
+      if (isLoading && user) {
+        if (DEBUG) console.log('Loading timeout exceeded, attempting API fallback');
         
-        if (user) {
-          // Try to fetch profile directly
-          fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
-            }
-          })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Failed to fetch profile directly');
-            }
-            return response.json();
-          })
-          .then(data => {
-            if (DEBUG) console.log('Direct profile fetch result:', data);
-            // If profile exists, we can proceed to dashboard
-            if (data && data.length > 0) {
-              // Loading is done but we'll let the dashboard handle displaying the data
-              
-            } else {
-              // No profile found, redirect to login
-              router.push('/login');
-            }
-          })
-          .catch(err => {
-            if (DEBUG) console.error('Direct fetch error:', err);
-            // Redirect to login on error
+        // Use the server API instead of direct database access
+        fetch(`/api/get-profile-direct?userId=${user.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch profile via API');
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (DEBUG) console.log('API profile fetch result:', data);
+          // If profile exists, we can proceed to dashboard
+          if (data && data.profile) {
+            // Loading is done but we'll let the dashboard handle displaying the data
+          } else {
+            // No profile found, redirect to login
             router.push('/login');
-          });
-        } else {
+          }
+        })
+        .catch(err => {
+          if (DEBUG) console.error('API fetch error:', err);
+          // Redirect to login on error
           router.push('/login');
-        }
+        });
+      } else if (isLoading) {
+        // No user available, redirect to login
+        router.push('/login');
       }
     }, 8000);
     

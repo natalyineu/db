@@ -47,12 +47,6 @@ async function ensureUserProfile(userId: string, email: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Get a Supabase client with admin privileges to validate tokens
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-    
     // Get the authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -65,8 +59,8 @@ export async function POST(request: NextRequest) {
     // Extract the token
     const token = authHeader.split(' ')[1];
     
-    // Verify the token and get user data
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify the token and get user data using the same supabaseAdmin client
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     
     if (error || !user) {
       return NextResponse.json(
