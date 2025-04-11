@@ -85,7 +85,7 @@ export default function Dashboard() {
               email: profileData.email || user.email || 'user@example.com',
               created_at: profileData.created_at || new Date().toISOString(),
               updated_at: profileData.updated_at,
-              status: profileData.status
+              status: profileData.status ? String(profileData.status) : undefined
             };
             
             // Set as local component state since we can't update auth context
@@ -199,7 +199,9 @@ export default function Dashboard() {
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-gray-100 text-gray-800'
                     }`}>
-                      {displayProfile.status.charAt(0).toUpperCase() + displayProfile.status.slice(1)}
+                      {typeof displayProfile.status === 'string' 
+                        ? displayProfile.status.charAt(0).toUpperCase() + displayProfile.status.slice(1)
+                        : String(displayProfile.status)}
                     </span>
                   </div>
                 )}
