@@ -17,7 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ user: User; session: Session } | undefined>;
   signUp: (email: string, password: string) => Promise<{ user: User | null; session: Session | null; } | undefined>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -177,10 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await ensureUserProfile(data.user.id, data.user.email || '', data.session.access_token);
         }
         
-        // Wait briefly to ensure cookies are set before navigation
-        setTimeout(() => {
-          router.push('/data');
-        }, 300);
+        // No longer need to manually redirect - let the component handle it through isAuthenticated
+        return data;
       } else {
         throw new Error("Login succeeded but no session was created");
       }

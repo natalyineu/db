@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useRouter } from 'next/navigation';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -12,7 +13,15 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const { signIn, error: authError } = useAuth();
+  const { signIn, error: authError, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // If authenticated, redirect to data page
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/data');
+    }
+  }, [isAuthenticated, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +43,9 @@ export default function LoginForm() {
       // Use the auth context sign in method
       await signIn(email, password);
       
-      // No need to handle successful login redirect as auth context does it
+      // Reset submitting state immediately
+      // Auth context will handle the redirect
+      setIsSubmitting(false);
     } catch (error) {
       if (DEBUG) {
         console.error('Login error:', error);
