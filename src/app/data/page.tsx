@@ -9,8 +9,9 @@ import { useAuth } from '@/lib/auth/auth-context';
 const DEBUG = process.env.NODE_ENV !== 'production';
 
 export default function DataPage() {
-  const { isAuthenticated, isLoading, user, error } = useAuth();
+  const { isAuthenticated, isLoading, user, error, refreshProfile } = useAuth();
   const [pageLoadTime] = useState(Date.now());
+  const [isRetrying, setIsRetrying] = useState(false);
   const router = useRouter();
 
   // Debug logging
@@ -84,6 +85,18 @@ export default function DataPage() {
     return () => clearTimeout(timeoutId);
   }, [isLoading, router, user]);
 
+  // Handle manual retry
+  const handleRetry = async () => {
+    setIsRetrying(true);
+    try {
+      await refreshProfile();
+      // Wait a moment for state to update
+      setTimeout(() => setIsRetrying(false), 1000);
+    } catch (e) {
+      setIsRetrying(false);
+    }
+  };
+
   // While checking authentication
   if (isLoading) {
     return (
@@ -103,7 +116,14 @@ export default function DataPage() {
         <div className="bg-red-50 p-4 rounded-md max-w-md">
           <p className="text-lg text-red-600">Error loading your account</p>
           <p className="text-sm text-red-700 mt-2">{error}</p>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center space-x-4">
+            <button 
+              onClick={handleRetry}
+              disabled={isRetrying}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {isRetrying ? 'Retrying...' : 'Retry'}
+            </button>
             <button 
               onClick={() => router.push('/login')}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"

@@ -66,9 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single();
       
-      // Set up a race with a timeout promise
+      // Set up a race with a timeout promise - increased from 5 to 15 seconds
       const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Profile fetch timed out after 5 seconds')), 5000);
+        timeoutId = setTimeout(() => reject(new Error('Profile fetch timed out after 15 seconds')), 15000);
       });
       
       // Race the fetch against the timeout
