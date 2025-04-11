@@ -53,7 +53,8 @@ export default function DataPage() {
         fetch(`/api/get-profile-direct?userId=${user.id}`, {
           method: 'GET',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
         })
         .then(response => {

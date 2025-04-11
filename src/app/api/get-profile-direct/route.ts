@@ -20,7 +20,12 @@ export async function GET(request: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'Missing userId parameter' },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
     
@@ -35,14 +40,24 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching profile directly:', error);
       return NextResponse.json(
         { error: 'Failed to fetch profile' },
-        { status: 500 }
+        { 
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
     
     if (!data) {
       return NextResponse.json(
         { profile: null },
-        { status: 200 }
+        { 
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
     }
     
@@ -55,12 +70,21 @@ export async function GET(request: NextRequest) {
         updated_at: data.updated_at,
         status: data.status ? String(data.status) : undefined
       }
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
   } catch (error) {
     console.error('Error in get-profile-direct:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 } 

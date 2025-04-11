@@ -31,10 +31,15 @@ export class ApiClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
       
-      // Add signal to options
+      // Add signal to options and ensure Accept header is set
       const fetchOptions = {
         ...options,
-        signal: controller.signal
+        signal: controller.signal,
+        headers: {
+          ...options.headers,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
       };
       
       // Execute fetch
@@ -65,7 +70,17 @@ export async function fetchWithRetry<T>(
   backoffMs = 300
 ): Promise<T> {
   try {
-    const response = await fetch(url, options);
+    // Ensure headers include Accept
+    const fetchOptions = {
+      ...options,
+      headers: {
+        ...options.headers,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const response = await fetch(url, fetchOptions);
     
     if (!response.ok) {
       throw new Error(`HTTP error: ${response.status} ${response.statusText}`);
