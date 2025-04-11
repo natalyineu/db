@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function RegisterForm() {
   const [email, setEmail] = useState('');
@@ -11,8 +10,7 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const supabase = createBrowserClient();
-  const router = useRouter();
+  const { signUp, error: authError } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,21 +32,11 @@ export default function RegisterForm() {
     }
     
     try {
-      setIsSubmitting(true);
       setMessage(null);
+      setIsSubmitting(true);
       
-      // Sign up with email and password
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        }
-      });
-      
-      if (error) {
-        throw new Error(error.message);
-      }
+      // Use auth context to sign up
+      const result = await signUp(email, password);
       
       setMessage({ 
         type: 'success', 
@@ -59,6 +47,7 @@ export default function RegisterForm() {
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+      setIsSubmitting(false);
       
     } catch (error) {
       console.error('Registration error:', error);
@@ -66,10 +55,12 @@ export default function RegisterForm() {
         type: 'error', 
         text: error instanceof Error ? error.message : 'An unexpected error occurred' 
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // Display auth error from context if present
+  const displayError = message || (authError ? { type: 'error', text: authError } : null);
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
@@ -79,9 +70,9 @@ export default function RegisterForm() {
           <p className="mt-2 text-gray-600">Sign up with your email and password</p>
         </div>
         
-        {message && (
-          <div className={`p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-            {message.text}
+        {displayError && (
+          <div className={`p-4 rounded-md ${displayError.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+            {displayError.text}
           </div>
         )}
         
