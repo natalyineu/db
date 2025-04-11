@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Session, User, AuthError } from '@supabase/supabase-js';
 import { useSupabase } from '../supabase/client-provider';
@@ -35,10 +35,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const supabase = useSupabase();
   const router = useRouter();
+  
+  // Ref to track if a profile fetch is in progress
+  const isFetchingProfile = useRef(false);
+  // Ref to track last fetch time to prevent rapid requests
+  const lastFetchTime = useRef(0);
 
-  // Define fetchUserProfile at the component level so it's accessible to all functions
-  const fetchUserProfile = async (userId: string) => {
+  // Define fetchUserProfile with useCallback to prevent recreation on every render
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    // Prevent concurrent fetches and rate limit to no more than once per second
+    const now = Date.now();
+    if (isFetchingProfile.current || (now - lastFetchTime.current < 1000)) {
+      if (DEBUG) console.log('Skipping profile fetch - already in progress or too soon');
+      return;
+    }
+    
     try {
+      isFetchingProfile.current = true;
+      lastFetchTime.current = now;
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -60,11 +75,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       if (DEBUG) console.error('Error fetching profile:', error);
       setProfile(null);
+    } finally {
+      isFetchingProfile.current = false;
     }
-  };
+  }, [supabase]);
 
   // Initialize auth state
   useEffect(() => {
+    let mounted = true; // Track if component is mounted
+    
     const initializeAuth = async () => {
       try {
         setIsLoading(true);
@@ -76,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw error;
         }
         
-        if (session) {
+        if (session && mounted) {
           setSession(session);
           setUser(session.user);
           
@@ -85,9 +104,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         if (DEBUG) console.error('Error initializing auth:', error);
-        setError(error instanceof Error ? error.message : 'Authentication error');
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'Authentication error');
+        }
       } finally {
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -98,25 +121,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, session) => {
         if (DEBUG) console.log('Auth state changed:', event);
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchUserProfile(session.user.id);
-        } else {
-          setProfile(null);
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchUserProfile(session.user.id);
+          } else {
+            setProfile(null);
+          }
         }
       }
     );
 
     // Clean up subscription on unmount
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase, fetchUserProfile]); // Add fetchUserProfile to dependencies
+  }, [supabase, fetchUserProfile]);
 
   // Ensure user profile exists for authenticated users
-  const ensureUserProfile = async (userId: string, email: string, accessToken: string) => {
+  const ensureUserProfile = useCallback(async (userId: string, email: string, accessToken: string) => {
     try {
       const response = await fetch('/api/ensure-profile', {
         method: 'POST',
@@ -130,19 +156,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (DEBUG) console.error('Failed to ensure user profile:', await response.text());
       }
       
-      // Refresh profile after ensuring it exists
-      await fetchUserProfile(userId);
+      // Refresh profile after ensuring it exists, but only if not already fetching
+      if (!isFetchingProfile.current) {
+        await fetchUserProfile(userId);
+      }
     } catch (error) {
       if (DEBUG) console.error('Error ensuring user profile:', error);
     }
-  };
+  }, [fetchUserProfile]);
 
   // Refresh the user profile
-  const refreshProfile = async () => {
-    if (user?.id) {
+  const refreshProfile = useCallback(async () => {
+    if (user?.id && !isFetchingProfile.current) {
       await fetchUserProfile(user.id);
     }
-  };
+  }, [user, fetchUserProfile]);
 
   // Sign in with email and password
   const signIn = async (email: string, password: string) => {

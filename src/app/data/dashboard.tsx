@@ -1,15 +1,38 @@
 "use client";
 
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
 
+// Only log in development
+const DEBUG = process.env.NODE_ENV !== 'production';
+
 export default function Dashboard() {
-  const { profile, signOut, isLoading } = useAuth();
+  const { profile, signOut, isLoading, refreshProfile, error: authError } = useAuth();
+  const [retryCount, setRetryCount] = useState(0);
   const router = useRouter();
+
+  // If profile is missing but we're authenticated, retry a few times
+  useEffect(() => {
+    if (!isLoading && !profile && retryCount < 3) {
+      const timer = setTimeout(() => {
+        if (DEBUG) console.log(`Retrying profile fetch (attempt ${retryCount + 1}/3)`);
+        refreshProfile();
+        setRetryCount(prev => prev + 1);
+      }, 1000 * (retryCount + 1)); // Exponential backoff
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, profile, refreshProfile, retryCount]);
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/');
+  };
+
+  const handleRetry = () => {
+    setRetryCount(0);
+    refreshProfile();
   };
 
   if (isLoading) {
@@ -28,12 +51,23 @@ export default function Dashboard() {
         <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-lg shadow-md">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-red-600">Error</h1>
-            <p className="mt-2 text-gray-600">Unable to load profile data</p>
+            <p className="mt-2 text-gray-600">
+              {authError || "Unable to load profile data"}
+            </p>
+            <p className="mt-1 text-sm text-gray-500">
+              {retryCount >= 3 ? 'Maximum retry attempts reached.' : ''}
+            </p>
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={handleRetry}
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Retry
+            </button>
             <button
               onClick={() => router.push('/login')}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               Back to Login
             </button>
