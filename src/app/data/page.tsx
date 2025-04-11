@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Dashboard from './dashboard';
 import { useAuth } from '@/lib/auth/auth-context';
+import './loading-animation.css';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -101,10 +102,25 @@ export default function DataPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center">
-        <p className="text-lg text-gray-600">Loading dashboard...</p>
-        <p className="text-sm text-gray-500 mt-2">
-          Verifying your account...
-        </p>
+        {/* Custom animated loading spinner */}
+        <div className="loading-spinner mb-6 float-animation">
+          <div className="inner one"></div>
+          <div className="inner two"></div>
+        </div>
+        
+        {/* Animated text */}
+        <p className="text-lg text-gray-600 float-animation delay-100">Loading dashboard</p>
+        <div className="mt-4 flex items-center justify-center">
+          <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
+                  pulse-border-animation flex items-center">
+            <span>Verifying your account</span>
+            <span className="ml-1 inline-flex">
+              <span className="animate-bounce mx-0.5">.</span>
+              <span className="animate-bounce mx-0.5 delay-100">.</span>
+              <span className="animate-bounce mx-0.5 delay-200">.</span>
+            </span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -139,8 +155,19 @@ export default function DataPage() {
   // If not authenticated, show redirecting message
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex justify-center items-center">
-        <p className="text-lg text-gray-600">Redirecting to login...</p>
+      <div className="min-h-screen flex flex-col justify-center items-center">
+        <div className="loading-spinner mb-6 float-animation">
+          <div className="inner one"></div>
+        </div>
+        <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
+                pulse-border-animation flex items-center">
+          <span>Redirecting to login</span>
+          <span className="ml-1 inline-flex">
+            <span className="animate-bounce mx-0.5">.</span>
+            <span className="animate-bounce mx-0.5 delay-100">.</span>
+            <span className="animate-bounce mx-0.5 delay-200">.</span>
+          </span>
+        </div>
       </div>
     );
   }

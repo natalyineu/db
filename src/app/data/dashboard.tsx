@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
+import './loading-animation.css';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -128,9 +129,28 @@ export default function Dashboard() {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <div className="text-center">
-          <p className="text-lg text-gray-600">Loading dashboard...</p>
+          {/* Custom animated loading spinner */}
+          <div className="loading-spinner mb-6 float-animation">
+            <div className="inner one"></div>
+            <div className="inner two"></div>
+          </div>
+          
+          {/* Animated text */}
+          <p className="text-lg text-gray-600 float-animation delay-100">Loading your dashboard</p>
+          <div className="mt-4 flex items-center justify-center">
+            <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
+                      pulse-border-animation flex items-center">
+              <span>Verifying your account</span>
+              <span className="ml-1 inline-flex">
+                <span className="animate-bounce mx-0.5">.</span>
+                <span className="animate-bounce mx-0.5 delay-100">.</span>
+                <span className="animate-bounce mx-0.5 delay-200">.</span>
+              </span>
+            </div>
+          </div>
+          
           {retryCount > 0 && (
-            <p className="mt-2 text-sm text-gray-500">Attempt {retryCount}/3...</p>
+            <p className="mt-4 text-sm text-gray-500">Attempt {retryCount}/3</p>
           )}
         </div>
       </main>
