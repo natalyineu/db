@@ -54,27 +54,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isFetchingProfile.current = true;
       lastFetchTime.current = now;
       
+      // Set a timeout to abort if the request takes too long
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), 5000); // 5 second timeout
+      
+      if (DEBUG) console.log('Fetching profile for user:', userId);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
 
+      clearTimeout(timeoutId);
+
       if (error) {
         throw error;
       }
 
-      if (data) {
-        setProfile({
-          id: data.id,
-          email: data.email,
-          created_at: data.created_at,
-          updated_at: data.updated_at
-        });
+      if (!data) {
+        throw new Error('No profile data found');
       }
+
+      if (DEBUG) console.log('Profile fetched successfully:', data.email);
+
+      setProfile({
+        id: data.id,
+        email: data.email,
+        created_at: data.created_at,
+        updated_at: data.updated_at
+      });
     } catch (error) {
       if (DEBUG) console.error('Error fetching profile:', error);
       setProfile(null);
+      
+      // Set an error message for profile fetch failure
+      if (error instanceof Error) {
+        setError(`Failed to load profile: ${error.message}`);
+      } else {
+        setError('Failed to load profile data');
+      }
     } finally {
       isFetchingProfile.current = false;
     }
@@ -83,10 +102,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth state
   useEffect(() => {
     let mounted = true; // Track if component is mounted
+    let initTimer: NodeJS.Timeout | null = null;
     
     const initializeAuth = async () => {
       try {
-        setIsLoading(true);
+        if (mounted) setIsLoading(true);
+        
+        if (DEBUG) console.log('Initializing auth context');
         
         // Get current session
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -95,21 +117,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           throw error;
         }
         
-        if (session && mounted) {
+        if (!mounted) return;
+        
+        if (session) {
+          if (DEBUG) console.log('Session found, user:', session.user.email);
           setSession(session);
           setUser(session.user);
           
           // Fetch user profile
           await fetchUserProfile(session.user.id);
+        } else {
+          if (DEBUG) console.log('No session found');
+          setSession(null);
+          setUser(null);
+          setProfile(null);
         }
       } catch (error) {
+        if (!mounted) return;
+        
         if (DEBUG) console.error('Error initializing auth:', error);
-        if (mounted) {
-          setError(error instanceof Error ? error.message : 'Authentication error');
-        }
+        setError(error instanceof Error ? error.message : 'Authentication error');
       } finally {
         if (mounted) {
-          setIsLoading(false);
+          // Ensure isLoading is set to false regardless of outcome
+          initTimer = setTimeout(() => {
+            if (mounted) setIsLoading(false);
+          }, 100); // Small delay to allow state updates to propagate
         }
       }
     };
@@ -119,17 +152,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+        
         if (DEBUG) console.log('Auth state changed:', event);
         
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchUserProfile(session.user.id);
-          } else {
-            setProfile(null);
-          }
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserProfile(session.user.id);
+        } else {
+          setProfile(null);
         }
       }
     );
@@ -137,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Clean up subscription on unmount
     return () => {
       mounted = false;
+      if (initTimer) clearTimeout(initTimer);
       subscription.unsubscribe();
     };
   }, [supabase, fetchUserProfile]);
