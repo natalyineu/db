@@ -1,0 +1,37 @@
+name: API Deployment
+
+on:
+  # Only manual trigger
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create deployment via API
+        run: |
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/Cryptotechno/db/deployments \
+            -d '{
+              "ref": "5e33ff6ad54c58c52b76147b5f5243f37db13b99",
+              "environment": "production",
+              "description": "Deployment of AI-Vertise branding",
+              "auto_merge": false
+            }'
+            
+      - name: Create deployment status
+        run: |
+          # Get the latest deployment ID
+          DEPLOYMENT_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/Cryptotechno/db/deployments?environment=production&per_page=1" | jq -r '.[0].id')
+            
+          # Update the deployment status to success
+          curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/Cryptotechno/db/deployments/$DEPLOYMENT_ID/statuses" \
+            -d '{
+              "state": "success",
+              "environment_url": "https://data-tau-lac.vercel.app"
+            }' 
