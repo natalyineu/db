@@ -58,7 +58,8 @@ export class ProfileService {
             id: data.id as string,
             email: data.email as string,
             created_at: data.created_at as string,
-            updated_at: data.updated_at as string | undefined
+            updated_at: data.updated_at as string | undefined,
+            status: data.status as string | undefined
           };
           
           // Cache the profile
@@ -183,7 +184,8 @@ export class ProfileService {
         id: profileData.id as string,
         email: profileData.email as string,
         created_at: profileData.created_at as string,
-        updated_at: profileData.updated_at as string | undefined
+        updated_at: profileData.updated_at as string | undefined,
+        status: profileData.status as string | undefined
       };
     } catch (error) {
       throw captureError(error, 'ProfileService.fetchProfileDirectly');

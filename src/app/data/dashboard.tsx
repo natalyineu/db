@@ -84,7 +84,8 @@ export default function Dashboard() {
               id: profileData.id,
               email: profileData.email || user.email || 'user@example.com',
               created_at: profileData.created_at || new Date().toISOString(),
-              updated_at: profileData.updated_at
+              updated_at: profileData.updated_at,
+              status: profileData.status
             };
             
             // Set as local component state since we can't update auth context
@@ -188,6 +189,20 @@ export default function Dashboard() {
                   <span className="text-sm font-medium text-gray-500">Email:</span>
                   <span className="text-sm text-gray-900">{displayProfile.email}</span>
                 </div>
+                {displayProfile.status && (
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium text-gray-500">Status:</span>
+                    <span className={`text-sm px-2 py-1 rounded-full ${
+                      displayProfile.status === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : displayProfile.status === 'pending' 
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {displayProfile.status.charAt(0).toUpperCase() + displayProfile.status.slice(1)}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">Account Created:</span>
                   <span className="text-sm text-gray-900">

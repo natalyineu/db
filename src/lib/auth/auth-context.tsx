@@ -129,7 +129,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: newData.id,
           email: newData.email,
           created_at: newData.created_at,
-          updated_at: newData.updated_at
+          updated_at: newData.updated_at,
+          status: newData.status
         });
       } else {
         if (DEBUG) console.log('Profile fetched successfully:', data.email);
@@ -138,7 +139,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: data.id,
           email: data.email,
           created_at: data.created_at,
-          updated_at: data.updated_at
+          updated_at: data.updated_at,
+          status: data.status
         });
       }
       

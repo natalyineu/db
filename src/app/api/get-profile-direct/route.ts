@@ -52,7 +52,8 @@ export async function GET(request: NextRequest) {
         id: data.id,
         email: data.email,
         created_at: data.created_at,
-        updated_at: data.updated_at
+        updated_at: data.updated_at,
+        status: data.status
       }
     });
   } catch (error) {
