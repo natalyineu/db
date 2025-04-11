@@ -54,36 +54,90 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isFetchingProfile.current = true;
       lastFetchTime.current = now;
       
-      // Set a timeout to abort if the request takes too long
-      const abortController = new AbortController();
-      const timeoutId = setTimeout(() => abortController.abort(), 5000); // 5 second timeout
-      
       if (DEBUG) console.log('Fetching profile for user:', userId);
       
-      const { data, error } = await supabase
+      // Direct database query with explicit headers and timeout
+      const fetchPromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-
-      clearTimeout(timeoutId);
-
+      
+      // Set up a race with a timeout promise
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Profile fetch timed out after 5 seconds')), 5000);
+      });
+      
+      // Race the fetch against the timeout
+      const { data, error } = await Promise.race([
+        fetchPromise,
+        timeoutPromise.then(() => { throw new Error('Fetch timed out'); })
+      ]) as any;
+      
       if (error) {
         throw error;
       }
 
       if (!data) {
-        throw new Error('No profile data found');
+        // Create profile if it doesn't exist
+        if (DEBUG) console.log('No profile found, attempting to create one');
+        
+        // Get session for token
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          throw new Error('No active session found when trying to create profile');
+        }
+        
+        // Call API to ensure profile
+        const response = await fetch('/api/ensure-profile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`
+          }
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to create profile: ${errorText}`);
+        }
+        
+        // Try fetching again after creating
+        const { data: newData, error: newError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+          
+        if (newError) {
+          throw newError;
+        }
+        
+        if (!newData) {
+          throw new Error('Profile could not be created or fetched');
+        }
+        
+        if (DEBUG) console.log('Profile created and fetched successfully:', newData.email);
+        
+        setProfile({
+          id: newData.id,
+          email: newData.email,
+          created_at: newData.created_at,
+          updated_at: newData.updated_at
+        });
+      } else {
+        if (DEBUG) console.log('Profile fetched successfully:', data.email);
+        
+        setProfile({
+          id: data.id,
+          email: data.email,
+          created_at: data.created_at,
+          updated_at: data.updated_at
+        });
       }
-
-      if (DEBUG) console.log('Profile fetched successfully:', data.email);
-
-      setProfile({
-        id: data.id,
-        email: data.email,
-        created_at: data.created_at,
-        updated_at: data.updated_at
-      });
+      
+      // Clear any previous errors
+      setError(null);
     } catch (error) {
       if (DEBUG) console.error('Error fetching profile:', error);
       setProfile(null);
@@ -110,38 +164,82 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (DEBUG) console.log('Initializing auth context');
         
-        // Get current session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          throw error;
-        }
-        
-        if (!mounted) return;
-        
-        if (session) {
-          if (DEBUG) console.log('Session found, user:', session.user.email);
-          setSession(session);
-          setUser(session.user);
+        // Get current session with explicit error handling
+        try {
+          const { data, error } = await supabase.auth.getSession();
           
-          // Fetch user profile
-          await fetchUserProfile(session.user.id);
-        } else {
-          if (DEBUG) console.log('No session found');
-          setSession(null);
-          setUser(null);
-          setProfile(null);
+          if (error) {
+            throw error;
+          }
+          
+          if (!mounted) return;
+          
+          const session = data.session;
+          
+          if (session && session.user) {
+            if (DEBUG) console.log('Valid session found, user:', session.user.email);
+            setSession(session);
+            setUser(session.user);
+            
+            // Fetch user profile if we have a valid user ID
+            await fetchUserProfile(session.user.id);
+          } else {
+            if (DEBUG) console.log('No valid session found');
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+          }
+        } catch (sessionError) {
+          if (DEBUG) console.error('Error getting session:', sessionError);
+          
+          // Try refreshing the session if it failed
+          try {
+            const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+            
+            if (refreshError) {
+              throw refreshError;
+            }
+            
+            if (!mounted) return;
+            
+            const refreshedSession = refreshData.session;
+            
+            if (refreshedSession && refreshedSession.user) {
+              if (DEBUG) console.log('Session refreshed successfully, user:', refreshedSession.user.email);
+              setSession(refreshedSession);
+              setUser(refreshedSession.user);
+              
+              // Fetch user profile with refreshed session
+              await fetchUserProfile(refreshedSession.user.id);
+            } else {
+              if (DEBUG) console.log('No valid session after refresh');
+              setSession(null);
+              setUser(null);
+              setProfile(null);
+            }
+          } catch (refreshError) {
+            if (DEBUG) console.error('Failed to refresh session:', refreshError);
+            throw refreshError;
+          }
         }
       } catch (error) {
         if (!mounted) return;
         
         if (DEBUG) console.error('Error initializing auth:', error);
         setError(error instanceof Error ? error.message : 'Authentication error');
+        
+        // Clear auth state on errors
+        setSession(null);
+        setUser(null);
+        setProfile(null);
       } finally {
         if (mounted) {
           // Ensure isLoading is set to false regardless of outcome
           initTimer = setTimeout(() => {
-            if (mounted) setIsLoading(false);
+            if (mounted) {
+              setIsLoading(false);
+              if (DEBUG) console.log('Auth initialization complete, loading state set to false');
+            }
           }, 100); // Small delay to allow state updates to propagate
         }
       }

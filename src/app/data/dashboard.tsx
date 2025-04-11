@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [retryCount, setRetryCount] = useState(0);
   const [localLoading, setLocalLoading] = useState(true);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [localProfile, setLocalProfile] = useState<any>(null);
   const router = useRouter();
 
   // Log authentication state changes for debugging
@@ -54,9 +55,53 @@ export default function Dashboard() {
     
     // If we've retried 3 times and still no profile, show error
     if (!isLoading && isAuthenticated && !profile && retryCount >= 3) {
+      if (DEBUG) console.log('Maximum retry attempts reached, showing error');
       setLocalError('Unable to load your profile after multiple attempts. Please try again later.');
+      
+      // Direct profile fetch attempt
+      if (user) {
+        if (DEBUG) console.log('Making direct database call to profiles table');
+        
+        // Use browser fetch directly instead of Supabase client
+        fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+          }
+        })
+        .then(response => {
+          if (!response.ok) throw new Error(`Profile fetch failed: ${response.statusText}`);
+          return response.json();
+        })
+        .then(data => {
+          if (DEBUG) console.log('Direct profile fetch result:', data);
+          if (data && data.length > 0) {
+            const profileData = data[0];
+            // Create local profile state since the auth context is having issues
+            const userProfile = {
+              id: profileData.id,
+              email: profileData.email || user.email || 'user@example.com',
+              created_at: profileData.created_at || new Date().toISOString(),
+              updated_at: profileData.updated_at
+            };
+            
+            // Set as local component state since we can't update auth context
+            setLocalProfile(userProfile);
+            setLocalError(null);
+            setLocalLoading(false);
+            
+            if (DEBUG) console.log('Created local profile state:', userProfile);
+          }
+        })
+        .catch(error => {
+          if (DEBUG) console.error('Direct profile fetch error:', error);
+          setLocalError(`Profile fetch error: ${error.message}`);
+        });
+      }
     }
-  }, [isLoading, isAuthenticated, profile, refreshProfile, retryCount]);
+  }, [isLoading, isAuthenticated, profile, user, refreshProfile, retryCount]);
 
   const handleSignOut = async () => {
     try {
@@ -92,7 +137,7 @@ export default function Dashboard() {
   }
 
   // Show error state if we have an error or no profile
-  if (localError || authError || (!profile && isAuthenticated)) {
+  if (localError || authError || (!profile && !localProfile && isAuthenticated && !isLoading && !localLoading)) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-lg shadow-md">
@@ -124,8 +169,9 @@ export default function Dashboard() {
     );
   }
 
-  // Show dashboard if we have profile data
-  if (profile) {
+  // Show dashboard if we have profile data (either from auth context or local state)
+  const displayProfile = profile || localProfile;
+  if (displayProfile) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
         <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
@@ -140,19 +186,19 @@ export default function Dashboard() {
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">Email:</span>
-                  <span className="text-sm text-gray-900">{profile.email}</span>
+                  <span className="text-sm text-gray-900">{displayProfile.email}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">Account Created:</span>
                   <span className="text-sm text-gray-900">
-                    {new Date(profile.created_at).toLocaleDateString()}
+                    {new Date(displayProfile.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                {profile.updated_at && (
+                {displayProfile.updated_at && (
                   <div className="flex justify-between">
                     <span className="text-sm font-medium text-gray-500">Last Updated:</span>
                     <span className="text-sm text-gray-900">
-                      {new Date(profile.updated_at).toLocaleDateString()}
+                      {new Date(displayProfile.updated_at).toLocaleDateString()}
                     </span>
                   </div>
                 )}

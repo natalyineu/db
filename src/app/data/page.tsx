@@ -42,16 +42,51 @@ export default function DataPage() {
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
-    // If loading takes more than 10 seconds, redirect to login
+    // If loading takes more than 10 seconds, try a direct database approach
     const timeoutId = setTimeout(() => {
       if (isLoading) {
-        if (DEBUG) console.log('Loading timeout exceeded, redirecting to login');
-        router.push('/login');
+        if (DEBUG) console.log('Loading timeout exceeded, attempting direct database access');
+        
+        if (user) {
+          // Try to fetch profile directly
+          fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+              'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Failed to fetch profile directly');
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (DEBUG) console.log('Direct profile fetch result:', data);
+            // If profile exists, we can proceed to dashboard
+            if (data && data.length > 0) {
+              // Loading is done but we'll let the dashboard handle displaying the data
+              
+            } else {
+              // No profile found, redirect to login
+              router.push('/login');
+            }
+          })
+          .catch(err => {
+            if (DEBUG) console.error('Direct fetch error:', err);
+            // Redirect to login on error
+            router.push('/login');
+          });
+        } else {
+          router.push('/login');
+        }
       }
-    }, 10000);
+    }, 8000);
     
     return () => clearTimeout(timeoutId);
-  }, [isLoading, router]);
+  }, [isLoading, router, user]);
 
   // While checking authentication
   if (isLoading) {
