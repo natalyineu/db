@@ -62,21 +62,21 @@ export async function GET(request: NextRequest) {
             );
           }
           
-          // Create the missing profile
+          // Create the missing profile with numeric status (1 for active)
           const { data: newProfile, error: insertError } = await supabaseAdmin
             .from('profiles')
             .insert({
               id: userId,
               email: userData.user.email,
               created_at: new Date().toISOString(),
-              status: 'active'
+              status: 1  // Using numeric value instead of string "active"
             })
             .select();
           
           if (insertError) {
             console.error('Error creating profile:', insertError);
             return NextResponse.json(
-              { error: 'Failed to create profile' },
+              { error: 'Failed to create profile: ' + insertError.message },
               { status: 500 }
             );
           }
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
               email: newProfile[0].email,
               created_at: newProfile[0].created_at,
               updated_at: newProfile[0].updated_at,
-              status: newProfile[0].status ? String(newProfile[0].status) : undefined
+              status: newProfile[0].status !== null ? String(newProfile[0].status) : undefined
             }
           }, {
             headers: {
@@ -142,7 +142,7 @@ export async function GET(request: NextRequest) {
         email: data.email,
         created_at: data.created_at,
         updated_at: data.updated_at,
-        status: data.status ? String(data.status) : undefined
+        status: data.status !== null ? String(data.status) : undefined
       }
     }, {
       headers: {

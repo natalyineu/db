@@ -34,7 +34,7 @@ async function ensureUserProfile(userId: string, email: string) {
       id: userId,
       email: email,
       created_at: new Date().toISOString(),
-      status: 'active'
+      status: 1  // Using numeric value 1 for active status
     })
     .select();
     

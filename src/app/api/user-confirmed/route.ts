@@ -31,20 +31,21 @@ export async function POST(request: NextRequest) {
     // Create Supabase admin client with service role key
     const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-    // Create user profile in the profiles table
+    // Create user profile in the profiles table with numeric status
     const { data, error } = await supabase
       .from('profiles')
       .insert({
         id: user.id,
         email: user.email,
         created_at: new Date().toISOString(),
+        status: 1  // Using numeric value 1 for active status
       })
       .select();
 
     if (error) {
       console.error('Error creating user profile:', error);
       return NextResponse.json(
-        { error: 'Failed to create user profile.' },
+        { error: 'Failed to create user profile: ' + error.message },
         { status: 500 }
       );
     }
