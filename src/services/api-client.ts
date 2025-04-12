@@ -89,7 +89,7 @@ export async function fetchWithRetry<T>(
     return await response.json() as T;
   } catch (error) {
     if (retries <= 0) {
-      throw error;
+      throw captureError(error, `API request to ${url} failed after multiple retries`);
     }
     
     // Wait with exponential backoff before retrying

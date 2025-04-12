@@ -21,6 +21,19 @@ export class ProfileService {
   private static supabase = ApiClient.getSupabaseClient();
   
   /**
+   * Map database profile data to UserProfile type
+   */
+  private static mapProfileData(data: any): UserProfile {
+    return {
+      id: data.id as string,
+      email: data.email as string,
+      created_at: data.created_at as string,
+      updated_at: data.updated_at as string | undefined,
+      status: data.status ? String(data.status) : undefined
+    };
+  }
+  
+  /**
    * Fetch a user profile by ID
    */
   static async getProfile(userId: string): Promise<UserProfile | null> {
@@ -54,13 +67,7 @@ export class ProfileService {
           
           if (DEBUG) console.log('ProfileService: Profile fetched successfully');
           
-          const profile = {
-            id: data.id as string,
-            email: data.email as string,
-            created_at: data.created_at as string,
-            updated_at: data.updated_at as string | undefined,
-            status: data.status ? String(data.status) : undefined
-          };
+          const profile = this.mapProfileData(data);
           
           // Cache the profile
           profileCache.set(userId, {
@@ -178,15 +185,7 @@ export class ProfileService {
         return null;
       }
       
-      const profileData = data[0];
-      
-      return {
-        id: profileData.id as string,
-        email: profileData.email as string,
-        created_at: profileData.created_at as string,
-        updated_at: profileData.updated_at as string | undefined,
-        status: profileData.status ? String(profileData.status) : undefined
-      };
+      return this.mapProfileData(data[0]);
     } catch (error) {
       throw captureError(error, 'ProfileService.fetchProfileDirectly');
     }

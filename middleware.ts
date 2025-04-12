@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // For development and debugging - only enable in development environment
-const BYPASS_AUTH = false;
+const BYPASS_AUTH = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true' ? true : false;
 const DEBUG = process.env.NODE_ENV !== 'production';
 
 export async function middleware(req: NextRequest) {

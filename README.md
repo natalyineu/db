@@ -116,3 +116,10 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 - For production use, add additional security measures and data validation
 - Consider implementing a more robust error handling system
 - Add user profile customization options
+
+## Recent Improvements
+
+- **Improved Error Handling**: Enhanced error handling with contextual error objects that preserve stack traces and original errors
+- **Code Reusability**: Reduced code duplication in profile mapping with utility functions
+- **Environment Variables**: Added environment variable control for auth bypass in development mode with `NEXT_PUBLIC_BYPASS_AUTH`
+- **Consistent Error Handling**: Standardized error handling across API client and services

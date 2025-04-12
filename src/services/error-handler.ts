@@ -12,12 +12,30 @@ export function formatError(error: unknown): string {
 }
 
 /**
+ * Custom error type that includes the original error
+ */
+export class ContextualError extends Error {
+  originalError: unknown;
+  
+  constructor(message: string, originalError: unknown) {
+    super(message);
+    this.name = 'ContextualError';
+    this.originalError = originalError;
+    
+    // Preserve the original stack if possible
+    if (originalError instanceof Error && originalError.stack) {
+      this.stack = originalError.stack;
+    }
+  }
+}
+
+/**
  * Capture and process an error 
  * Can be expanded to send errors to a monitoring service
  */
 export function captureError(error: unknown, context: string): Error {
   const errorMessage = formatError(error);
-  const contextualError = new Error(`${context}: ${errorMessage}`);
+  const contextualError = new ContextualError(`${context}: ${errorMessage}`, error);
   
   // Log error in development
   if (DEBUG) {
