@@ -5,7 +5,9 @@ import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import './loading-animation.css';
 import { formatDate, formatProfileField } from '@/utils';
-import { RobotLoader, ErrorDisplay } from '@/components/ui';
+import { RobotLoader, ErrorDisplay, CampaignList } from '@/components/ui';
+import { CampaignService } from '@/services/campaign-service';
+import type { Campaign } from '@/types';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -67,6 +69,8 @@ export default function Dashboard() {
   const [localProfile, setLocalProfile] = useState<any>(null);
   const [animateIn, setAnimateIn] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
+  const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
+  const [campaignsLoading, setCampaignsLoading] = useState(true);
   const router = useRouter();
 
   // Memoized profile for display
@@ -225,6 +229,28 @@ export default function Dashboard() {
     setTimeout(() => setLocalLoading(false), 500);
   }, [refreshProfile]);
 
+  // Fetch campaigns
+  const fetchCampaigns = useCallback(async (userId: string) => {
+    if (!userId) return;
+    
+    try {
+      setCampaignsLoading(true);
+      const campaigns = await CampaignService.getCampaignsByUserId(userId);
+      setCampaigns(campaigns);
+    } catch (error) {
+      if (DEBUG) console.error('Failed to fetch campaigns:', error);
+    } finally {
+      setCampaignsLoading(false);
+    }
+  }, []);
+
+  // Fetch campaigns when user is available
+  useEffect(() => {
+    if (user?.id) {
+      fetchCampaigns(user.id);
+    }
+  }, [user, fetchCampaigns]);
+
   // Show loading state
   if (isLoading || localLoading) {
     return (
@@ -273,8 +299,11 @@ export default function Dashboard() {
             <ProfileInfo profile={displayProfile} />
           </section>
           
-          {/* The rest of the sections remain unchanged */}
-          {/* ... existing dashboard content ... */}
+          {/* Campaigns Section */}
+          <section className={`bg-white rounded-xl p-6 shadow-sm transform transition-all duration-500 ease-out ${animateIn && activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Campaigns</h2>
+            <CampaignList campaigns={campaigns} isLoading={campaignsLoading} />
+          </section>
         </div>
       </main>
     );

@@ -31,3 +31,27 @@ export type ErrorResponse = {
   code: string;
   message: string;
 } 
+
+export interface CampaignAsset {
+  id: string;
+  campaign_id: string;
+  url: string;  // Required, default to google.com
+  drive_link?: string;  // Optional Google Drive link
+  notes?: string;  // Optional comments/notes
+  created_at: string;
+  updated_at?: string;
+}
+
+export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
+
+export interface Campaign {
+  id: string;
+  name: string;
+  status: CampaignStatus;
+  created_at: string;
+  updated_at?: string;
+  start_date?: string;
+  end_date?: string;
+  user_id: string;
+  assets?: CampaignAsset[];
+} 
