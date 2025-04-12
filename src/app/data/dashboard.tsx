@@ -245,7 +245,9 @@ export default function Dashboard() {
     
     try {
       setCampaignsLoading(true);
+      if (DEBUG) console.log(`Fetching campaigns for user ${userId}`);
       const campaigns = await CampaignService.getCampaignsByUserId(userId);
+      if (DEBUG) console.log(`Fetched ${campaigns.length} campaigns`);
       setCampaigns(campaigns);
     } catch (error) {
       if (DEBUG) console.error('Failed to fetch campaigns:', error);
@@ -257,7 +259,10 @@ export default function Dashboard() {
   // Fetch campaigns when user is available
   useEffect(() => {
     if (user?.id) {
+      if (DEBUG) console.log(`User ID available, fetching campaigns: ${user.id}`);
       fetchCampaigns(user.id);
+    } else {
+      if (DEBUG) console.log('No user ID available for fetching campaigns');
     }
   }, [user, fetchCampaigns]);
 
@@ -310,7 +315,7 @@ export default function Dashboard() {
           </section>
           
           {/* Campaigns Section */}
-          <section className="bg-white rounded-xl p-6 shadow-sm">
+          <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Campaigns</h2>
             {user && (
               <CreateCampaignButton 
