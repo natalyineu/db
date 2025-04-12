@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import './loading-animation.css';
 import { formatDate, formatProfileField } from '@/utils';
-import { RobotLoader, ErrorDisplay, CampaignList } from '@/components/ui';
+import { RobotLoader, ErrorDisplay, CampaignList, CreateCampaignButton } from '@/components/ui';
 import { CampaignService } from '@/services/campaign-service';
 import type { Campaign } from '@/types';
 
@@ -312,7 +312,17 @@ export default function Dashboard() {
           {/* Campaigns Section */}
           <section className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Campaigns</h2>
-            <CampaignList campaigns={campaigns} isLoading={campaignsLoading} />
+            {user && (
+              <CreateCampaignButton 
+                userId={user.id} 
+                onCampaignCreated={() => fetchCampaigns(user.id)} 
+              />
+            )}
+            <CampaignList 
+              campaigns={campaigns} 
+              isLoading={campaignsLoading} 
+              onRefreshNeeded={() => user && fetchCampaigns(user.id)}
+            />
           </section>
         </div>
       </main>

@@ -1,6 +1,8 @@
-import { useState, memo } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { Campaign, CampaignStatus } from '@/types';
 import { formatDate } from '@/utils';
+import { AddCampaignAsset } from '@/components/ui';
+import { CampaignService } from '@/services/campaign-service';
 
 type CampaignStatusBadgeProps = {
   status: CampaignStatus;
@@ -76,8 +78,24 @@ const CampaignAssetItem = memo(({ url, drive_link, notes }: {
 CampaignAssetItem.displayName = 'CampaignAssetItem';
 
 // Campaign item component
-const CampaignItem = memo(({ campaign }: { campaign: Campaign }) => {
+const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdate: () => void }) => {
   const [showAssets, setShowAssets] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  
+  const handleAssetAdded = useCallback(async () => {
+    setRefreshing(true);
+    
+    try {
+      // Refresh campaign data to show the new asset
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error('Error refreshing campaign data:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [onUpdate]);
   
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-4">
@@ -89,18 +107,26 @@ const CampaignItem = memo(({ campaign }: { campaign: Campaign }) => {
         <CampaignStatusBadge status={campaign.status} />
       </div>
       
-      <div className="mt-4">
+      <div className="mt-4 flex items-center">
         <button
           onClick={() => setShowAssets(!showAssets)}
           className="text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none"
         >
           {showAssets ? 'Hide Assets' : 'Show Assets'}
         </button>
+        
+        {refreshing && (
+          <span className="ml-3 text-xs text-gray-500">Refreshing...</span>
+        )}
       </div>
       
       {showAssets && (
         <div className="mt-4 border-t border-gray-200 pt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">Campaign Assets</h4>
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="text-sm font-medium text-gray-700">Campaign Assets</h4>
+            <AddCampaignAsset campaignId={campaign.id} onAssetAdded={handleAssetAdded} />
+          </div>
+          
           {campaign.assets && campaign.assets.length > 0 ? (
             campaign.assets.map(asset => (
               <CampaignAssetItem 
@@ -121,7 +147,21 @@ const CampaignItem = memo(({ campaign }: { campaign: Campaign }) => {
 CampaignItem.displayName = 'CampaignItem';
 
 // Main campaign list component
-const CampaignList = ({ campaigns, isLoading }: { campaigns: Campaign[] | null; isLoading: boolean }) => {
+const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: { 
+  campaigns: Campaign[] | null; 
+  isLoading: boolean;
+  onRefreshNeeded?: () => void;
+}) => {
+  const [refreshKey, setRefreshKey] = useState(0);
+  
+  const handleCampaignUpdate = useCallback(() => {
+    // Trigger a refresh in the parent component via prop
+    setRefreshKey(prev => prev + 1);
+    if (onRefreshNeeded) {
+      onRefreshNeeded();
+    }
+  }, [onRefreshNeeded]);
+  
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -144,7 +184,11 @@ const CampaignList = ({ campaigns, isLoading }: { campaigns: Campaign[] | null; 
   return (
     <div className="space-y-4">
       {campaigns.map(campaign => (
-        <CampaignItem key={campaign.id} campaign={campaign} />
+        <CampaignItem 
+          key={`${campaign.id}-${refreshKey}`}
+          campaign={campaign} 
+          onUpdate={handleCampaignUpdate} 
+        />
       ))}
     </div>
   );
