@@ -102,24 +102,43 @@ export default function DataPage() {
   // While checking authentication
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center">
-        {/* Custom animated loading spinner */}
-        <div className="loading-spinner mb-6 float-animation">
-          <div className="inner one"></div>
-          <div className="inner two"></div>
-        </div>
-        
-        {/* Animated text */}
-        <p className="text-lg text-gray-600 float-animation delay-100">Loading dashboard</p>
-        <div className="mt-4 flex items-center justify-center">
-          <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
-                  pulse-border-animation flex items-center">
-            <span>Verifying your account</span>
-            <span className="ml-1 inline-flex">
-              <span className="animate-bounce mx-0.5">.</span>
-              <span className="animate-bounce mx-0.5 delay-100">.</span>
-              <span className="animate-bounce mx-0.5 delay-200">.</span>
-            </span>
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+        <div className="w-full max-w-md p-8">
+          {/* Robot builder animation */}
+          <div className="robot-builder-container mb-8">
+            {/* Account frame being built */}
+            <div className="account-frame"></div>
+            
+            {/* Gears */}
+            <div className="gear gear-1"></div>
+            <div className="gear gear-2"></div>
+            
+            {/* Robots */}
+            <div className="robot-left"></div>
+            <div className="robot-right"></div>
+            
+            {/* Sparks */}
+            <div className="spark spark-1"></div>
+            <div className="spark spark-2"></div>
+            <div className="spark spark-3"></div>
+          </div>
+          
+          {/* Loading text */}
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-indigo-700 mb-2">Building Your Account</h2>
+            <p className="text-gray-600 mb-4">Our robots are working on it</p>
+            
+            <div className="mt-4 flex items-center justify-center">
+              <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
+                      pulse-border-animation flex items-center">
+                <span>Setting up your dashboard</span>
+                <span className="ml-1 inline-flex">
+                  <span className="animate-bounce mx-0.5">.</span>
+                  <span className="animate-bounce mx-0.5 delay-100">.</span>
+                  <span className="animate-bounce mx-0.5 delay-200">.</span>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -156,10 +175,13 @@ export default function DataPage() {
   // If not authenticated, show redirecting message
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center">
-        <div className="loading-spinner mb-6 float-animation">
-          <div className="inner one"></div>
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+        <div className="robot-builder-container mb-8 scale-75">
+          <div className="robot-left"></div>
+          <div className="robot-right"></div>
+          <div className="spark spark-1"></div>
         </div>
+        
         <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
                 pulse-border-animation flex items-center">
           <span>Redirecting to login</span>

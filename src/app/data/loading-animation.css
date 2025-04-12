@@ -22,6 +22,31 @@
   }
 }
 
+/* Robot animation keyframes */
+@keyframes robot-move {
+  0% { transform: translateX(-20px); }
+  50% { transform: translateX(20px); }
+  100% { transform: translateX(-20px); }
+}
+
+@keyframes robot-work {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes gear-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spark {
+  0% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+}
+
 .float-animation {
   animation: float 3s ease-in-out infinite;
 }
@@ -75,4 +100,177 @@
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Robot builder animation container */
+.robot-builder-container {
+  position: relative;
+  width: 240px;
+  height: 160px;
+  margin: 0 auto;
+}
+
+/* Robot 1 - Left */
+.robot-left {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 90px;
+  background-color: #818cf8;
+  border-radius: 10px;
+  animation: robot-move 5s ease-in-out infinite;
+}
+
+.robot-left::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 15px;
+  width: 30px;
+  height: 30px;
+  background-color: #818cf8;
+  border-radius: 50%;
+  border: 2px solid #6366f1;
+}
+
+.robot-left::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 25px;
+  width: 10px;
+  height: 10px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #fff;
+  animation: robot-work 1s ease-in-out infinite;
+}
+
+/* Robot 2 - Right */
+.robot-right {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  width: 50px;
+  height: 70px;
+  background-color: #6366f1;
+  border-radius: 8px;
+  animation: robot-move 4s ease-in-out infinite reverse;
+}
+
+.robot-right::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 12px;
+  width: 25px;
+  height: 25px;
+  background-color: #6366f1;
+  border-radius: 50%;
+  border: 2px solid #818cf8;
+}
+
+.robot-right::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 8px;
+  height: 8px;
+  background-color: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #fff;
+  animation: robot-work 0.8s ease-in-out infinite;
+}
+
+/* Gear animation */
+.gear {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-color: #e2e8f0;
+  border-radius: 50%;
+  border: 3px dashed #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gear::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  background-color: #94a3b8;
+  border-radius: 50%;
+}
+
+.gear-1 {
+  top: 30px;
+  left: 50px;
+  animation: gear-spin 4s linear infinite;
+}
+
+.gear-2 {
+  top: 60px;
+  right: 60px;
+  animation: gear-spin 4s linear infinite reverse;
+}
+
+/* Spark animations */
+.spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #fbbf24;
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px #f59e0b;
+}
+
+.spark-1 {
+  top: 50px;
+  left: 100px;
+  animation: spark 2s ease-in-out infinite;
+}
+
+.spark-2 {
+  top: 70px;
+  left: 150px;
+  animation: spark 1.7s ease-in-out 0.5s infinite;
+}
+
+.spark-3 {
+  top: 90px;
+  left: 120px;
+  animation: spark 1.5s ease-in-out 1s infinite;
+}
+
+/* Digital frame to represent account being built */
+.account-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 60px;
+  border: 2px solid #6366f1;
+  border-radius: 5px;
+  background-color: rgba(99, 102, 241, 0.1);
+  overflow: hidden;
+}
+
+.account-frame::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shine 2s linear infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
 } 
