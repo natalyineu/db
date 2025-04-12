@@ -50,7 +50,28 @@ export const mapProfileData = (data: any): UserProfile => {
     email: data.email || '',
     created_at: data.created_at || new Date().toISOString(),
     updated_at: data.updated_at,
-    status: data.status ? String(data.status) : undefined
+    status: data.status ? String(data.status) : undefined,
+    
+    // Additional profile information - use empty values rather than fake data
+    first_name: data.first_name || undefined,
+    last_name: data.last_name || undefined,
+    phone: data.phone || undefined,
+    address: data.address || undefined,
+    city: data.city || undefined,
+    country: data.country || undefined,
+    postal_code: data.postal_code || undefined,
+    
+    // Preferences and settings
+    notification_preferences: data.notification_preferences || {
+      email: false,
+      sms: false,
+      push: false
+    },
+    theme_preference: data.theme_preference || 'system',
+    
+    // Activity data
+    last_login: data.last_login || undefined,
+    login_count: data.login_count || 0
   };
 };
 
@@ -65,4 +86,23 @@ export const formatDate = (dateString?: string): string => {
   } catch (e) {
     return 'Invalid date';
   }
+};
+
+/**
+ * Format profile field for display
+ */
+export const formatProfileField = (value: any): string => {
+  if (value === undefined || value === null || value === '') {
+    return 'No data';
+  }
+  
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
+  
+  if (typeof value === 'number') {
+    return value.toString();
+  }
+  
+  return String(value);
 }; 

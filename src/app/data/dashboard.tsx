@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
 import './loading-animation.css';
+import { formatDate, formatProfileField } from '@/utils/profile-utils';
+import { RobotLoader, ErrorDisplay } from '@/components/ui';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -129,48 +131,14 @@ export default function Dashboard() {
   if (isLoading || localLoading) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <div className="w-full max-w-md p-8">
-          {/* Robot builder animation */}
-          <div className="robot-builder-container mb-8">
-            {/* Account frame being built */}
-            <div className="account-frame"></div>
-            
-            {/* Gears */}
-            <div className="gear gear-1"></div>
-            <div className="gear gear-2"></div>
-            
-            {/* Robots */}
-            <div className="robot-left"></div>
-            <div className="robot-right"></div>
-            
-            {/* Sparks */}
-            <div className="spark spark-1"></div>
-            <div className="spark spark-2"></div>
-            <div className="spark spark-3"></div>
-          </div>
-          
-          {/* Loading text */}
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-indigo-700 mb-2">Loading Your Dashboard</h2>
-            <p className="text-gray-600 mb-4">Our robots are retrieving your data</p>
-            
-            <div className="mt-4 flex items-center justify-center">
-              <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
-                      pulse-border-animation flex items-center">
-                <span>Verifying your account</span>
-                <span className="ml-1 inline-flex">
-                  <span className="animate-bounce mx-0.5">.</span>
-                  <span className="animate-bounce mx-0.5 delay-100">.</span>
-                  <span className="animate-bounce mx-0.5 delay-200">.</span>
-                </span>
-              </div>
-            </div>
-            
-            {retryCount > 0 && (
-              <p className="mt-4 text-sm text-gray-500">Attempt {retryCount}/3</p>
-            )}
-          </div>
-        </div>
+        <RobotLoader 
+          title="Loading Your Dashboard"
+          subtitle="Our robots are retrieving your data"
+          message="Verifying your account"
+          showRetry={true}
+          retryCount={retryCount}
+          maxRetries={3}
+        />
       </main>
     );
   }
@@ -179,31 +147,13 @@ export default function Dashboard() {
   if (localError || authError || (!profile && !localProfile && isAuthenticated && !isLoading && !localLoading)) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <div className="w-full max-w-md p-8 space-y-4 bg-white rounded-lg shadow-md">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-red-600">Error</h1>
-            <p className="mt-2 text-gray-600">
-              {localError || authError || "Unable to load your profile data"}
-            </p>
-            <p className="mt-1 text-sm text-gray-500">
-              {retryCount >= 3 ? 'Maximum retry attempts reached.' : ''}
-            </p>
-          </div>
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={handleRetry}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Retry
-            </button>
-            <button
-              onClick={() => router.push('/login')}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Back to Login
-            </button>
-          </div>
-        </div>
+        <ErrorDisplay 
+          message={localError || authError || "Unable to load your profile data"}
+          subMessage={retryCount >= 3 ? 'Maximum retry attempts reached.' : undefined}
+          onRetry={handleRetry}
+          onBack={() => router.push('/login')}
+          backText="Back to Login"
+        />
       </main>
     );
   }
@@ -220,6 +170,7 @@ export default function Dashboard() {
           </div>
           
           <div className="mt-8 space-y-4">
+            {/* Basic Information Section */}
             <div className="border-t border-gray-200 pt-4">
               <h2 className="text-lg font-medium text-gray-900">User Information</h2>
               <div className="mt-4 space-y-2">
@@ -227,36 +178,115 @@ export default function Dashboard() {
                   <span className="text-sm font-medium text-gray-500">Email:</span>
                   <span className="text-sm text-gray-900">{displayProfile.email}</span>
                 </div>
-                {displayProfile.status && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-500">Status:</span>
-                    <span className={`text-sm px-2 py-1 rounded-full ${
-                      displayProfile.status === 'active' 
-                        ? 'bg-green-100 text-green-800' 
-                        : displayProfile.status === 'pending' 
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {typeof displayProfile.status === 'string' 
-                        ? displayProfile.status.charAt(0).toUpperCase() + displayProfile.status.slice(1)
-                        : String(displayProfile.status)}
-                    </span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Status:</span>
+                  <span className={`text-sm px-2 py-1 rounded-full ${
+                    displayProfile.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : displayProfile.status === 'pending' 
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {formatProfileField(displayProfile.status)}
+                  </span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium text-gray-500">Account Created:</span>
                   <span className="text-sm text-gray-900">
-                    {new Date(displayProfile.created_at).toLocaleDateString()}
+                    {formatDate(displayProfile.created_at)}
                   </span>
                 </div>
-                {displayProfile.updated_at && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-500">Last Updated:</span>
-                    <span className="text-sm text-gray-900">
-                      {new Date(displayProfile.updated_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                )}
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Last Updated:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatDate(displayProfile.updated_at)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Last Login:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatDate(displayProfile.last_login)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Login Count:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatProfileField(displayProfile.login_count)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Personal Information Section */}
+            <div className="border-t border-gray-200 pt-4">
+              <h2 className="text-lg font-medium text-gray-900">Personal Information</h2>
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">First Name:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.first_name)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Last Name:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.last_name)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Phone:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.phone)}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Address Information Section */}
+            <div className="border-t border-gray-200 pt-4">
+              <h2 className="text-lg font-medium text-gray-900">Address</h2>
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Address:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.address)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">City:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.city)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Country:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.country)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Postal Code:</span>
+                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.postal_code)}</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Preferences Section */}
+            <div className="border-t border-gray-200 pt-4">
+              <h2 className="text-lg font-medium text-gray-900">Preferences</h2>
+              <div className="mt-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Theme:</span>
+                  <span className="text-sm text-gray-900 capitalize">
+                    {formatProfileField(displayProfile.theme_preference)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Email Notifications:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatProfileField(displayProfile.notification_preferences?.email)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">SMS Notifications:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatProfileField(displayProfile.notification_preferences?.sms)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-500">Push Notifications:</span>
+                  <span className="text-sm text-gray-900">
+                    {formatProfileField(displayProfile.notification_preferences?.push)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
