@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth/auth-context';
+import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { FormInput, MessageDisplay } from '@/components/ui';
 

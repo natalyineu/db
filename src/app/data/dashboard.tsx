@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/lib/auth/auth-context';
+import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import './loading-animation.css';
-import { formatDate, formatProfileField } from '@/utils/profile-utils';
+import { formatDate, formatProfileField } from '@/utils';
 import { RobotLoader, ErrorDisplay } from '@/components/ui';
 
 // Only log in development

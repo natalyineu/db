@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/lib/auth/auth-context';
-import { fetchProfileDirect } from '@/utils/profile-utils';
+import { useAuth } from '@/lib/auth';
+import { fetchProfileDirect } from '@/utils';
 import { UserProfile } from '@/types';
 
 // Only log in development
