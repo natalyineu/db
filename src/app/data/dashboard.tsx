@@ -88,8 +88,8 @@ export default function Dashboard() {
       if (user) {
         if (DEBUG) console.log('Making direct database call to profiles table');
         
-        // Use browser fetch directly instead of Supabase client
-        fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+        // Use browser fetch directly instead of Supabase client - fixed query format
+        fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${user.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

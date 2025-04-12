@@ -88,6 +88,16 @@ export default function DataPage() {
     return () => clearTimeout(timeoutId);
   }, [isLoading, router, user]);
 
+  // Add a safe redirect function that works even when other state operations fail
+  const safeRedirectToLogin = () => {
+    try {
+      router.push('/login');
+    } catch (error) {
+      // Fallback to basic navigation if router fails
+      window.location.href = '/login';
+    }
+  };
+
   // Handle manual retry
   const handleRetry = async () => {
     setIsRetrying(true);
@@ -193,7 +203,7 @@ export default function DataPage() {
               {isRetrying ? 'Retrying...' : 'Retry'}
             </button>
             <button 
-              onClick={() => router.push('/login')}
+              onClick={safeRedirectToLogin}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
             >
               Back to Login

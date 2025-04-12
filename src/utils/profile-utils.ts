@@ -11,7 +11,7 @@ export const fetchProfileDirect = async (userId: string): Promise<UserProfile | 
     if (DEBUG) console.log('Direct API fetch for profile:', userId);
     
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=*`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${userId}`,
       {
         method: 'GET',
         headers: {

@@ -41,62 +41,79 @@ export async function GET(request: NextRequest) {
       
       // If the profile doesn't exist (PGRST116 is "No rows returned"), create it
       if (error.code === 'PGRST116') {
-        // Get the user to retrieve email
-        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
-        
-        if (userError) {
-          console.error('Error fetching user:', userError);
+        try {
+          // Get the user to retrieve email - fixed method call
+          const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(
+            userId
+          );
+          
+          if (userError || !userData || !userData.user) {
+            console.error('Error fetching user:', userError || 'No user data returned');
+            return NextResponse.json(
+              { error: 'Failed to fetch user data' },
+              { status: 500 }
+            );
+          }
+          
+          if (!userData.user.email) {
+            return NextResponse.json(
+              { error: 'User missing email' },
+              { status: 404 }
+            );
+          }
+          
+          // Create the missing profile
+          const { data: newProfile, error: insertError } = await supabaseAdmin
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: userData.user.email,
+              created_at: new Date().toISOString(),
+              status: 'active'
+            })
+            .select();
+          
+          if (insertError) {
+            console.error('Error creating profile:', insertError);
+            return NextResponse.json(
+              { error: 'Failed to create profile' },
+              { status: 500 }
+            );
+          }
+          
+          if (!newProfile || newProfile.length === 0) {
+            return NextResponse.json(
+              { error: 'Profile created but no data returned' },
+              { status: 500 }
+            );
+          }
+          
+          // Return the newly created profile
+          return NextResponse.json({
+            profile: {
+              id: newProfile[0].id,
+              email: newProfile[0].email,
+              created_at: newProfile[0].created_at,
+              updated_at: newProfile[0].updated_at,
+              status: newProfile[0].status ? String(newProfile[0].status) : undefined
+            }
+          }, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        } catch (createError) {
+          console.error('Error in profile creation:', createError);
           return NextResponse.json(
-            { error: 'Failed to fetch user data' },
+            { error: 'Failed to create profile: ' + (createError instanceof Error ? createError.message : 'Unknown error') },
             { status: 500 }
           );
         }
-        
-        if (!userData.user || !userData.user.email) {
-          return NextResponse.json(
-            { error: 'User not found or missing email' },
-            { status: 404 }
-          );
-        }
-        
-        // Create the missing profile
-        const { data: newProfile, error: insertError } = await supabaseAdmin
-          .from('profiles')
-          .insert({
-            id: userId,
-            email: userData.user.email,
-            created_at: new Date().toISOString(),
-            status: 'active'
-          })
-          .select();
-        
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          return NextResponse.json(
-            { error: 'Failed to create profile' },
-            { status: 500 }
-          );
-        }
-        
-        // Return the newly created profile
-        return NextResponse.json({
-          profile: {
-            id: newProfile[0].id,
-            email: newProfile[0].email,
-            created_at: newProfile[0].created_at,
-            updated_at: newProfile[0].updated_at,
-            status: newProfile[0].status ? String(newProfile[0].status) : undefined
-          }
-        }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
       }
       
       // For other errors, return error response
       return NextResponse.json(
-        { error: 'Failed to fetch profile' },
+        { error: 'Failed to fetch profile: ' + error.message },
         { 
           status: 500,
           headers: {
@@ -135,7 +152,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in get-profile-direct:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error: ' + (error instanceof Error ? error.message : 'Unknown error') },
       { 
         status: 500,
         headers: {
