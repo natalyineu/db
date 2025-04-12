@@ -300,23 +300,37 @@ export default function Dashboard() {
   // Show dashboard if we have profile data (either from auth context or local state)
   if (displayProfile) {
     return (
-      <main className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 overflow-hidden transition-opacity duration-500 ease-in-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <DashboardHeader 
-            title="Your Dashboard" 
-            userName={displayProfile.email.split('@')[0] || 'User'}
-            onSignOut={handleSignOut}
-          />
-          
-          {/* Profile Section */}
-          <section className={`mb-8 transform transition-all duration-700 delay-100 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <ProfileInfo profile={displayProfile} />
-          </section>
-          
-          {/* Campaigns Section */}
-          <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Campaigns</h2>
+      <>
+        <main className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 overflow-hidden transition-opacity duration-500 ease-in-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <DashboardHeader 
+              title="Your Dashboard" 
+              userName={displayProfile.email.split('@')[0] || 'User'}
+              onSignOut={handleSignOut}
+            />
+            
+            {/* Profile Section */}
+            <section className={`mb-8 transform transition-all duration-700 delay-100 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+              <ProfileInfo profile={displayProfile} />
+            </section>
+          </div>
+        </main>
+        
+        {/* Campaigns Section - Completely separate from animation state */}
+        <div className="w-full bg-white py-8 border-t border-gray-200">
+          <div className="max-w-6xl mx-auto px-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Campaigns</h2>
+            
+            {/* Debug info */}
+            {DEBUG && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                <p>User ID: {user?.id || 'None'}</p>
+                <p>Campaigns: {campaigns ? `${campaigns.length} found` : 'None'}</p>
+                <p>Loading: {campaignsLoading ? 'Yes' : 'No'}</p>
+              </div>
+            )}
+            
             {user && (
               <CreateCampaignButton 
                 userId={user.id} 
@@ -328,9 +342,9 @@ export default function Dashboard() {
               isLoading={campaignsLoading} 
               onRefreshNeeded={() => user && fetchCampaigns(user.id)}
             />
-          </section>
+          </div>
         </div>
-      </main>
+      </>
     );
   }
 
