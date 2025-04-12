@@ -13,6 +13,7 @@ export default function DataPage() {
   const { isAuthenticated, isLoading, user, error, refreshProfile } = useAuth();
   const [pageLoadTime] = useState(Date.now());
   const [isRetrying, setIsRetrying] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
   const router = useRouter();
 
   // Debug logging
@@ -68,15 +69,15 @@ export default function DataPage() {
           // If profile exists, we can proceed to dashboard
           if (data && data.profile) {
             // Loading is done but we'll let the dashboard handle displaying the data
+            setLocalError(null);
           } else {
-            // No profile found, redirect to login
-            router.push('/login');
+            // No profile found, set error
+            setLocalError('Profile could not be loaded');
           }
         })
         .catch(err => {
           if (DEBUG) console.error('API fetch error:', err);
-          // Redirect to login on error
-          router.push('/login');
+          setLocalError(err.message || 'Error loading profile');
         });
       } else if (isLoading) {
         // No user available, redirect to login
@@ -90,11 +91,40 @@ export default function DataPage() {
   // Handle manual retry
   const handleRetry = async () => {
     setIsRetrying(true);
+    setLocalError(null);
+    
     try {
-      await refreshProfile();
+      if (user) {
+        // Direct fetch through API
+        const response = await fetch(`/api/get-profile-direct?userId=${user.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch profile via API');
+        }
+        
+        const data = await response.json();
+        
+        if (data && data.profile) {
+          // Profile loaded, now refresh auth context
+          await refreshProfile();
+        } else {
+          throw new Error('Profile could not be loaded');
+        }
+      } else {
+        // Try to refresh profile through auth context
+        await refreshProfile();
+      }
+      
       // Wait a moment for state to update
       setTimeout(() => setIsRetrying(false), 1000);
     } catch (e) {
+      setLocalError(e instanceof Error ? e.message : 'Failed to load profile');
       setIsRetrying(false);
     }
   };
@@ -146,12 +176,14 @@ export default function DataPage() {
   }
 
   // If there's an error but not related to authentication
-  if (error && isAuthenticated) {
+  if (error || localError) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center">
         <div className="bg-red-50 p-4 rounded-md max-w-md">
           <p className="text-lg text-red-600">Error loading your account</p>
-          <p className="text-sm text-red-700 mt-2">{error}</p>
+          <p className="text-sm text-red-700 mt-2">
+            {error || localError || 'Failed to load profile data'}
+          </p>
           <div className="mt-4 flex justify-center space-x-4">
             <button 
               onClick={handleRetry}

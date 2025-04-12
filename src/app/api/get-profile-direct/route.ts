@@ -38,6 +38,63 @@ export async function GET(request: NextRequest) {
     
     if (error) {
       console.error('Error fetching profile directly:', error);
+      
+      // If the profile doesn't exist (PGRST116 is "No rows returned"), create it
+      if (error.code === 'PGRST116') {
+        // Get the user to retrieve email
+        const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(userId);
+        
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          return NextResponse.json(
+            { error: 'Failed to fetch user data' },
+            { status: 500 }
+          );
+        }
+        
+        if (!userData.user || !userData.user.email) {
+          return NextResponse.json(
+            { error: 'User not found or missing email' },
+            { status: 404 }
+          );
+        }
+        
+        // Create the missing profile
+        const { data: newProfile, error: insertError } = await supabaseAdmin
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: userData.user.email,
+            created_at: new Date().toISOString(),
+            status: 'active'
+          })
+          .select();
+        
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          return NextResponse.json(
+            { error: 'Failed to create profile' },
+            { status: 500 }
+          );
+        }
+        
+        // Return the newly created profile
+        return NextResponse.json({
+          profile: {
+            id: newProfile[0].id,
+            email: newProfile[0].email,
+            created_at: newProfile[0].created_at,
+            updated_at: newProfile[0].updated_at,
+            status: newProfile[0].status ? String(newProfile[0].status) : undefined
+          }
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+      }
+      
+      // For other errors, return error response
       return NextResponse.json(
         { error: 'Failed to fetch profile' },
         { 
