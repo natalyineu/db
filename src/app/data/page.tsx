@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Dashboard from './dashboard';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -14,7 +14,47 @@ export default function DataPage() {
   const [pageLoadTime] = useState(Date.now());
   const [isRetrying, setIsRetrying] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [loadingPhase, setLoadingPhase] = useState(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
+
+  // Update the loading timer every second
+  useEffect(() => {
+    if (isLoading) {
+      // Clear any existing timer
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+      
+      // Start a new timer
+      timerRef.current = setInterval(() => {
+        setElapsedTime(prev => {
+          const newTime = prev + 1;
+          
+          // Update loading phase based on elapsed time
+          if (newTime === 3) setLoadingPhase(1);
+          if (newTime === 6) setLoadingPhase(2);
+          if (newTime === 10) setLoadingPhase(3);
+          
+          return newTime;
+        });
+      }, 1000);
+    } else {
+      // Clear timer when loading is done
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+    
+    // Cleanup on component unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [isLoading]);
 
   // Debug logging
   useEffect(() => {
@@ -159,45 +199,87 @@ export default function DataPage() {
     window.location.href = '/login';
   };
 
+  // Get loading status message based on phase
+  const getLoadingStatusMessage = () => {
+    switch (loadingPhase) {
+      case 0:
+        return "Connecting to servers";
+      case 1:
+        return "Fetching your profile";
+      case 2:
+        return "Setting up your dashboard";
+      case 3:
+        return "Almost ready";
+      default:
+        return "Loading";
+    }
+  };
+
   // While checking authentication
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
         <div className="w-full max-w-md p-8">
-          {/* Robot builder animation */}
-          <div className="robot-builder-container mb-8">
+          {/* Robot builder animation with phase-based animation classes */}
+          <div className={`robot-builder-container mb-8 ${loadingPhase >= 2 ? 'animate-pulse-slow' : ''}`}>
             {/* Account frame being built */}
-            <div className="account-frame"></div>
+            <div className="account-frame animate-fade-in"></div>
             
             {/* Gears */}
-            <div className="gear gear-1"></div>
-            <div className="gear gear-2"></div>
+            <div className={`gear gear-1 ${loadingPhase >= 1 ? 'animate-ping-slow' : ''}`}></div>
+            <div className={`gear gear-2 ${loadingPhase >= 1 ? 'animate-ping-slow' : ''}`}></div>
             
             {/* Robots */}
-            <div className="robot-left"></div>
-            <div className="robot-right"></div>
+            <div className="robot-left animate-fade-in-up"></div>
+            <div className="robot-right animate-fade-in-up"></div>
             
             {/* Sparks */}
-            <div className="spark spark-1"></div>
-            <div className="spark spark-2"></div>
-            <div className="spark spark-3"></div>
+            <div className={`spark spark-1 ${loadingPhase >= 2 ? 'animate-bounce-in' : ''}`}></div>
+            <div className={`spark spark-2 ${loadingPhase >= 2 ? 'animate-bounce-in delay-100' : ''}`}></div>
+            <div className={`spark spark-3 ${loadingPhase >= 2 ? 'animate-bounce-in delay-200' : ''}`}></div>
           </div>
           
-          {/* Loading text */}
-          <div className="text-center">
+          {/* Loading text with timer */}
+          <div className="text-center animate-fade-in">
             <h2 className="text-xl font-semibold text-indigo-700 mb-2">Building Your Account</h2>
             <p className="text-gray-600 mb-4">Our robots are working on it</p>
             
-            <div className="mt-4 flex items-center justify-center">
-              <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
-                      pulse-border-animation flex items-center">
-                <span>Setting up your dashboard</span>
+            <div className="mt-4 flex flex-col items-center justify-center">
+              {/* Loading Status Message */}
+              <div className={`px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
+                      pulse-border-animation flex items-center animate-phase-transition`}
+                   key={loadingPhase} /* Key will force re-render and animation restart on phase change */
+              >
+                <span>{getLoadingStatusMessage()}</span>
                 <span className="ml-1 inline-flex">
                   <span className="animate-bounce mx-0.5">.</span>
                   <span className="animate-bounce mx-0.5 delay-100">.</span>
                   <span className="animate-bounce mx-0.5 delay-200">.</span>
                 </span>
               </div>
+              
+              {/* Progress bar */}
+              <div className="w-full mt-6 bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                <div 
+                  className="bg-indigo-600 h-1.5 rounded-full shimmer-effect"
+                  style={{ 
+                    width: `${Math.min(100, (elapsedTime / 15) * 100)}%`, 
+                    transition: 'width 1s linear'
+                  }}
+                ></div>
+              </div>
+              
+              {/* Timer display */}
+              <div className="mt-4 text-sm text-gray-500">
+                Time elapsed: {elapsedTime}s
+              </div>
+              
+              {/* Show additional message if loading takes too long */}
+              {elapsedTime > 5 && (
+                <div className="mt-4 text-xs text-gray-600 animate-fade-in max-w-xs text-center">
+                  This is taking longer than usual. We're still trying to connect to your profile.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -209,7 +291,7 @@ export default function DataPage() {
   if (error || localError) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center">
-        <div className="bg-red-50 p-8 rounded-md max-w-md">
+        <div className="bg-red-50 p-8 rounded-md max-w-md animate-fade-in">
           <p className="text-2xl font-bold text-red-600 mb-4">Error loading your account</p>
           <p className="text-sm text-red-700 mt-2 mb-6 whitespace-pre-wrap">
             {error || localError || 'Failed to load profile data'}
@@ -218,19 +300,19 @@ export default function DataPage() {
             <button 
               onClick={handleRetry}
               disabled={isRetrying}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 transition-all"
             >
               {isRetrying ? 'Retrying...' : 'Retry'}
             </button>
             <button 
               onClick={forceRedirectToLogin}
-              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-all"
             >
               Back to Login
             </button>
             <button 
               onClick={emergencyLogout}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all"
             >
               Emergency Logout
             </button>
@@ -247,14 +329,14 @@ export default function DataPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-        <div className="robot-builder-container mb-8 scale-75">
+        <div className="robot-builder-container mb-8 scale-75 animate-float">
           <div className="robot-left"></div>
           <div className="robot-right"></div>
           <div className="spark spark-1"></div>
         </div>
         
         <div className="px-4 py-2 rounded-full bg-indigo-50 text-indigo-700 
-                pulse-border-animation flex items-center">
+                pulse-border-animation flex items-center animate-fade-in-up">
           <span>Redirecting to login</span>
           <span className="ml-1 inline-flex">
             <span className="animate-bounce mx-0.5">.</span>
@@ -265,7 +347,7 @@ export default function DataPage() {
         
         <button 
           onClick={forceRedirectToLogin}
-          className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-all animate-fade-in"
         >
           Go to Login Now
         </button>
