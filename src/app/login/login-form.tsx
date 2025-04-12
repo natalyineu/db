@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useRouter } from 'next/navigation';
+import { FormInput, MessageDisplay } from '@/components/ui';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -13,9 +14,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const { signIn, error: authError, isAuthenticated } = useAuth();
+  const { signIn, error: authError, isAuthenticated, loadingState } = useAuth();
   const router = useRouter();
-  const [showPassword, setShowPassword] = useState(false);
   
   // If authenticated, redirect to data page
   useEffect(() => {
@@ -60,11 +60,6 @@ export default function LoginForm() {
     }
   };
 
-  // Toggle password visibility
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
   // Display auth error from context if present
   const displayError = message || (authError ? { type: 'error', text: authError } : null);
 
@@ -76,63 +71,39 @@ export default function LoginForm() {
           <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 
-        {displayError && (
-          <div className={`p-4 rounded-md ${displayError.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
-            {displayError.text}
-          </div>
-        )}
+        <MessageDisplay message={displayError} />
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              placeholder="you@example.com"
-            />
-          </div>
+          <FormInput
+            id="email"
+            label="Email address"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            autoComplete="email"
+            required
+            placeholder="you@example.com"
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="mt-1 relative">
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 right-0 px-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </div>
+          <FormInput
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={setPassword}
+            autoComplete="current-password"
+            required
+            placeholder="••••••••"
+            showTogglePassword
+          />
 
           <div>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || loadingState.signIn}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting || loadingState.signIn ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>

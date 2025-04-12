@@ -15,6 +15,13 @@ interface AuthContextType {
   profile: UserProfile | null;
   session: Session | null;
   isLoading: boolean;
+  loadingState: {
+    initial: boolean;
+    signIn: boolean;
+    signUp: boolean;
+    signOut: boolean;
+    profile: boolean;
+  };
   isAuthenticated: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<{ user: User; session: Session } | undefined>;
@@ -32,6 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [loadingState, setLoadingState] = useState({
+    initial: true,
+    signIn: false,
+    signUp: false,
+    signOut: false,
+    profile: false
+  });
   const [error, setError] = useState<string | null>(null);
   const supabase = useSupabase();
   const router = useRouter();
@@ -56,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       isFetchingProfile.current = true;
       lastFetchTime.current = now;
+      setLoadingState(prev => ({ ...prev, profile: true }));
       
       if (DEBUG) console.log('Fetching profile for user:', userId);
       
@@ -158,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } finally {
       isFetchingProfile.current = false;
+      setLoadingState(prev => ({ ...prev, profile: false }));
     }
   }, [supabase]);
 
@@ -168,7 +184,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     const initializeAuth = async () => {
       try {
-        if (mounted) setIsLoading(true);
+        if (mounted) {
+          setIsLoading(true);
+          setLoadingState(prev => ({ ...prev, initial: true }));
+        }
         
         if (DEBUG) console.log('Initializing auth context');
         
@@ -246,6 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           initTimer = setTimeout(() => {
             if (mounted) {
               setIsLoading(false);
+              setLoadingState(prev => ({ ...prev, initial: false }));
               if (DEBUG) console.log('Auth initialization complete, loading state set to false');
             }
           }, 100); // Small delay to allow state updates to propagate
@@ -316,6 +336,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      setLoadingState(prev => ({ ...prev, signIn: true }));
       setError(null);
       
       if (DEBUG) console.log("Signing in with:", email);
@@ -356,6 +377,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw error;
     } finally {
       setIsLoading(false);
+      setLoadingState(prev => ({ ...prev, signIn: false }));
     }
   };
 
@@ -363,29 +385,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      setLoadingState(prev => ({ ...prev, signUp: true }));
       setError(null);
+      
+      if (DEBUG) console.log("Signing up with:", email);
       
       // Sign up
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        }
       });
 
       if (error) {
         throw error;
       }
 
-      // Success - user needs to verify email
+      if (DEBUG) console.log("Registration successful, session:", data.session ? "present" : "missing");
+      
       return data;
     } catch (error) {
-      if (DEBUG) console.error('Signup error:', error);
+      if (DEBUG) console.error('Registration error:', error);
       setError(error instanceof AuthError ? error.message : 'Registration failed');
       throw error;
     } finally {
       setIsLoading(false);
+      setLoadingState(prev => ({ ...prev, signUp: false }));
     }
   };
 
@@ -393,59 +417,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true);
-      setError(null);
+      setLoadingState(prev => ({ ...prev, signOut: true }));
       
+      if (DEBUG) console.log("Signing out");
+      
+      // Sign out
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw error;
       }
-      
-      // Clear state
+
+      // Clear auth state
+      setSession(null);
       setUser(null);
       setProfile(null);
-      setSession(null);
       
-      // Redirect to home
+      if (DEBUG) console.log("Sign out successful");
+      
+      // Redirect to homepage
       router.push('/');
     } catch (error) {
-      if (DEBUG) console.error('Signout error:', error);
-      setError(error instanceof Error ? error.message : 'Signout failed');
+      if (DEBUG) console.error('Sign out error:', error);
+      setError(error instanceof AuthError ? error.message : 'Sign out failed');
     } finally {
       setIsLoading(false);
+      setLoadingState(prev => ({ ...prev, signOut: false }));
     }
   };
 
-  // Calculate authenticated state
+  // Compute the authenticated state - is user is available and verified
   const isAuthenticated = !!user && !!session;
 
-  const value = {
-    user,
-    profile,
-    session,
-    isLoading,
-    isAuthenticated,
-    error,
-    signIn,
-    signUp,
-    signOut,
-    refreshProfile
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        profile,
+        session,
+        isLoading,
+        loadingState,
+        isAuthenticated,
+        error,
+        signIn,
+        signUp,
+        signOut,
+        refreshProfile
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Hook to use the auth context
+// Custom hook to use the auth context
 export function useAuth() {
   const context = useContext(AuthContext);
-  
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  
   return context;
 } 
