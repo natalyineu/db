@@ -135,7 +135,8 @@ const CampaignList = ({ campaigns, isLoading }: { campaigns: Campaign[] | null; 
   if (!campaigns || campaigns.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-        <p className="text-gray-500">No campaigns available</p>
+        <p className="text-gray-600 font-medium">No campaigns available</p>
+        <p className="text-gray-500 text-sm mt-2">Campaigns you create will appear here</p>
       </div>
     );
   }

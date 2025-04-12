@@ -90,15 +90,25 @@ export default function Dashboard() {
       const sectionTimers = sectionTimings.map((delay, index) => {
         return setTimeout(() => {
           setActiveSection(index + 1);
+          if (DEBUG) console.log(`Setting active section to ${index + 1}`);
         }, delay);
       });
+      
+      // Force all sections to be visible after some time, as a fallback
+      const fallbackTimer = setTimeout(() => {
+        if (activeSection < sectionTimings.length) {
+          if (DEBUG) console.log(`Forcing all sections visible`);
+          setActiveSection(sectionTimings.length);
+        }
+      }, 3000);
       
       return () => {
         clearTimeout(animationTimer);
         sectionTimers.forEach(timer => clearTimeout(timer));
+        clearTimeout(fallbackTimer);
       };
     }
-  }, [isLoading, localLoading, sectionTimings]);
+  }, [isLoading, localLoading, sectionTimings, activeSection]);
 
   // Log authentication state changes for debugging
   useEffect(() => {
@@ -300,7 +310,7 @@ export default function Dashboard() {
           </section>
           
           {/* Campaigns Section */}
-          <section className={`bg-white rounded-xl p-6 shadow-sm transform transition-all duration-500 ease-out ${animateIn && activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'}`}>
+          <section className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-xl font-semibold text-gray-800 mb-4">Your Campaigns</h2>
             <CampaignList campaigns={campaigns} isLoading={campaignsLoading} />
           </section>
