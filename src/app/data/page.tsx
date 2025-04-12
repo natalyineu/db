@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Dashboard from './dashboard';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -71,7 +71,7 @@ export default function DataPage() {
 
   // Force a direct redirect to login using window.location instead of router
   // This is guaranteed to work even if router context is broken
-  const forceRedirectToLogin = () => {
+  const forceRedirectToLogin = useCallback(() => {
     try {
       // Try to use the router if available
       router.push('/login');
@@ -84,7 +84,7 @@ export default function DataPage() {
       // If router fails, immediately use direct browser navigation
       window.location.href = '/login';
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     // If authentication check is complete and user is not authenticated, redirect to login
@@ -92,7 +92,7 @@ export default function DataPage() {
       if (DEBUG) console.log('No authenticated user found, redirecting to login');
       forceRedirectToLogin();
     }
-  }, [isLoading, isAuthenticated]);
+  }, [isLoading, isAuthenticated, forceRedirectToLogin]);
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
@@ -137,7 +137,7 @@ export default function DataPage() {
     }, 8000);
     
     return () => clearTimeout(timeoutId);
-  }, [isLoading, user]);
+  }, [isLoading, user, forceRedirectToLogin]);
 
   // Handle manual retry
   const handleRetry = async () => {
@@ -277,7 +277,7 @@ export default function DataPage() {
               {/* Show additional message if loading takes too long */}
               {elapsedTime > 5 && (
                 <div className="mt-4 text-xs text-gray-600 animate-fade-in max-w-xs text-center">
-                  This is taking longer than usual. We're still trying to connect to your profile.
+                  This is taking longer than usual. We&apos;re still trying to connect to your profile.
                 </div>
               )}
             </div>
