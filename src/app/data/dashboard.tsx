@@ -162,142 +162,238 @@ export default function Dashboard() {
   const displayProfile = profile || localProfile;
   if (displayProfile) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900">Personal Dashboard</h1>
-            <p className="mt-2 text-gray-600">Welcome to your account</p>
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-10 text-center">
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500">
+              Business Account Portal
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Welcome to your account management dashboard
+            </p>
           </div>
-          
-          <div className="mt-8 space-y-4">
-            {/* Basic Information Section */}
-            <div className="border-t border-gray-200 pt-4">
-              <h2 className="text-lg font-medium text-gray-900">User Information</h2>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Email:</span>
-                  <span className="text-sm text-gray-900">{displayProfile.email}</span>
+
+          {/* Dashboard Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Profile Card */}
+            <div className="col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transform transition hover:shadow-md">
+              <div className="bg-gradient-to-r from-indigo-500 to-blue-600 h-24 flex items-end">
+                <div className="bg-white p-1 rounded-full mx-6 -mb-10 shadow-md border-4 border-white">
+                  <div className="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                    <span className="text-2xl font-bold">
+                      {displayProfile.email && displayProfile.email.substring(0, 1).toUpperCase()}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Status:</span>
-                  <span className={`text-sm px-2 py-1 rounded-full ${
+              </div>
+              <div className="p-6 pt-12">
+                <h2 className="text-lg font-bold text-gray-900 mb-1">{displayProfile.email}</h2>
+                <div className="text-sm text-gray-500 mb-4">Account ID: {displayProfile.id && displayProfile.id.substring(0, 8)}...</div>
+                
+                <div className="flex items-center space-x-2 mb-4">
+                  <span className={`inline-flex px-2 py-1 text-xs rounded-full ${
                     displayProfile.status === 'active' 
                       ? 'bg-green-100 text-green-800' 
                       : displayProfile.status === 'pending' 
                         ? 'bg-yellow-100 text-yellow-800'
                         : 'bg-gray-100 text-gray-800'
                   }`}>
-                    {formatProfileField(displayProfile.status)}
+                    {formatProfileField(displayProfile.status) || 'Active'}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Member since {formatDate(displayProfile.created_at, 'MMM YYYY')}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Account Created:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatDate(displayProfile.created_at)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Last Updated:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatDate(displayProfile.updated_at)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Last Login:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatDate(displayProfile.last_login)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Login Count:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatProfileField(displayProfile.login_count)}
-                  </span>
-                </div>
+                
+                <button
+                  onClick={handleSignOut}
+                  className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                >
+                  Sign Out
+                </button>
               </div>
             </div>
-            
-            {/* Personal Information Section */}
-            <div className="border-t border-gray-200 pt-4">
-              <h2 className="text-lg font-medium text-gray-900">Personal Information</h2>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">First Name:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.first_name)}</span>
+
+            {/* Account Details */}
+            <div className="col-span-1 lg:col-span-2 space-y-6">
+              {/* Basic Info Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Account Information</h2>
+                  <span className="text-xs px-2 py-1 bg-blue-50 text-blue-600 rounded-full">Business</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Last Name:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.last_name)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Phone:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.phone)}</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Address Information Section */}
-            <div className="border-t border-gray-200 pt-4">
-              <h2 className="text-lg font-medium text-gray-900">Address</h2>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Address:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.address)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">City:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.city)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Country:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.country)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Postal Code:</span>
-                  <span className="text-sm text-gray-900">{formatProfileField(displayProfile.postal_code)}</span>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Email</p>
+                    <p className="text-sm font-medium text-gray-900">{displayProfile.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Status</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.status) || 'Active'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Created</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(displayProfile.created_at)}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Last Updated</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(displayProfile.updated_at) || 'Never'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Last Login</p>
+                    <p className="text-sm font-medium text-gray-900">{formatDate(displayProfile.last_login) || 'Now'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Login Count</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.login_count) || '1'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            
-            {/* Preferences Section */}
-            <div className="border-t border-gray-200 pt-4">
-              <h2 className="text-lg font-medium text-gray-900">Preferences</h2>
-              <div className="mt-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Theme:</span>
-                  <span className="text-sm text-gray-900 capitalize">
-                    {formatProfileField(displayProfile.theme_preference)}
-                  </span>
+
+              {/* Contact Info Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Business Information</h2>
+                  <button className="text-xs px-3 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                    Edit
+                  </button>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Email Notifications:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatProfileField(displayProfile.notification_preferences?.email)}
-                  </span>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">First Name</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.first_name) || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Last Name</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.last_name) || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Company</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.company) || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Job Title</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.job_title) || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Phone</p>
+                    <p className="text-sm font-medium text-gray-900">{formatProfileField(displayProfile.phone) || 'Not provided'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-500">Location</p>
+                    <p className="text-sm font-medium text-gray-900">
+                      {displayProfile.city || displayProfile.country ? 
+                        `${formatProfileField(displayProfile.city) || ''} ${formatProfileField(displayProfile.country) || ''}` : 
+                        'Not provided'}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">SMS Notifications:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatProfileField(displayProfile.notification_preferences?.sms)}
-                  </span>
+              </div>
+
+              {/* Preferences Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-bold text-gray-900">Notification Preferences</h2>
+                  <button className="text-xs px-3 py-1 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                    Configure
+                  </button>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium text-gray-500">Push Notifications:</span>
-                  <span className="text-sm text-gray-900">
-                    {formatProfileField(displayProfile.notification_preferences?.push)}
-                  </span>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">Email Notifications</span>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      Enabled
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">SMS Notifications</span>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Disabled
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <span className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                      </span>
+                      <span className="text-sm font-medium text-gray-900">Browser Notifications</span>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Disabled
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           
+          {/* Quick Actions */}
           <div className="mt-8">
-            <button
-              onClick={handleSignOut}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              Sign Out
-            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+                <span className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </span>
+                <span className="text-sm font-medium text-gray-900">Edit Profile</span>
+              </button>
+              
+              <button className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+                <span className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </span>
+                <span className="text-sm font-medium text-gray-900">Add Service</span>
+              </button>
+              
+              <button className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+                <span className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                </span>
+                <span className="text-sm font-medium text-gray-900">Billing</span>
+              </button>
+              
+              <button className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
+                <span className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </span>
+                <span className="text-sm font-medium text-gray-900">Support</span>
+              </button>
+            </div>
+          </div>
+          
+          {/* Footer */}
+          <div className="mt-12 text-center text-sm text-gray-500">
+            <p>© 2023 Personal Account System. All rights reserved.</p>
           </div>
         </div>
       </main>

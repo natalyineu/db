@@ -77,12 +77,21 @@ export const mapProfileData = (data: any): UserProfile => {
 
 /**
  * Format a date string for display
+ * @param dateString The date string to format
+ * @param format Optional format string ('MMM YYYY' for month and year only)
  */
-export const formatDate = (dateString?: string): string => {
+export const formatDate = (dateString?: string, format?: string): string => {
   if (!dateString) return 'N/A';
   
   try {
-    return new Date(dateString).toLocaleDateString();
+    const date = new Date(dateString);
+    
+    if (format === 'MMM YYYY') {
+      // Return month and year only
+      return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+    }
+    
+    return date.toLocaleDateString();
   } catch (e) {
     return 'Invalid date';
   }
