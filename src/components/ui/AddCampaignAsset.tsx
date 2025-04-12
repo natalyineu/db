@@ -79,7 +79,7 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
                 id="assetUrl"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-1 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="https://google.com"
                 required
               />
@@ -94,7 +94,7 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
                 id="assetDriveLink"
                 value={driveLink}
                 onChange={(e) => setDriveLink(e.target.value)}
-                className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-1 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="https://drive.google.com/..."
               />
             </div>
@@ -107,7 +107,7 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
                 id="assetNotes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-1 text-sm text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Add any additional information..."
                 rows={2}
               />

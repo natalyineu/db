@@ -77,7 +77,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
                 id="campaignName"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter campaign name"
                 required
               />
@@ -91,7 +91,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
                 id="campaignStatus"
                 value={status}
                 onChange={(e) => setStatus(e.target.value as CampaignStatus)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="draft">Draft</option>
                 <option value="active">Active</option>
