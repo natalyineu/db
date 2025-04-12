@@ -267,6 +267,16 @@ export default function Dashboard() {
                     <span className="absolute bottom-0 left-0 w-full h-[2px] bg-white/30 rounded"></span>
                   </span>
                 </button>
+                
+                <button
+                  onClick={() => router.push('/login')}
+                  className="mt-3 w-full flex justify-center py-2 px-4 border border-indigo-300 rounded-md text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-400 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] animate-fade-in"
+                  style={{ animationDelay: '700ms' }}
+                >
+                  <span className="relative">
+                    Return to Login Page
+                  </span>
+                </button>
               </div>
             </div>
 
