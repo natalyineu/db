@@ -18,17 +18,17 @@ const DashboardHeader = memo(({ title, userName, onSignOut }: {
   userName: string;
   onSignOut: () => void;
 }) => (
-  <div className="mb-10 text-center transform transition-all duration-700 ease-out translate-y-0 opacity-100">
+  <div className="mb-4 text-center transform transition-all duration-700 ease-out translate-y-0 opacity-100">
     <div className="inline-block relative">
-      <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 relative z-10">
+      <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 relative z-10">
         {title}
       </h1>
-      <div className="absolute -bottom-1 left-0 w-full h-3 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full transform scale-110 opacity-70"></div>
+      <div className="absolute -bottom-1 left-0 w-full h-2 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full transform scale-110 opacity-70"></div>
     </div>
-    <p className="mt-4 text-lg text-gray-600">Welcome to your personal account dashboard, {userName}!</p>
+    <p className="mt-2 text-base text-gray-600">Welcome to your personal account dashboard, {userName}!</p>
     <button 
       onClick={onSignOut}
-      className="mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm"
+      className="mt-2 px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm"
     >
       Sign Out
     </button>
@@ -46,9 +46,9 @@ const ProfileInfo = memo(({ profile }: { profile: any }) => {
   ], [profile]);
 
   return (
-    <div className="bg-white rounded-xl p-6 shadow-sm transform transition-all duration-500 ease-out translate-y-0 opacity-100">
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">Profile Information</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="bg-white rounded-xl p-4 shadow-sm transform transition-all duration-500 ease-out translate-y-0 opacity-100">
+      <h2 className="text-xl font-semibold text-gray-800 mb-3">Profile Information</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {profileInfo.map((item, index) => (
           <div key={`profile-${index}`} className="flex flex-col animate-fade-in" style={{ animationDelay: `${400 + index * 100}ms` }}>
             <span className="text-sm text-gray-500">{item.label}</span>
@@ -301,7 +301,7 @@ export default function Dashboard() {
   if (displayProfile) {
     return (
       <>
-        <main className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8 overflow-hidden transition-opacity duration-500 ease-in-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+        <main className={`bg-gradient-to-br from-gray-50 to-gray-100 p-8 transition-opacity duration-500 ease-in-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <DashboardHeader 
@@ -311,14 +311,14 @@ export default function Dashboard() {
             />
             
             {/* Profile Section */}
-            <section className={`mb-8 transform transition-all duration-700 delay-100 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+            <section className={`mb-0 transform transition-all duration-700 delay-100 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
               <ProfileInfo profile={displayProfile} />
             </section>
           </div>
         </main>
         
         {/* Campaigns Section - Completely separate from animation state */}
-        <div className="w-full bg-white py-8 border-t border-gray-200">
+        <div className="w-full bg-white py-6 border-t border-gray-200">
           <div className="max-w-6xl mx-auto px-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Campaigns</h2>
             
