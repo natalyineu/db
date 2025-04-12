@@ -18,18 +18,21 @@ export const fetchProfileDirect = async (userId: string): Promise<UserProfile | 
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+          'Prefer': 'return=representation'
         }
       }
     );
     
     if (!response.ok) {
-      throw new Error(`Profile fetch failed: ${response.statusText}`);
+      if (DEBUG) console.error('Profile fetch response not OK:', response.status, response.statusText);
+      throw new Error(`Profile fetch failed: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
     
     if (!data || data.length === 0) {
+      if (DEBUG) console.log('No profile found for user:', userId);
       return null;
     }
     
@@ -50,7 +53,7 @@ export const mapProfileData = (data: any): UserProfile => {
     email: data.email || '',
     created_at: data.created_at || new Date().toISOString(),
     updated_at: data.updated_at,
-    status: data.status ? String(data.status) : undefined,
+    status: data.status !== null ? String(data.status) : undefined,
     
     // Additional profile information - use empty values rather than fake data
     first_name: data.first_name || undefined,

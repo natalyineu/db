@@ -29,19 +29,30 @@ export default function DataPage() {
     }
   }, [isLoading, isAuthenticated, user, error, pageLoadTime]);
 
+  // Force a direct redirect to login using window.location instead of router
+  // This is guaranteed to work even if router context is broken
+  const forceRedirectToLogin = () => {
+    try {
+      // Try to use the router if available
+      router.push('/login');
+      
+      // As a guarantee, also set a timer to force redirect with window.location
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 200);
+    } catch (error) {
+      // If router fails, immediately use direct browser navigation
+      window.location.href = '/login';
+    }
+  };
+
   useEffect(() => {
     // If authentication check is complete and user is not authenticated, redirect to login
     if (!isLoading && !isAuthenticated) {
       if (DEBUG) console.log('No authenticated user found, redirecting to login');
-      
-      // Add a small delay to ensure all state updates have been processed
-      const redirectTimer = setTimeout(() => {
-        router.push('/login');
-      }, 100);
-      
-      return () => clearTimeout(redirectTimer);
+      forceRedirectToLogin();
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated]);
 
   // Add a timeout to prevent infinite loading
   useEffect(() => {
@@ -60,7 +71,7 @@ export default function DataPage() {
         })
         .then(response => {
           if (!response.ok) {
-            throw new Error('Failed to fetch profile via API');
+            throw new Error(`Failed to fetch profile via API: ${response.status} ${response.statusText}`);
           }
           return response.json();
         })
@@ -81,22 +92,12 @@ export default function DataPage() {
         });
       } else if (isLoading) {
         // No user available, redirect to login
-        router.push('/login');
+        forceRedirectToLogin();
       }
     }, 8000);
     
     return () => clearTimeout(timeoutId);
-  }, [isLoading, router, user]);
-
-  // Add a safe redirect function that works even when other state operations fail
-  const safeRedirectToLogin = () => {
-    try {
-      router.push('/login');
-    } catch (error) {
-      // Fallback to basic navigation if router fails
-      window.location.href = '/login';
-    }
-  };
+  }, [isLoading, user]);
 
   // Handle manual retry
   const handleRetry = async () => {
@@ -115,7 +116,7 @@ export default function DataPage() {
         });
         
         if (!response.ok) {
-          throw new Error('Failed to fetch profile via API');
+          throw new Error(`Failed to fetch profile via API: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
@@ -137,6 +138,25 @@ export default function DataPage() {
       setLocalError(e instanceof Error ? e.message : 'Failed to load profile');
       setIsRetrying(false);
     }
+  };
+
+  // Emergency logout and redirect to login page
+  const emergencyLogout = () => {
+    if (DEBUG) console.log('Emergency logout initiated');
+    
+    // Try to clear localStorage and any session cookies
+    try {
+      localStorage.clear();
+      document.cookie.split(';').forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      });
+    } catch (e) {
+      if (DEBUG) console.error('Failed to clear local storage or cookies:', e);
+    }
+    
+    // Force redirect to login page
+    window.location.href = '/login';
   };
 
   // While checking authentication
@@ -189,25 +209,34 @@ export default function DataPage() {
   if (error || localError) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center">
-        <div className="bg-red-50 p-4 rounded-md max-w-md">
-          <p className="text-lg text-red-600">Error loading your account</p>
-          <p className="text-sm text-red-700 mt-2">
+        <div className="bg-red-50 p-8 rounded-md max-w-md">
+          <p className="text-2xl font-bold text-red-600 mb-4">Error loading your account</p>
+          <p className="text-sm text-red-700 mt-2 mb-6 whitespace-pre-wrap">
             {error || localError || 'Failed to load profile data'}
           </p>
-          <div className="mt-4 flex justify-center space-x-4">
+          <div className="mt-4 grid grid-cols-1 gap-4">
             <button 
               onClick={handleRetry}
               disabled={isRetrying}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
             >
               {isRetrying ? 'Retrying...' : 'Retry'}
             </button>
             <button 
-              onClick={safeRedirectToLogin}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              onClick={forceRedirectToLogin}
+              className="w-full px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
             >
               Back to Login
             </button>
+            <button 
+              onClick={emergencyLogout}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Emergency Logout
+            </button>
+          </div>
+          <div className="mt-6 text-xs text-gray-500 text-center">
+            If you continue to see this error, please contact support
           </div>
         </div>
       </div>
@@ -233,6 +262,13 @@ export default function DataPage() {
             <span className="animate-bounce mx-0.5 delay-200">.</span>
           </span>
         </div>
+        
+        <button 
+          onClick={forceRedirectToLogin}
+          className="mt-6 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
+          Go to Login Now
+        </button>
       </div>
     );
   }

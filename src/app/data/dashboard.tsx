@@ -88,14 +88,15 @@ export default function Dashboard() {
       if (user) {
         if (DEBUG) console.log('Making direct database call to profiles table');
         
-        // Use browser fetch directly instead of Supabase client - fixed query format
+        // Use browser fetch directly instead of Supabase client - fixed query format and added headers
         fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${user.id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
+            'Prefer': 'return=representation'
           }
         })
         .then(response => {
