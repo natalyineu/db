@@ -46,7 +46,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
   };
 
   return (
-    <div className="mb-6">
+    <div>
       {!showForm ? (
         <button
           onClick={() => setShowForm(true)}

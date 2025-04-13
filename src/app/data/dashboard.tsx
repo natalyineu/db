@@ -383,12 +383,15 @@ export default function Dashboard() {
               </div>
             )}
             
-            {user && (
-              <CreateCampaignButton 
-                userId={user.id} 
-                onCampaignCreated={() => fetchCampaigns(user.id)} 
-              />
-            )}
+            <div className="flex justify-center mb-6">
+              {user && (
+                <CreateCampaignButton 
+                  userId={user.id} 
+                  onCampaignCreated={() => fetchCampaigns(user.id)} 
+                />
+              )}
+            </div>
+            
             <CampaignList 
               campaigns={campaigns} 
               isLoading={campaignsLoading} 
