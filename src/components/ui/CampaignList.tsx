@@ -2,30 +2,18 @@ import { useState, memo, useCallback } from 'react';
 import { Campaign, CampaignStatus } from '@/types';
 import { formatDate } from '@/utils';
 import { AddCampaignAsset } from '@/components/ui';
-import { CampaignService } from '@/services/campaign-service';
-
-type CampaignStatusBadgeProps = {
-  status: CampaignStatus;
-};
 
 // Display status badge with appropriate color
-const CampaignStatusBadge = memo(({ status }: CampaignStatusBadgeProps) => {
-  const getStatusColor = (status: CampaignStatus) => {
-    switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'paused':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'completed':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'draft':
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+const CampaignStatusBadge = memo(({ status }: { status: CampaignStatus }) => {
+  const statusStyles = {
+    active: 'bg-green-100 text-green-800 border-green-200',
+    paused: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    completed: 'bg-blue-100 text-blue-800 border-blue-200',
+    draft: 'bg-gray-100 text-gray-800 border-gray-200'
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(status)}`}>
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles[status] || statusStyles.draft}`}>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );
@@ -82,19 +70,10 @@ const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdat
   const [showAssets, setShowAssets] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   
-  const handleAssetAdded = useCallback(async () => {
+  const handleAssetAdded = useCallback(() => {
     setRefreshing(true);
-    
-    try {
-      // Refresh campaign data to show the new asset
-      if (onUpdate) {
-        onUpdate();
-      }
-    } catch (error) {
-      console.error('Error refreshing campaign data:', error);
-    } finally {
-      setRefreshing(false);
-    }
+    onUpdate();
+    setTimeout(() => setRefreshing(false), 500);
   }, [onUpdate]);
   
   return (
@@ -152,16 +131,14 @@ const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: {
   isLoading: boolean;
   onRefreshNeeded?: () => void;
 }) => {
-  const [refreshKey, setRefreshKey] = useState(0);
-  
+  // Handle campaign updates
   const handleCampaignUpdate = useCallback(() => {
-    // Trigger a refresh in the parent component via prop
-    setRefreshKey(prev => prev + 1);
     if (onRefreshNeeded) {
       onRefreshNeeded();
     }
   }, [onRefreshNeeded]);
   
+  // Loading skeleton
   if (isLoading) {
     return (
       <div className="animate-pulse space-y-4">
@@ -172,6 +149,7 @@ const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: {
     );
   }
   
+  // Empty state
   if (!campaigns || campaigns.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
@@ -188,11 +166,12 @@ const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: {
     );
   }
   
+  // List of campaigns
   return (
     <div className="space-y-4">
       {campaigns.map(campaign => (
         <CampaignItem 
-          key={`${campaign.id}-${refreshKey}`}
+          key={campaign.id}
           campaign={campaign} 
           onUpdate={handleCampaignUpdate} 
         />
