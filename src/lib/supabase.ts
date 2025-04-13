@@ -1,69 +1,79 @@
-import { createClient } from '@supabase/supabase-js';
-import { createServerClient } from '@supabase/ssr';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createServerClient as createSSRServerClient } from '@supabase/ssr';
 import type { CookieOptions } from '@supabase/ssr';
 
 // Enable debugging only in development environment
 const DEBUG = process.env.NODE_ENV !== 'production';
 
-// Create a singleton Supabase client for client-side rendering
-let browserClient: ReturnType<typeof createClient> | null = null;
+// Constants for Supabase configuration
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const createBrowserClient = () => {
-  if (browserClient) return browserClient;
-  
-  if (DEBUG) console.log('Creating new Supabase browser client');
-  
-  try {
-    browserClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          persistSession: true,
-          storageKey: 'personal-account-auth-key',
-          autoRefreshToken: true,
-          detectSessionInUrl: true,
-          flowType: 'pkce',
-          debug: DEBUG // Only enable debug in development
-        },
-        global: {
-          fetch: fetch.bind(globalThis)
-        }
-      }
-    );
-    return browserClient;
-  } catch (error) {
-    // Only log error details in development
-    if (DEBUG) {
-      console.error('Error creating Supabase client:', error);
-    } else {
-      console.error('Error creating authentication client');
-    }
-    throw error;
+// Validate environment variables
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
+
+// Create a singleton instance for browser environments
+let supabaseInstance: SupabaseClient | null = null;
+
+/**
+ * Creates a Supabase client with the given options.
+ * Returns the same instance on subsequent calls in browser environments.
+ * 
+ * @param options - Additional options to pass to the Supabase client
+ * @returns Supabase client instance
+ */
+export function createBrowserClient(options = {}) {
+  if (typeof window !== 'undefined') {
+    // Return the existing instance if we're in a browser
+    if (supabaseInstance) return supabaseInstance;
   }
-};
 
-// Create a server-side Supabase client with cookie support
-export async function createServerSupabaseClient() {
-  // Dynamically import cookies to avoid issues with client components
-  const { cookies } = await import('next/headers');
-  
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        async get(name) {
-          const cookieStore = await cookies();
-          return cookieStore.get(name)?.value;
+  // Create a new instance
+  const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+    ...options,
+  });
+
+  // Save the instance in browser environments
+  if (typeof window !== 'undefined') {
+    supabaseInstance = client;
+  }
+
+  return client;
+}
+
+interface Cookies {
+  get: (name: string) => { value?: string } | undefined;
+}
+
+/**
+ * Creates a fresh Supabase client for server environments
+ * 
+ * @param cookies - Optional cookies for authenticated requests
+ * @returns Supabase client instance
+ */
+export function createServerClient(cookies: Cookies | null = null) {
+  const options: Record<string, any> = {};
+
+  // Add auth token from cookies if available
+  if (cookies) {
+    const authToken = cookies.get('sb-auth-token')?.value;
+    if (authToken) {
+      options.global = {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
         },
-        set(name, value, options) {
-          // This is a server component, we only read cookies here
-        },
-        remove(name, options) {
-          // This is a server component, we only read cookies here
-        },
-      },
+      };
     }
-  );
-} 
+  }
+
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY, options);
+}
+
+export default createBrowserClient; 
