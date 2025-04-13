@@ -103,7 +103,7 @@ export default function Dashboard() {
   const isLoading = authLoading || profileLoading;
 
   // Animation sequence effect - memoized timing values
-  const sectionTimings = useMemo(() => [500, 800, 1100, 1400], []);
+  const sectionTimings = useMemo(() => [500, 800], []);
   
   // Define loadCampaigns before useEffect to avoid dependency issues
   const loadCampaigns = useCallback(async () => {
@@ -128,7 +128,7 @@ export default function Dashboard() {
         setAnimateIn(true);
       }, 300);
       
-      // Sequence animations for different sections
+      // Sequence animations only for profile section
       const sectionTimers = sectionTimings.map((delay, index) => {
         return setTimeout(() => {
           setActiveSection(index + 1);
@@ -142,7 +142,7 @@ export default function Dashboard() {
           if (DEBUG) console.log(`Forcing all sections visible`);
           setActiveSection(sectionTimings.length);
         }
-      }, 3000);
+      }, 2000);
       
       return () => {
         clearTimeout(animationTimer);
@@ -223,30 +223,29 @@ export default function Dashboard() {
       
       {/* Profile Section */}
       {activeSection > 0 && (
-        <div className="mt-8">
+        <div className="mt-8 transition-all duration-500 ease-out opacity-100">
           <ProfileInfo profile={profile} />
         </div>
       )}
       
-      {/* Campaigns Section */}
-      {activeSection > 1 && profile && (
-        <div className="mt-8">
-          <Card>
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Your Campaigns</h2>
-                <CreateCampaignButton userId={profile.id} onCampaignCreated={loadCampaigns} />
-              </div>
-              
-              <CampaignList 
-                campaigns={campaigns || []}
-                isLoading={campaignsLoading}
-                onRefreshNeeded={loadCampaigns}
-              />
+      {/* Campaigns Section - Always show once profile is loaded */}
+      <div className={`mt-8 transition-all duration-500 ease-out ${activeSection > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} 
+           style={{ transitionDelay: '200ms' }}>
+        <Card>
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Your Campaigns</h2>
+              <CreateCampaignButton userId={profile.id} onCampaignCreated={loadCampaigns} />
             </div>
-          </Card>
-        </div>
-      )}
+            
+            <CampaignList 
+              campaigns={campaigns || []}
+              isLoading={campaignsLoading}
+              onRefreshNeeded={loadCampaigns}
+            />
+          </div>
+        </Card>
+      </div>
     </div>
   );
 } 
