@@ -9,7 +9,7 @@ interface RobotLoaderProps {
   loadingTime?: number;
 }
 
-export const RobotLoader = ({
+const RobotLoader = ({
   title = "Loading",
   subtitle = "Please wait...",
   loadingTime = 3000,
@@ -107,4 +107,6 @@ export const RobotLoader = ({
       </div>
     </div>
   );
-}; 
+};
+
+export default RobotLoader; 
