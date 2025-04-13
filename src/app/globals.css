@@ -29,6 +29,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  background-image: linear-gradient(90deg, rgba(63, 94, 251, .03), rgba(252, 70, 107, .03));
 }
 
 /* Custom gradient classes */
@@ -45,4 +46,8 @@ body {
 
 .ai-vertise-gradient-indigo {
   background-image: linear-gradient(to right, var(--ai-vertise-indigo), var(--ai-vertise-indigo-dark));
+}
+
+.subtle-gradient-bg {
+  background-image: linear-gradient(90deg, rgba(63, 94, 251, .03), rgba(252, 70, 107, .03));
 }

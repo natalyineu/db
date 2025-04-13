@@ -15,7 +15,7 @@ export interface CardProps {
 }
 
 /**
- * A reusable card component for containing content with optional header and footer
+ * A reusable card component inspired by Google Ads design system
  */
 export const Card: React.FC<CardProps> = ({
   variant = 'default',
@@ -31,11 +31,11 @@ export const Card: React.FC<CardProps> = ({
   // Base styles
   const baseStyles = 'rounded-lg overflow-hidden';
   
-  // Variant styles
+  // Variant styles - Google Ads inspired colors
   const variantStyles = {
     default: 'bg-white',
-    bordered: 'bg-white border border-gray-200',
-    elevated: 'bg-white shadow-md',
+    bordered: 'bg-white border border-[#DADCE0]',
+    elevated: 'bg-white shadow-sm',
   };
   
   // Loading styles
@@ -51,21 +51,22 @@ export const Card: React.FC<CardProps> = ({
   return (
     <div className={cardClasses}>
       {title && (
-        <div className={`px-4 py-3 border-b border-gray-200 ${headerClassName}`}>
+        <div className={`px-6 py-4 border-b border-[#DADCE0] ${headerClassName}`}>
           {typeof title === 'string' ? (
-            <h3 className="text-lg font-medium text-gray-900">{title}</h3>
+            <h3 className="text-lg font-medium text-[#3C4043]">{title}</h3>
           ) : (
             title
           )}
         </div>
       )}
       
-      <div className={`p-4 ${contentClassName}`}>
+      <div className={isLoading ? `p-6 ${contentClassName}` : contentClassName}>
         {isLoading ? (
-          <div className="space-y-3">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-[#F1F3F4] rounded-full w-3/4"></div>
+            <div className="h-4 bg-[#F1F3F4] rounded-full w-1/2"></div>
+            <div className="h-4 bg-[#F1F3F4] rounded-full w-5/6"></div>
+            <div className="h-10 bg-[#F1F3F4] rounded-lg w-full mt-2"></div>
           </div>
         ) : (
           children
@@ -73,7 +74,7 @@ export const Card: React.FC<CardProps> = ({
       </div>
       
       {footer && (
-        <div className={`px-4 py-3 border-t border-gray-200 bg-gray-50 ${footerClassName}`}>
+        <div className={`px-6 py-4 border-t border-[#DADCE0] bg-[#F8F9FA] ${footerClassName}`}>
           {footer}
         </div>
       )}

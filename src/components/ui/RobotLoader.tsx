@@ -47,61 +47,58 @@ const RobotLoader = ({
   }, [progress, loadingSteps.length]);
 
   return (
-    <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/95 z-50">
-      <div className="w-[320px] max-w-full mx-auto enhanced-robot-container rounded-xl p-8 relative bg-white shadow-lg border border-[#A34DF0]/10">
+    <div className="fixed inset-0 flex flex-col items-center justify-center bg-[#F8F9FA]/95 z-50">
+      <div className="w-[320px] max-w-full mx-auto enhanced-robot-container rounded-lg p-8 relative bg-white shadow-sm border border-[#DADCE0]">
         {/* Scanning line effect */}
         <div className="robot-scan-line absolute top-0 left-0"></div>
         
         {/* Decorative panels */}
-        <div className="robot-panel top-4 left-4 w-12 h-8"></div>
-        <div className="robot-panel top-4 right-4 w-16 h-6"></div>
-        <div className="robot-panel bottom-4 left-4 w-14 h-6"></div>
-        <div className="robot-panel bottom-4 right-4 w-10 h-8"></div>
+        <div className="robot-panel top-4 left-4 w-12 h-8 animate-phase-transition delay-300"></div>
+        <div className="robot-panel top-4 right-4 w-16 h-6 animate-phase-transition delay-700"></div>
+        <div className="robot-panel bottom-4 left-4 w-14 h-6 animate-phase-transition delay-500"></div>
+        <div className="robot-panel bottom-4 right-4 w-10 h-8 animate-phase-transition delay-1000"></div>
         
         {/* Status indicators */}
-        <div className="robot-indicator top-6 left-8 delay-300"></div>
-        <div className="robot-indicator top-6 right-8 delay-700"></div>
-        <div className="robot-indicator bottom-6 left-10 delay-500"></div>
-        <div className="robot-indicator bottom-6 right-10 delay-1000"></div>
+        <div className="robot-indicator top-6 left-8 animate-blink delay-300"></div>
+        <div className="robot-indicator top-6 right-8 animate-blink delay-700"></div>
+        <div className="robot-indicator bottom-6 left-10 animate-blink delay-500"></div>
+        <div className="robot-indicator bottom-6 right-10 animate-blink delay-1000"></div>
         
         {/* Circuit paths */}
         <div className="circuit-path top-10 left-8 w-[80%]"></div>
         <div className="circuit-path bottom-14 left-12 w-[60%]"></div>
         
         {/* Title with glitch effect */}
-        <h2 className="text-2xl font-bold text-[#A34DF0] mb-3 robot-text animate-glitch text-center">
+        <h2 className="text-2xl font-bold text-[#1967D2] mb-3 robot-text animate-glitch duration-2000 text-center">
           {title}
         </h2>
         
         {/* Loading animation container - centered */}
         <div className="mb-5 flex justify-center items-center">
-          <div className="w-24 h-24 border-4 border-[#A34DF0]/30 rounded-lg flex items-center justify-center animate-rotate-3d">
-            <div className="w-16 h-16 bg-[#A34DF0]/20 animate-holo rounded"></div>
+          <div className="w-24 h-24 border-4 border-[#E8F0FE] rounded-lg flex items-center justify-center animate-holo">
+            <div className="w-16 h-16 bg-[#E8F0FE] rounded"></div>
           </div>
         </div>
         
         {/* Progress bar */}
-        <div className="w-full h-2 bg-slate-100 rounded-full mb-4 overflow-hidden">
-          <div 
-            className="h-full bg-[#5068FB] rounded-full transition-all duration-300 ease-in-out"
-            style={{ width: `${progress}%` }}
-          ></div>
+        <div className="w-full progress-bar rounded-full mb-4 overflow-hidden">
+          {/* The progress bar is now animated with CSS */}
         </div>
         
         {/* Loading step */}
         <div className="text-center mb-3">
-          <p className="text-[#A34DF0]/80 robot-text animate-blink">
+          <p className="text-[#1967D2] robot-text animate-soft-pulse">
             {loadingSteps[currentStep]}
           </p>
         </div>
         
         {/* Subtitle */}
-        <p className="text-sm text-slate-600 text-center robot-text">
+        <p className="text-sm text-[#5F6368] text-center robot-text">
           {subtitle}
         </p>
         
         {/* Loading percentage */}
-        <div className="absolute bottom-2 right-2 text-xs text-[#5068FB]/70 robot-text">
+        <div className="absolute bottom-2 right-2 text-xs text-[#1967D2] robot-text animate-soft-pulse">
           {progress}%
         </div>
       </div>
