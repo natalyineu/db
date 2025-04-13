@@ -50,7 +50,7 @@ export class KpiService {
       };
       
       const { data: result, error } = await this.supabaseClient
-        .from('campaign_kpis')
+        .from('kpi')
         .insert(data)
         .select()
         .single();
@@ -71,7 +71,7 @@ export class KpiService {
   static async getKpiByCampaignId(campaignId: string): Promise<CampaignKPI[]> {
     try {
       const { data, error } = await this.supabaseClient
-        .from('campaign_kpis')
+        .from('kpi')
         .select('*')
         .eq('campaign_id', campaignId)
         .order('date', { ascending: false });
@@ -97,7 +97,7 @@ export class KpiService {
       // For each campaign, get the most recent KPI data
       const promises = campaignIds.map(async (campaignId) => {
         const { data, error } = await this.supabaseClient
-          .from('campaign_kpis')
+          .from('kpi')
           .select('*')
           .eq('campaign_id', campaignId)
           .order('date', { ascending: false })

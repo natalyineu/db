@@ -1,5 +1,5 @@
 -- Campaign KPIs Table
-CREATE TABLE public.campaign_kpis (
+CREATE TABLE public.kpi (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   campaign_id UUID NOT NULL REFERENCES public.campaigns(id) ON DELETE CASCADE,
   date DATE NOT NULL,
@@ -36,21 +36,21 @@ CREATE TABLE public.campaign_kpis (
 );
 
 -- Indexes
-CREATE INDEX campaign_kpis_campaign_id_idx ON public.campaign_kpis (campaign_id);
-CREATE INDEX campaign_kpis_date_idx ON public.campaign_kpis (date);
+CREATE INDEX kpi_campaign_id_idx ON public.kpi (campaign_id);
+CREATE INDEX kpi_date_idx ON public.kpi (date);
 
 -- RLS Policy: Enable Row Level Security
-ALTER TABLE public.campaign_kpis ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.kpi ENABLE ROW LEVEL SECURITY;
 
 -- Automatic updated_at updates
-CREATE TRIGGER set_campaign_kpis_updated_at
-BEFORE UPDATE ON public.campaign_kpis
+CREATE TRIGGER set_kpi_updated_at
+BEFORE UPDATE ON public.kpi
 FOR EACH ROW
 EXECUTE FUNCTION public.set_updated_at();
 
 -- Add RLS policies
 -- 1. Policy for viewing KPIs (must have access to the campaign via user_id)
-CREATE POLICY "Users can view their own campaign KPIs" ON public.campaign_kpis
+CREATE POLICY "Users can view their own campaign KPIs" ON public.kpi
   FOR SELECT
   USING (
     EXISTS (
@@ -61,7 +61,7 @@ CREATE POLICY "Users can view their own campaign KPIs" ON public.campaign_kpis
   );
 
 -- 2. Policy for inserting KPIs (must have access to the campaign via user_id)
-CREATE POLICY "Users can insert KPIs for their own campaigns" ON public.campaign_kpis
+CREATE POLICY "Users can insert KPIs for their own campaigns" ON public.kpi
   FOR INSERT
   WITH CHECK (
     EXISTS (
@@ -72,7 +72,7 @@ CREATE POLICY "Users can insert KPIs for their own campaigns" ON public.campaign
   );
 
 -- 3. Policy for updating KPIs (must have access to the campaign via user_id)
-CREATE POLICY "Users can update their own campaign KPIs" ON public.campaign_kpis
+CREATE POLICY "Users can update their own campaign KPIs" ON public.kpi
   FOR UPDATE
   USING (
     EXISTS (
@@ -83,7 +83,7 @@ CREATE POLICY "Users can update their own campaign KPIs" ON public.campaign_kpis
   );
 
 -- 4. Policy for deleting KPIs (must have access to the campaign via user_id)
-CREATE POLICY "Users can delete their own campaign KPIs" ON public.campaign_kpis
+CREATE POLICY "Users can delete their own campaign KPIs" ON public.kpi
   FOR DELETE
   USING (
     EXISTS (
