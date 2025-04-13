@@ -372,18 +372,18 @@ export default function Dashboard() {
         {/* Campaigns Section - Completely separate from animation state */}
         <div className="w-full bg-white py-6 border-t border-gray-200">
           <div className="max-w-6xl mx-auto px-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Campaigns</h2>
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Campaigns</h2>
+              
+              {/* Debug info */}
+              {DEBUG && (
+                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                  <p>User ID: {user?.id || 'None'}</p>
+                  <p>Campaigns: {campaigns ? `${campaigns.length} found` : 'None'}</p>
+                  <p>Loading: {campaignsLoading ? 'Yes' : 'No'}</p>
+                </div>
+              )}
             
-            {/* Debug info */}
-            {DEBUG && (
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                <p>User ID: {user?.id || 'None'}</p>
-                <p>Campaigns: {campaigns ? `${campaigns.length} found` : 'None'}</p>
-                <p>Loading: {campaignsLoading ? 'Yes' : 'No'}</p>
-              </div>
-            )}
-            
-            <div className="flex justify-center mb-6">
               {user && (
                 <CreateCampaignButton 
                   userId={user.id} 
