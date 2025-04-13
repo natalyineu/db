@@ -141,9 +141,21 @@ const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: {
   // Loading skeleton
   if (isLoading) {
     return (
-      <div className="animate-pulse space-y-4">
+      <div className="space-y-4">
         {[1, 2, 3].map(i => (
-          <div key={`skeleton-${i}`} className="bg-gray-100 rounded-lg h-32 w-full"></div>
+          <div key={`skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 animate-pulse">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="h-5 bg-gray-200 rounded w-48 mb-2"></div>
+                <div className="h-4 bg-gray-100 rounded w-32"></div>
+              </div>
+              <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+            </div>
+            
+            <div className="mt-4">
+              <div className="h-4 bg-gray-200 rounded w-24"></div>
+            </div>
+          </div>
         ))}
       </div>
     );
