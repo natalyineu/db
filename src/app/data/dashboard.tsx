@@ -218,7 +218,7 @@ export default function Dashboard() {
   const hasReachedLimit = (campaigns?.length || 0) >= CAMPAIGN_LIMIT;
 
   return (
-    <div className={`container mx-auto px-4 py-8 max-w-5xl transition-all duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`bg-white min-h-screen container mx-auto px-4 py-8 max-w-5xl transition-all duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
       <DashboardHeader 
         title="Dashboard" 
         userName={profile.first_name || profile.email || 'User'} 
