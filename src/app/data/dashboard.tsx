@@ -9,6 +9,7 @@ import { CampaignService } from '@/services/campaign-service';
 import type { Campaign } from '@/types';
 import { useProfile } from '@/hooks/useProfile';
 import { Card, DashboardHeader, ProfileInfo } from '@/features/shared/ui';
+import Link from 'next/link';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -199,6 +200,19 @@ export default function Dashboard() {
             )}
           </Card>
         </div>
+      </div>
+      
+      {/* KPI Dashboard section */}
+      <div className={`transition-all duration-300 ease-out will-change-transform ${activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <Card className="mb-8">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold text-[#3C4043]">Campaign Analytics</h2>
+            <Link href="/data/kpi" className="px-4 py-2 bg-[#1967D2] text-white rounded-md hover:bg-[#185ABC] transition-colors">
+              KPI Dashboard
+            </Link>
+          </div>
+          <p className="mt-2 text-gray-600">Track and manage your campaign performance metrics and KPIs.</p>
+        </Card>
       </div>
     </div>
   );
