@@ -9,4 +9,6 @@ export { default as MessageDisplay } from './MessageDisplay';
 export { default as FormInput } from './FormInput';
 export { default as ErrorDisplay } from './ErrorDisplay';
 export { default as FormField } from './FormField';
-export { default as PasswordField } from './PasswordField'; 
+export { default as PasswordField } from './PasswordField';
+export { default as KpiMetricCard } from './KpiMetricCard';
+export { default as AddKpiForm } from './AddKpiForm'; 
