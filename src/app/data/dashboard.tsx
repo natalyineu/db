@@ -27,8 +27,8 @@ export default function Dashboard() {
   // Combined loading state - guaranteed to be true on first render
   const [isLoading, setIsLoading] = useState(true);
 
-  // Animation sequence effect - memoized timing values with smaller delays
-  const sectionTimings = useMemo(() => [300, 500], []);
+  // Animation sequence effect - memoized timing values with consistent, predictable delays
+  const sectionTimings = useMemo(() => [200, 350], []);
   
   // Define loadCampaigns before useEffect to avoid dependency issues
   const loadCampaigns = useCallback(async () => {
@@ -38,10 +38,14 @@ export default function Dashboard() {
     try {
       // Use static method consistently - don't create an unused instance
       const userCampaigns = await CampaignService.getCampaignsByUserId(profile.id);
-      setCampaigns(userCampaigns);
+      
+      // Use requestAnimationFrame to ensure smooth state updates
+      requestAnimationFrame(() => {
+        setCampaigns(userCampaigns);
+        setCampaignsLoading(false);
+      });
     } catch (error) {
       console.error('Error loading campaigns:', error);
-    } finally {
       setCampaignsLoading(false);
     }
   }, [profile]);
@@ -64,31 +68,19 @@ export default function Dashboard() {
       // Start entrance animations after loading completes
       const animationTimer = setTimeout(() => {
         setAnimateIn(true);
-      }, 100); // Reduced from 300 to 100ms
+      }, 50); // Reduced delay
       
-      // Sequence animations only for profile section
-      const sectionTimers = sectionTimings.map((delay, index) => {
-        return setTimeout(() => {
-          setActiveSection(index + 1);
-          if (DEBUG) console.log(`Setting active section to ${index + 1}`);
-        }, delay);
-      });
-      
-      // Force all sections to be visible after some time, as a fallback
-      const fallbackTimer = setTimeout(() => {
-        if (activeSection < sectionTimings.length) {
-          if (DEBUG) console.log(`Forcing all sections visible`);
-          setActiveSection(sectionTimings.length);
-        }
-      }, 1000); // Reduced from 2000 to 1000ms
+      // Use a single setActiveSection call with a delay to prevent multiple renders
+      const sectionTimer = setTimeout(() => {
+        setActiveSection(sectionTimings.length);
+      }, 350); // Single animation delay
       
       return () => {
         clearTimeout(animationTimer);
-        sectionTimers.forEach(timer => clearTimeout(timer));
-        clearTimeout(fallbackTimer);
+        clearTimeout(sectionTimer);
       };
     }
-  }, [isLoading, sectionTimings, activeSection]);
+  }, [isLoading, sectionTimings.length]);
 
   // Log authentication state changes for debugging
   useEffect(() => {
@@ -130,7 +122,8 @@ export default function Dashboard() {
     } catch (error) {
       if (DEBUG) console.error('Error refreshing data:', error);
     } finally {
-      setTimeout(() => setIsRefreshing(false), 600); // Add slight delay for UX
+      // Use a slightly longer timeout for better UX
+      setTimeout(() => setIsRefreshing(false), 700);
     }
   }, [retryProfile, loadCampaigns]);
 
@@ -164,7 +157,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={`container mx-auto py-10 px-4 transition-opacity duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`container mx-auto py-10 px-4 transition-opacity duration-500 ease-out will-change-opacity ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
       <DashboardHeader
         title="Dashboard"
         userName={profile.first_name || profile.email.split('@')[0]}
@@ -175,12 +168,12 @@ export default function Dashboard() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Profile information */}
-        <div className={`lg:col-span-1 transition-all duration-300 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className={`lg:col-span-1 transition-all duration-300 ease-out will-change-transform ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <ProfileInfo profile={profile} />
         </div>
         
         {/* Recent campaigns */}
-        <div className={`lg:col-span-2 transition-all duration-300 ease-out ${activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className={`lg:col-span-2 transition-all duration-300 ease-out will-change-transform ${activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <Card className="h-full">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-[#3C4043]">Recent Campaigns</h2>

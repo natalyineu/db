@@ -18,8 +18,12 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
   
   const handleAssetAdded = useCallback(() => {
     setRefreshing(true);
-    onUpdate();
-    setTimeout(() => setRefreshing(false), 500);
+    // Use requestAnimationFrame to prevent flickering
+    requestAnimationFrame(() => {
+      onUpdate();
+      // Use a longer timeout to ensure the transition completes
+      setTimeout(() => setRefreshing(false), 700);
+    });
   }, [onUpdate]);
   
   const handleEdit = useCallback(() => {
@@ -71,7 +75,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
   const description = (campaign as any).description;
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-[#DADCE0] p-5 mb-5 transition-all duration-200 hover:shadow-md">
+    <div className="bg-white rounded-lg shadow-sm border border-[#DADCE0] p-5 mb-5 transition-all duration-200 hover:shadow-md will-change-auto">
       <div className="flex items-start gap-4">
         {getCampaignIcon(campaign.name)}
         
@@ -144,14 +148,14 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
           
           {/* Display existing assets and add new assets when expanded */}
           {showAssets && (
-            <div className={`mt-4 ${refreshing ? 'opacity-50' : 'opacity-100'} transition-opacity duration-300`}>
+            <div className={`mt-4 transition-opacity duration-500 ease-out ${refreshing ? 'opacity-40' : 'opacity-100'} will-change-opacity`}>
               <h4 className="text-sm font-medium text-[#3C4043] mb-3">Campaign Assets:</h4>
               
               {campaign.assets && campaign.assets.length > 0 ? (
                 <div className="space-y-2">
                   {campaign.assets.map((asset, index) => (
                     <CampaignAssetItem 
-                      key={`asset-${index}`}
+                      key={`asset-${campaign.id}-${index}`}
                       url={asset.url}
                       drive_link={asset.drive_link}
                       notes={asset.notes}
