@@ -24,11 +24,11 @@ export default function Dashboard() {
   const router = useRouter();
   const CAMPAIGN_LIMIT = 2; // New constant for campaign limit
 
-  // Combined loading state
-  const isLoading = authLoading || profileLoading;
+  // Combined loading state - guaranteed to be true on first render
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Animation sequence effect - memoized timing values
-  const sectionTimings = useMemo(() => [500, 800], []);
+  // Animation sequence effect - memoized timing values with smaller delays
+  const sectionTimings = useMemo(() => [300, 500], []);
   
   // Define loadCampaigns before useEffect to avoid dependency issues
   const loadCampaigns = useCallback(async () => {
@@ -46,12 +46,25 @@ export default function Dashboard() {
     }
   }, [profile]);
 
+  // Update the loading state based on auth and profile loading
+  useEffect(() => {
+    // Only set isLoading to false when both auth and profile are done loading
+    if (!authLoading && !profileLoading) {
+      // Add small delay to ensure transitions are smooth
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [authLoading, profileLoading]);
+
   useEffect(() => {
     if (!isLoading) {
       // Start entrance animations after loading completes
       const animationTimer = setTimeout(() => {
         setAnimateIn(true);
-      }, 300);
+      }, 100); // Reduced from 300 to 100ms
       
       // Sequence animations only for profile section
       const sectionTimers = sectionTimings.map((delay, index) => {
@@ -67,7 +80,7 @@ export default function Dashboard() {
           if (DEBUG) console.log(`Forcing all sections visible`);
           setActiveSection(sectionTimings.length);
         }
-      }, 2000);
+      }, 1000); // Reduced from 2000 to 1000ms
       
       return () => {
         clearTimeout(animationTimer);
@@ -85,6 +98,13 @@ export default function Dashboard() {
       router.push('/login');
     }
   }, [authLoading, isAuthenticated, router]);
+
+  // Load campaigns once profile is available
+  useEffect(() => {
+    if (profile && !campaigns) {
+      loadCampaigns();
+    }
+  }, [profile, campaigns, loadCampaigns]);
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -114,15 +134,8 @@ export default function Dashboard() {
     }
   }, [retryProfile, loadCampaigns]);
 
-  // Load campaigns once profile is available
-  useEffect(() => {
-    if (profile && !campaigns) {
-      loadCampaigns();
-    }
-  }, [profile, campaigns, loadCampaigns]);
-
   if (isLoading) {
-    return <RobotLoader title="Loading Dashboard" subtitle="Preparing your account data..." />;
+    return <RobotLoader title="Building Dashboard" subtitle="Our robots are assembling your dashboard..." />;
   }
 
   if (profileError) {
@@ -162,12 +175,12 @@ export default function Dashboard() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         {/* Profile information */}
-        <div className={`lg:col-span-1 transition-all duration-500 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className={`lg:col-span-1 transition-all duration-300 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <ProfileInfo profile={profile} />
         </div>
         
         {/* Recent campaigns */}
-        <div className={`lg:col-span-2 transition-all duration-500 ease-out ${activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+        <div className={`lg:col-span-2 transition-all duration-300 ease-out ${activeSection >= 2 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <Card className="h-full">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-[#3C4043]">Recent Campaigns</h2>
@@ -194,8 +207,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-      
-      {/* Additional dashboard content could go here */}
     </div>
   );
 } 

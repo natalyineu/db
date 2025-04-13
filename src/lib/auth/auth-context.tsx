@@ -30,6 +30,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = useSupabase();
   const router = useRouter();
   
+  // Track initialization status
+  const hasInitialized = useRef(false);
+  
   // Get profile manager hooks
   const { fetchUserProfile: fetchProfileBase, ensureUserProfile: ensureProfileBase, isFetchingProfile } = useProfileManager(supabase);
   
@@ -57,8 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, fetchUserProfile, isFetchingProfile]);
 
-  // Initialize auth state
+  // Initialize auth state - with optimizations to reduce flickering
   useEffect(() => {
+    // Skip repeated initializations
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+    
     let mounted = true; // Track if component is mounted
     let initTimer: NodeJS.Timeout | null = null;
     
@@ -74,16 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fetchUserProfile
       });
       
-      if (mounted) {
-        // Ensure isLoading is set to false regardless of outcome
-        initTimer = setTimeout(() => {
-          if (mounted) {
-            setIsLoading(false);
-            setLoadingState(prev => ({ ...prev, initial: false }));
-            if (DEBUG) console.log('Auth initialization complete, loading state set to false');
-          }
-        }, 100); // Small delay to allow state updates to propagate
-      }
+      // The loading state is now handled in initializeAuth with a timeout guarantee
     };
 
     initialize();
@@ -95,13 +93,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (DEBUG) console.log('Auth state changed:', event);
         
-        setSession(session);
-        setUser(session?.user ?? null);
+        // Optimize by checking if session actually changed
+        const sessionChanged = 
+          (!session && !!session) || 
+          (!!session && !session) || 
+          (session?.user.id !== session?.user.id);
         
-        if (session?.user) {
-          await fetchUserProfile(session.user.id);
-        } else {
-          setProfile(null);
+        if (sessionChanged) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            // Don't wait for profile fetch to complete - it'll update asynchronously
+            fetchUserProfile(session.user.id).catch(err => {
+              if (DEBUG) console.error('Error fetching profile on auth change:', err);
+            });
+          } else {
+            setProfile(null);
+          }
         }
       }
     );

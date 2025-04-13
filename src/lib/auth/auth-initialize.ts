@@ -30,6 +30,15 @@ export const initializeAuth = async (
     fetchUserProfile 
   } = options;
 
+  // Set a timeout to ensure we don't wait too long for initialization
+  // This helps prevent UI flickering by ensuring loading state will end
+  const initTimeoutPromise = new Promise(resolve => {
+    setTimeout(() => {
+      if (DEBUG) console.log('Auth initialization timeout reached');
+      resolve({ data: { session: null }, error: null });
+    }, 2000); // 2 second timeout max
+  });
+
   try {
     if (mounted) {
       setIsLoading(true);
@@ -38,9 +47,13 @@ export const initializeAuth = async (
     
     if (DEBUG) console.log('Initializing auth context');
     
-    // Get current session with explicit error handling
+    // Get current session with explicit error handling and timeout
     try {
-      const { data, error } = await supabase.auth.getSession();
+      // Race the session fetch with a timeout to ensure we don't wait too long
+      const { data, error } = await Promise.race([
+        supabase.auth.getSession(),
+        initTimeoutPromise
+      ]) as any;
       
       if (error) {
         throw error;
@@ -55,8 +68,10 @@ export const initializeAuth = async (
         setSession(session);
         setUser(session.user);
         
-        // Fetch user profile if we have a valid user ID
-        await fetchUserProfile(session.user.id);
+        // Start profile fetch, but don't await it to speed up initial render
+        fetchUserProfile(session.user.id).catch(err => {
+          if (DEBUG) console.error('Background profile fetch error:', err);
+        });
       } else {
         if (DEBUG) console.log('No valid session found');
         setSession(null);
@@ -66,9 +81,12 @@ export const initializeAuth = async (
     } catch (sessionError) {
       if (DEBUG) console.error('Error getting session:', sessionError);
       
-      // Try refreshing the session if it failed
+      // Try refreshing the session if it failed, with timeout
       try {
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+        const { data: refreshData, error: refreshError } = await Promise.race([
+          supabase.auth.refreshSession(),
+          initTimeoutPromise
+        ]) as any;
         
         if (refreshError) {
           throw refreshError;
@@ -83,8 +101,10 @@ export const initializeAuth = async (
           setSession(refreshedSession);
           setUser(refreshedSession.user);
           
-          // Fetch user profile with refreshed session
-          await fetchUserProfile(refreshedSession.user.id);
+          // Start profile fetch in background
+          fetchUserProfile(refreshedSession.user.id).catch(err => {
+            if (DEBUG) console.error('Background profile fetch error after refresh:', err);
+          });
         } else {
           if (DEBUG) console.log('No valid session after refresh');
           setSession(null);
@@ -106,5 +126,16 @@ export const initializeAuth = async (
     setSession(null);
     setUser(null);
     setProfile(null);
+  } finally {
+    // Always ensure loading state ends, even if there are errors
+    if (mounted) {
+      setTimeout(() => {
+        if (mounted) {
+          setIsLoading(false);
+          setLoadingState(prev => ({ ...prev, initial: false }));
+          if (DEBUG) console.log('Auth initialization complete, loading state set to false');
+        }
+      }, 100);
+    }
   }
 }; 

@@ -13,12 +13,21 @@ export const useProfileManager = (supabase: SupabaseClient) => {
   const isFetchingProfile = useRef(false);
   // Ref to track last fetch time to prevent rapid requests
   const lastFetchTime = useRef(0);
+  // Cache the profile to reduce flickering on re-renders
+  const profileCache = useRef<{[userId: string]: UserProfile | null}>({});
 
   // Define fetchUserProfile with useCallback to prevent recreation on every render
   const fetchUserProfile = useCallback(async (userId: string, setProfile: (profile: UserProfile | null) => void, setError: (error: string | null) => void, setLoadingState: (updater: (prev: any) => any) => void) => {
-    // Prevent concurrent fetches and rate limit to no more than once per second
+    // Check cache first to reduce flickering
+    if (profileCache.current[userId]) {
+      if (DEBUG) console.log('Using cached profile for user:', userId);
+      setProfile(profileCache.current[userId]);
+      // Still fetch in background to ensure fresh data
+    }
+    
+    // Prevent concurrent fetches and rate limit to no more than once per 500ms (reduced from 1000ms)
     const now = Date.now();
-    if (isFetchingProfile.current || (now - lastFetchTime.current < 1000)) {
+    if (isFetchingProfile.current || (now - lastFetchTime.current < 500)) {
       if (DEBUG) console.log('Skipping profile fetch - already in progress or too soon');
       return;
     }
@@ -40,9 +49,9 @@ export const useProfileManager = (supabase: SupabaseClient) => {
         .eq('id', userId)
         .single();
       
-      // Set up a race with a timeout promise - increased from 5 to 15 seconds
+      // Set up a race with a timeout promise - now 5 seconds (reduced from 15)
       const timeoutPromise = new Promise((_, reject) => {
-        timeoutId = setTimeout(() => reject(new Error('Profile fetch timed out after 15 seconds')), 15000);
+        timeoutId = setTimeout(() => reject(new Error('Profile fetch timed out after 5 seconds')), 5000);
       });
       
       // Race the fetch against the timeout
@@ -99,30 +108,40 @@ export const useProfileManager = (supabase: SupabaseClient) => {
         
         if (DEBUG) console.log('Profile created and fetched successfully:', newData.email);
         
-        setProfile({
+        const newProfile = {
           id: newData.id,
           email: newData.email,
           created_at: newData.created_at,
           updated_at: newData.updated_at,
           status: newData.status ? String(newData.status) : undefined
-        });
+        };
+        
+        // Update cache
+        profileCache.current[userId] = newProfile;
+        setProfile(newProfile);
       } else {
         if (DEBUG) console.log('Profile fetched successfully:', data.email);
         
-        setProfile({
+        const existingProfile = {
           id: data.id,
           email: data.email,
           created_at: data.created_at,
           updated_at: data.updated_at,
           status: data.status ? String(data.status) : undefined
-        });
+        };
+        
+        // Update cache
+        profileCache.current[userId] = existingProfile;
+        setProfile(existingProfile);
       }
       
       // Clear any previous errors
       setError(null);
     } catch (error) {
       if (DEBUG) console.error('Error fetching profile:', error);
-      setProfile(null);
+      if (!profileCache.current[userId]) {
+        setProfile(null);
+      }
       
       // Set an error message for profile fetch failure
       if (error instanceof Error) {

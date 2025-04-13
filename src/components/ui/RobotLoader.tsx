@@ -12,17 +12,17 @@ interface RobotLoaderProps {
 const RobotLoader = ({
   title = "Loading",
   subtitle = "Please wait...",
-  loadingTime = 3000,
+  loadingTime = 2000,
 }: RobotLoaderProps) => {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   
   const loadingSteps = [
-    "Initializing system",
-    "Preparing your account",
-    "Verifying credentials",
-    "Loading resources",
-    "Almost there"
+    "Initializing robots",
+    "Assembling components",
+    "Connecting circuits",
+    "Testing systems",
+    "Finalizing build"
   ];
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const RobotLoader = ({
           clearInterval(interval);
           return 100;
         }
-        return prev + 1;
+        return prev + 2;
       });
     }, loadingTime / 100);
 
@@ -73,16 +73,36 @@ const RobotLoader = ({
           {title}
         </h2>
         
-        {/* Loading animation container - centered */}
+        {/* Robot building animation container */}
         <div className="mb-5 flex justify-center items-center">
-          <div className="w-24 h-24 border-4 border-[#E8F0FE] rounded-lg flex items-center justify-center animate-holo">
-            <div className="w-16 h-16 bg-[#E8F0FE] rounded"></div>
+          <div className="robot-builder-container">
+            <div className="account-frame"></div>
+            
+            {/* Robots working on building */}
+            <div className="robot-left">
+              <div className="w-2 h-2 bg-yellow-400 absolute top-1 right-1 spark-flash-animation"></div>
+            </div>
+            <div className="robot-right">
+              <div className="w-2 h-2 bg-yellow-400 absolute top-1 left-1 spark-flash-animation delay-200"></div>
+            </div>
+            
+            {/* Gears */}
+            <div className="gear gear-1"></div>
+            <div className="gear gear-2"></div>
+            
+            {/* Sparks */}
+            <div className="spark spark-1"></div>
+            <div className="spark spark-2"></div>
+            <div className="spark spark-3"></div>
           </div>
         </div>
         
         {/* Progress bar */}
         <div className="w-full progress-bar rounded-full mb-4 overflow-hidden">
-          {/* The progress bar is now animated with CSS */}
+          <div 
+            className="h-2 bg-[#1967D2] rounded-full" 
+            style={{ width: `${progress}%`, transition: 'width 0.2s ease' }}
+          ></div>
         </div>
         
         {/* Loading step */}
