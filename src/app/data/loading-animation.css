@@ -1,50 +1,38 @@
 @keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
 }
 
 @keyframes pulse-border {
-  0% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(99, 102, 241, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
 }
 
 /* Robot animation keyframes */
 @keyframes robot-move {
-  0% { transform: translateX(-20px); }
-  50% { transform: translateX(20px); }
-  100% { transform: translateX(-20px); }
-}
-
-@keyframes robot-work {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(-10deg); }
-  75% { transform: rotate(10deg); }
-  100% { transform: rotate(0deg); }
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-5px) rotate(-2deg); }
+  75% { transform: translateY(5px) rotate(2deg); }
 }
 
 @keyframes gear-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes spark {
-  0% { opacity: 0; transform: scale(0) rotate(0deg); }
-  50% { opacity: 1; transform: scale(1) rotate(180deg); }
-  100% { opacity: 0; transform: scale(0) rotate(360deg); }
+@keyframes spark-flash {
+  0%, 100% { opacity: 0; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes soft-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes phase-transition {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .float-animation {
@@ -53,27 +41,129 @@
 
 .pulse-border-animation {
   animation: pulse-border 2s infinite;
+}
+
+.robot-move-animation {
+  animation: robot-move 3s ease-in-out infinite;
+}
+
+.gear-spin-animation {
+  animation: gear-spin 8s linear infinite;
+}
+
+.spark-flash-animation {
+  animation: spark-flash 0.8s ease-in-out infinite;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(99, 102, 241, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid rgba(99, 102, 241, 1);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+.robot-builder-container {
   position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 12px;
   overflow: hidden;
 }
 
-.pulse-border-animation::before {
-  content: '';
+.account-frame {
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  transform: skewX(-25deg);
-  animation: shimmer 2s infinite;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 3px dashed rgba(99, 102, 241, 0.5);
+  border-radius: 8px;
+  animation: pulse-border 2s infinite;
 }
 
+.gear {
+  position: absolute;
+  background: rgba(99, 102, 241, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gear::before, .gear::after {
+  content: '';
+  position: absolute;
+  background: rgba(99, 102, 241, 0.7);
+}
+
+.gear-1 {
+  width: 40px;
+  height: 40px;
+  top: 30px;
+  left: 30px;
+  animation: gear-spin 8s linear infinite;
+}
+
+.gear-2 {
+  width: 30px;
+  height: 30px;
+  bottom: 30px;
+  right: 30px;
+  animation: gear-spin 6s linear infinite reverse;
+}
+
+.robot-left, .robot-right {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  background: rgba(99, 102, 241, 0.8);
+  border-radius: 5px;
+}
+
+.robot-left {
+  top: 60px;
+  left: 30px;
+  animation: robot-move 2.5s ease-in-out infinite;
+}
+
+.robot-right {
+  bottom: 60px;
+  right: 30px;
+  animation: robot-move 2.5s ease-in-out infinite 0.5s;
+}
+
+.spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffcc00;
+  border-radius: 50%;
+}
+
+.spark-1 {
+  top: 70px;
+  left: 100px;
+  animation: spark-flash 0.6s ease-in-out infinite;
+}
+
+.spark-2 {
+  top: 120px;
+  left: 80px;
+  animation: spark-flash 0.6s ease-in-out infinite 0.2s;
+}
+
+.spark-3 {
+  top: 100px;
+  right: 70px;
+  animation: spark-flash 0.6s ease-in-out infinite 0.4s;
+}
+
+/* Add delay classes for animations */
 .delay-100 {
   animation-delay: 0.1s;
 }
@@ -82,251 +172,9 @@
   animation-delay: 0.2s;
 }
 
-.delay-300 {
-  animation-delay: 0.3s;
-}
-
-.loading-spinner {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  perspective: 800px;
-}
-
-.loading-spinner .inner {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-}
-
-.loading-spinner .inner.one {
-  border: 4px solid rgba(129, 140, 248, 0.2);
-  border-left: 4px solid #818cf8;
-  animation: spin 1s linear infinite;
-}
-
-.loading-spinner .inner.two {
-  border: 4px solid rgba(99, 102, 241, 0.2);
-  border-top: 4px solid #6366f1;
-  animation: spin 0.75s linear infinite reverse;
-}
-
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Robot builder animation container */
-.robot-builder-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto;
-}
-
-/* Robot 1 - Left */
-.robot-left {
-  position: absolute;
-  width: 30px;
-  height: 40px;
-  background: #6366f1;
-  border-radius: 8px 8px 0 0;
-  bottom: 30px;
-  left: 30px;
-  animation: robot-move 3s infinite ease-in-out;
-}
-
-.robot-left::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 10px;
-  background: #4f46e5;
-  border-radius: 10px 10px 0 0;
-  top: -5px;
-  left: 5px;
-}
-
-/* Robot 2 - Right */
-.robot-right {
-  position: absolute;
-  width: 30px;
-  height: 40px;
-  background: #818cf8;
-  border-radius: 8px 8px 0 0;
-  top: 30px;
-  right: 30px;
-  animation: robot-move 3s infinite ease-in-out reverse;
-}
-
-.robot-right::after {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 10px;
-  background: #6366f1;
-  border-radius: 10px 10px 0 0;
-  top: -5px;
-  left: 5px;
-}
-
-/* Gear animation */
-.gear {
-  position: absolute;
-  border-radius: 50%;
-  background: #4f46e5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.gear::before {
-  content: '';
-  position: absolute;
-  width: 40%;
-  height: 40%;
-  background: #fff;
-  border-radius: 50%;
-}
-
-.gear-1 {
-  width: 40px;
-  height: 40px;
-  top: 30px;
-  left: 30px;
-  animation: rotate 4s linear infinite;
-}
-
-.gear-2 {
-  width: 30px;
-  height: 30px;
-  bottom: 40px;
-  right: 40px;
-  animation: rotate 3s linear infinite reverse;
-}
-
-/* Spark animations */
-.spark {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  background: #eef2ff;
-  border-radius: 50%;
-  filter: blur(1px);
-  opacity: 0;
-}
-
-.spark-1 {
-  top: 50px;
-  left: 50px;
-  animation: spark 2s infinite ease-out;
-}
-
-.spark-2 {
-  top: 120px;
-  right: 60px;
-  animation: spark 2s infinite ease-out 0.6s;
-}
-
-.spark-3 {
-  bottom: 70px;
-  left: 90px;
-  animation: spark 2s infinite ease-out 1.2s;
-}
-
-/* Digital frame to represent account being built */
-.account-frame {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 120px;
-  height: 120px;
-  border: 4px solid #6366f1;
-  border-radius: 12px;
-  animation: pulse 2s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.05);
-    opacity: 1;
-  }
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes robot-move {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(15px);
-  }
-}
-
-@keyframes spark {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  20% {
-    transform: scale(1.5);
-    opacity: 1;
-  }
-  50%, 100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-/* Pulse border animation */
-.pulse-border-animation {
-  position: relative;
-  overflow: hidden;
-}
-
-.pulse-border-animation::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 9999px;
-  border: 2px solid rgba(79, 70, 229, 0.3);
-  animation: pulse-border 2s infinite ease-out;
-}
-
-@keyframes pulse-border {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.3);
-  }
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(79, 70, 229, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* New startup animations for the dashboard */
@@ -379,15 +227,6 @@
   }
   100% {
     transform: scale(1);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-15px);
   }
 }
 
@@ -501,20 +340,9 @@
   100% { width: 100%; }
 }
 
-@keyframes phase-transition {
-  0% { opacity: 0; transform: translateY(10px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
-}
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-}
-
-@keyframes soft-pulse {
-  0% { opacity: 0.7; transform: scale(0.97); }
-  50% { opacity: 1; transform: scale(1); }
-  100% { opacity: 0.7; transform: scale(0.97); }
 }
 
 .shimmer-effect {
@@ -527,11 +355,11 @@
 }
 
 .animate-soft-pulse {
-  animation: soft-pulse 3s infinite ease-in-out;
+  animation: soft-pulse 1.5s infinite ease-in-out;
 }
 
 .animate-phase-transition {
-  animation: phase-transition 0.6s ease-out;
+  animation: phase-transition 0.5s ease-out forwards;
 }
 
 .progress-bar {
@@ -540,4 +368,151 @@
   border-radius: 2px;
   transition: width 0.5s ease-in-out;
   animation: progress-bar 15s linear forwards;
+}
+
+/* Enhanced Robot Loader animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-2px); }
+  40% { transform: translateX(2px); }
+  60% { transform: translateX(-1px); }
+  80% { transform: translateX(1px); }
+}
+
+@keyframes scan-line {
+  0% { 
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% { opacity: 1; }
+  100% { 
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes rotate-3d {
+  0% { transform: perspective(500px) rotateY(0deg); }
+  50% { transform: perspective(500px) rotateY(180deg); }
+  100% { transform: perspective(500px) rotateY(360deg); }
+}
+
+@keyframes holo-shine {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Animation utility classes for the enhanced robot loader */
+.animate-blink {
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.8s ease-in-out infinite;
+}
+
+.animate-scan-line {
+  animation: scan-line 3s linear infinite;
+}
+
+.animate-rotate-3d {
+  animation: rotate-3d 5s ease-in-out infinite;
+}
+
+.animate-holo {
+  background: linear-gradient(90deg, 
+    rgba(163, 77, 240, 0.1) 0%, 
+    rgba(163, 77, 240, 0.2) 25%, 
+    rgba(80, 104, 251, 0.3) 50%, 
+    rgba(163, 77, 240, 0.2) 75%,
+    rgba(163, 77, 240, 0.1) 100%);
+  background-size: 200% 100%;
+  animation: holo-shine 5s linear infinite;
+}
+
+/* Robot loader enhancement classes */
+.enhanced-robot-container {
+  position: relative;
+  border: 1px solid rgba(163, 77, 240, 0.2);
+  box-shadow: 0 0 15px rgba(163, 77, 240, 0.1);
+  overflow: hidden;
+}
+
+.robot-scan-line {
+  position: absolute;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(90deg, 
+    rgba(163, 77, 240, 0) 0%, 
+    rgba(163, 77, 240, 0.8) 50%, 
+    rgba(163, 77, 240, 0) 100%);
+  animation: scan-line 3s linear infinite;
+}
+
+.robot-panel {
+  position: absolute;
+  background: rgba(163, 77, 240, 0.1);
+  border: 1px solid rgba(163, 77, 240, 0.3);
+  border-radius: 4px;
+}
+
+.robot-indicator {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(163, 77, 240, 0.7);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.robot-text {
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+.circuit-path {
+  position: absolute;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(163, 77, 240, 0.1) 0%, 
+    rgba(163, 77, 240, 0.6) 50%, 
+    rgba(163, 77, 240, 0.1) 100%);
+}
+
+/* Add variety to delay animations */
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+.duration-1500 {
+  animation-duration: 1.5s;
+}
+
+.duration-2000 {
+  animation-duration: 2s;
+}
+
+.duration-3000 {
+  animation-duration: 3s;
 } 

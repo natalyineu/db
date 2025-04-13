@@ -22,23 +22,24 @@ const DashboardHeader = memo(({ title, userName, onSignOut, onRefresh, isRefresh
   onRefresh: () => void;
   isRefreshing: boolean;
 }) => (
-  <div className="mb-4 text-center transform transition-all duration-700 ease-out translate-y-0 opacity-100">
+  <div className="mb-6 text-center transform transition-all duration-700 ease-out translate-y-0 opacity-100">
     <div className="inline-block relative">
-      <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-500 relative z-10">
+      <h1 className="text-3xl font-bold text-[#A34DF0] relative z-10">
         {title}
       </h1>
-      <div className="absolute -bottom-1 left-0 w-full h-2 bg-gradient-to-r from-indigo-100 to-blue-100 rounded-full transform scale-110 opacity-70"></div>
+      <div className="absolute -bottom-1 left-0 w-full h-2 bg-[#A34DF0]/20 rounded-full transform scale-110"></div>
     </div>
-    <p className="mt-2 text-base text-gray-600">Welcome to your personal account dashboard, {userName}!</p>
-    <div className="mt-2 flex justify-center space-x-2">
+    <p className="mt-2 text-base text-slate-600">Welcome to your personal account dashboard, {userName}!</p>
+    <div className="mt-3 flex justify-center space-x-3">
       <button 
         onClick={onRefresh}
         disabled={isRefreshing}
-        className={`px-3 py-1 ${isRefreshing ? 'bg-blue-50 text-blue-400' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'} rounded-md transition-colors text-sm flex items-center`}
+        className={`px-4 py-2 ${isRefreshing ? 'bg-[#5068FB]/30 text-[#5068FB]/60' : 'bg-[#5068FB]/10 text-[#5068FB] hover:bg-[#5068FB]/20'} rounded-md transition-colors text-sm flex items-center font-medium`}
+        aria-label="Refresh dashboard"
       >
         {isRefreshing ? (
           <>
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-[#5068FB]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -55,7 +56,8 @@ const DashboardHeader = memo(({ title, userName, onSignOut, onRefresh, isRefresh
       </button>
       <button 
         onClick={onSignOut}
-        className="px-3 py-1 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors text-sm"
+        className="px-4 py-2 bg-[#5068FB] text-white rounded-md hover:bg-[#4058EB] transition-colors text-sm font-medium"
+        aria-label="Sign out"
       >
         Sign Out
       </button>
@@ -74,13 +76,13 @@ const ProfileInfo = memo(({ profile }: { profile: UserProfile }) => {
   ], [profile]);
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm transform transition-all duration-500 ease-out translate-y-0 opacity-100">
-      <h2 className="text-xl font-semibold text-gray-800 mb-3">Profile Information</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div className="bg-white rounded-xl p-6 shadow-sm transform transition-all duration-500 ease-out translate-y-0 opacity-100 border border-[#A34DF0]/10">
+      <h2 className="text-xl font-semibold text-slate-800 mb-4">Profile Information</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {profileInfo.map((item, index) => (
           <div key={`profile-${index}`} className="flex flex-col animate-fade-in" style={{ animationDelay: `${400 + index * 100}ms` }}>
-            <span className="text-sm text-gray-500">{item.label}</span>
-            <span className="text-gray-800 font-medium">{formatProfileField(item.value)}</span>
+            <span className="text-sm font-medium text-slate-500">{item.label}</span>
+            <span className="text-slate-800 font-medium mt-1">{formatProfileField(item.value)}</span>
           </div>
         ))}
       </div>
@@ -98,6 +100,7 @@ export default function Dashboard() {
   const [campaignsLoading, setCampaignsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
+  const CAMPAIGN_LIMIT = 2; // New constant for campaign limit
 
   // Combined loading state
   const isLoading = authLoading || profileLoading;
@@ -192,7 +195,7 @@ export default function Dashboard() {
   
   // Show loading state
   if (isLoading) {
-    return <RobotLoader title="Loading Dashboard" subtitle="Preparing your account" />;
+    return <RobotLoader title="Loading Dashboard" subtitle="Preparing your account" loadingTime={5000} />;
   }
   
   // Show error state
@@ -208,11 +211,14 @@ export default function Dashboard() {
   
   // If we don't have a profile somehow, but no error either
   if (!profile) {
-    return <RobotLoader title="Loading Profile" subtitle="Still working on it..." showRetry />;
+    return <RobotLoader title="Loading Profile" subtitle="Still working on it..." loadingTime={4000} />;
   }
 
+  // Check if user has reached campaign limit
+  const hasReachedLimit = (campaigns?.length || 0) >= CAMPAIGN_LIMIT;
+
   return (
-    <div className={`container mx-auto px-4 py-8 transition-all duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+    <div className={`container mx-auto px-4 py-8 max-w-5xl transition-all duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
       <DashboardHeader 
         title="Dashboard" 
         userName={profile.first_name || profile.email || 'User'} 
@@ -232,16 +238,28 @@ export default function Dashboard() {
       <div className={`mt-8 transition-all duration-500 ease-out ${activeSection > 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} 
            style={{ transitionDelay: '200ms' }}>
         <Card>
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Your Campaigns</h2>
-              <CreateCampaignButton userId={profile.id} onCampaignCreated={loadCampaigns} />
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-xl font-semibold text-slate-800">Your Campaigns</h2>
+              
+              {/* Only show Create Campaign button if under limit */}
+              {!hasReachedLimit && (
+                <CreateCampaignButton userId={profile.id} onCampaignCreated={loadCampaigns} />
+              )}
+              
+              {/* Show limit reached message if at limit */}
+              {hasReachedLimit && (
+                <span className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-md">
+                  Limit of {CAMPAIGN_LIMIT} campaigns reached
+                </span>
+              )}
             </div>
             
             <CampaignList 
               campaigns={campaigns || []}
               isLoading={campaignsLoading}
               onRefreshNeeded={loadCampaigns}
+              showEditButton={true}
             />
           </div>
         </Card>

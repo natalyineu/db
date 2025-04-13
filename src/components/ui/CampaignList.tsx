@@ -7,10 +7,10 @@ import { useSortedPagination } from '@/hooks/useSortedPagination';
 // Display status badge with appropriate color
 const CampaignStatusBadge = memo(({ status }: { status: CampaignStatus }) => {
   const statusStyles = {
-    active: 'bg-gradient-to-r from-green-50 to-green-100 text-green-800 border-green-200',
-    paused: 'bg-gradient-to-r from-yellow-50 to-yellow-100 text-yellow-800 border-yellow-200',
-    completed: 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 border-blue-200',
-    draft: 'bg-gradient-to-r from-gray-50 to-gray-100 text-gray-800 border-gray-200'
+    active: 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800',
+    paused: 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800',
+    completed: 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800',
+    draft: 'bg-slate-100 text-slate-800 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
   };
 
   const statusIcons = {
@@ -37,7 +37,7 @@ const CampaignStatusBadge = memo(({ status }: { status: CampaignStatus }) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusStyles[status] || statusStyles.draft}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${statusStyles[status] || statusStyles.draft}`}>
       {statusIcons[status]}
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
@@ -108,7 +108,11 @@ const CampaignAssetItem = memo(({ url, drive_link, notes }: {
 CampaignAssetItem.displayName = 'CampaignAssetItem';
 
 // Campaign item component
-const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdate: () => void }) => {
+const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: { 
+  campaign: Campaign; 
+  onUpdate: () => void;
+  showEditButton?: boolean;
+}) => {
   const [showAssets, setShowAssets] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   
@@ -117,6 +121,12 @@ const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdat
     onUpdate();
     setTimeout(() => setRefreshing(false), 500);
   }, [onUpdate]);
+  
+  const handleEdit = useCallback(() => {
+    // This would typically open an edit modal or navigate to an edit page
+    alert(`Edit campaign: ${campaign.name}`);
+    // Implement actual edit functionality here
+  }, [campaign.name]);
   
   // Campaign type icon based on name (just a simple mapping for variety)
   const getCampaignIcon = (name: string) => {
@@ -158,23 +168,23 @@ const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdat
   };
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-4 transition-all duration-200 hover:shadow-md">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-5 mb-4 transition-all duration-200 hover:shadow-md">
       <div className="flex items-start gap-4">
         {getCampaignIcon(campaign.name)}
         
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-lg font-medium text-gray-900">{campaign.name}</h3>
-              <div className="flex items-center text-sm text-gray-500 mt-1">
-                <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <h3 className="text-lg font-medium text-slate-900 dark:text-white">{campaign.name}</h3>
+              <div className="flex items-center text-sm text-slate-500 dark:text-slate-400 mt-1">
+                <svg className="w-4 h-4 mr-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Created: {formatDate(campaign.created_at)}
                 
                 {campaign.start_date && (
                   <span className="ml-3 flex items-center">
-                    <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 mr-1 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Started: {formatDate(campaign.start_date)}
@@ -182,7 +192,21 @@ const CampaignItem = memo(({ campaign, onUpdate }: { campaign: Campaign; onUpdat
                 )}
               </div>
             </div>
-            <CampaignStatusBadge status={campaign.status} />
+            <div className="flex items-center gap-2">
+              {showEditButton && (
+                <button
+                  onClick={handleEdit}
+                  className="text-sm font-medium text-slate-600 hover:text-slate-900 focus:outline-none flex items-center bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-md transition-colors"
+                  aria-label="Edit campaign"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+              )}
+              <CampaignStatusBadge status={campaign.status} />
+            </div>
           </div>
           
           <div className="mt-4 flex items-center">
@@ -331,10 +355,11 @@ const Pagination = memo(({
 Pagination.displayName = 'Pagination';
 
 // Main campaign list component
-const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: { 
+const CampaignList = ({ campaigns, isLoading, onRefreshNeeded, showEditButton = false }: { 
   campaigns: Campaign[] | null; 
   isLoading: boolean;
   onRefreshNeeded?: () => void;
+  showEditButton?: boolean;
 }) => {
   // Use our custom pagination and sorting hook
   const {
@@ -491,7 +516,8 @@ const CampaignList = ({ campaigns, isLoading, onRefreshNeeded }: {
           <CampaignItem 
             key={campaign.id}
             campaign={campaign} 
-            onUpdate={handleCampaignUpdate} 
+            onUpdate={handleCampaignUpdate}
+            showEditButton={showEditButton}
           />
         ))}
       </div>
