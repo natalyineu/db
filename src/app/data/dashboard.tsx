@@ -7,7 +7,9 @@ import './loading-animation.css';
 import { formatDate, formatProfileField } from '@/utils';
 import { RobotLoader, ErrorDisplay, CampaignList, CreateCampaignButton } from '@/components/ui';
 import { CampaignService } from '@/services/campaign-service';
-import type { Campaign } from '@/types';
+import type { Campaign, UserProfile } from '@/types';
+import { useProfile } from '@/hooks/useProfile';
+import Card from '@/features/shared/ui/Card';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -63,7 +65,7 @@ const DashboardHeader = memo(({ title, userName, onSignOut, onRefresh, isRefresh
 DashboardHeader.displayName = 'DashboardHeader';
 
 // Memoized Profile Info component
-const ProfileInfo = memo(({ profile }: { profile: any }) => {
+const ProfileInfo = memo(({ profile }: { profile: UserProfile }) => {
   const profileInfo = useMemo(() => [
     { label: 'Email', value: profile.email },
     { label: 'Account ID', value: profile.id?.substring(0, 8) + '...' },
@@ -88,11 +90,8 @@ const ProfileInfo = memo(({ profile }: { profile: any }) => {
 ProfileInfo.displayName = 'ProfileInfo';
 
 export default function Dashboard() {
-  const { profile, signOut, isLoading, refreshProfile, error: authError, isAuthenticated, user } = useAuth();
-  const [retryCount, setRetryCount] = useState(0);
-  const [localLoading, setLocalLoading] = useState(true);
-  const [localError, setLocalError] = useState<string | null>(null);
-  const [localProfile, setLocalProfile] = useState<any>(null);
+  const { signOut, isLoading: authLoading, isAuthenticated } = useAuth();
+  const { profile, loading: profileLoading, error: profileError, retry: retryProfile } = useProfile(3);
   const [animateIn, setAnimateIn] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [campaigns, setCampaigns] = useState<Campaign[] | null>(null);
@@ -100,14 +99,30 @@ export default function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const router = useRouter();
 
-  // Memoized profile for display
-  const displayProfile = useMemo(() => profile || localProfile, [profile, localProfile]);
+  // Combined loading state
+  const isLoading = authLoading || profileLoading;
 
   // Animation sequence effect - memoized timing values
   const sectionTimings = useMemo(() => [500, 800, 1100, 1400], []);
   
+  // Define loadCampaigns before useEffect to avoid dependency issues
+  const loadCampaigns = useCallback(async () => {
+    if (!profile) return;
+    
+    setCampaignsLoading(true);
+    try {
+      // Use static method consistently - don't create an unused instance
+      const userCampaigns = await CampaignService.getCampaignsByUserId(profile.id);
+      setCampaigns(userCampaigns);
+    } catch (error) {
+      console.error('Error loading campaigns:', error);
+    } finally {
+      setCampaignsLoading(false);
+    }
+  }, [profile]);
+
   useEffect(() => {
-    if (!isLoading && !localLoading) {
+    if (!isLoading) {
       // Start entrance animations after loading completes
       const animationTimer = setTimeout(() => {
         setAnimateIn(true);
@@ -135,116 +150,20 @@ export default function Dashboard() {
         clearTimeout(fallbackTimer);
       };
     }
-  }, [isLoading, localLoading, sectionTimings, activeSection]);
+  }, [isLoading, sectionTimings, activeSection]);
 
   // Log authentication state changes for debugging
   useEffect(() => {
-    if (DEBUG) {
-      console.log('Auth state in dashboard:', { 
-        isLoading, 
-        isAuthenticated, 
-        hasProfile: !!profile, 
-        hasUser: !!user,
-        authError,
-        retryCount
-      });
-    }
-    
     // If auth is done loading but no authentication, redirect to login
-    if (!isLoading && !isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       if (DEBUG) console.log('Not authenticated, redirecting to login');
       router.push('/login');
     }
-    
-    // Once authentication is complete, update local loading state
-    if (!isLoading) {
-      setLocalLoading(false);
-    }
-  }, [isLoading, isAuthenticated, profile, user, authError, router, retryCount]);
-
-  // Direct profile fetch with useCallback
-  const fetchProfileDirectly = useCallback(async (userId: string) => {
-    if (!userId) return;
-    
-    try {
-      if (DEBUG) console.log('Making direct database call to profiles table');
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/profiles?select=*&id=eq.${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
-          'Prefer': 'return=representation'
-        }
-      });
-      
-      if (!response.ok) throw new Error(`Profile fetch failed: ${response.statusText}`);
-      
-      const data = await response.json();
-      if (DEBUG) console.log('Direct profile fetch result:', data);
-      
-      if (data && data.length > 0) {
-        const profileData = data[0];
-        // Create local profile state since the auth context is having issues
-        const userProfile = {
-          id: profileData.id,
-          email: profileData.email || user?.email || 'user@example.com',
-          created_at: profileData.created_at || new Date().toISOString(),
-          updated_at: profileData.updated_at,
-          status: profileData.status ? String(profileData.status) : undefined
-        };
-        
-        // Set as local component state since we can't update auth context
-        setLocalProfile(userProfile);
-        setLocalError(null);
-        setLocalLoading(false);
-        
-        if (DEBUG) console.log('Created local profile state:', userProfile);
-        return userProfile;
-      }
-      return null;
-    } catch (error) {
-      if (DEBUG) console.error('Direct profile fetch error:', error);
-      setLocalError(`Profile fetch error: ${error instanceof Error ? error.message : String(error)}`);
-      return null;
-    }
-  }, [user]);
-
-  // If authenticated but profile is missing, retry a few times
-  useEffect(() => {
-    let timer: NodeJS.Timeout | undefined;
-    
-    if (!isLoading && isAuthenticated && !profile && retryCount < 3) {
-      if (DEBUG) console.log(`No profile found, will retry (${retryCount + 1}/3)`);
-      timer = setTimeout(() => {
-        if (DEBUG) console.log(`Retrying profile fetch (attempt ${retryCount + 1}/3)`);
-        refreshProfile();
-        setRetryCount(prev => prev + 1);
-      }, 1000 * (retryCount + 1)); // Exponential backoff
-    }
-    
-    // If we've retried 3 times and still no profile, show error
-    if (!isLoading && isAuthenticated && !profile && retryCount >= 3) {
-      if (DEBUG) console.log('Maximum retry attempts reached, showing error');
-      setLocalError('Unable to load your profile after multiple attempts. Please try again later.');
-      
-      // Direct profile fetch attempt
-      if (user) {
-        fetchProfileDirectly(user.id);
-      }
-    }
-    
-    return () => {
-      if (timer) clearTimeout(timer);
-    };
-  }, [isLoading, isAuthenticated, profile, user, refreshProfile, retryCount, fetchProfileDirectly]);
+  }, [authLoading, isAuthenticated, router]);
 
   const handleSignOut = useCallback(async () => {
     try {
       setAnimateIn(false); // Start exit animation
-      setLocalLoading(true);
       
       // Delay actual signout to allow animation to complete
       setTimeout(async () => {
@@ -253,168 +172,81 @@ export default function Dashboard() {
       }, 400);
     } catch (error) {
       if (DEBUG) console.error('Error signing out:', error);
-      setLocalLoading(false);
       setAnimateIn(true); // Restore animations if error
     }
   }, [signOut, router]);
 
-  const handleRetry = useCallback(() => {
-    setLocalLoading(true);
-    setLocalError(null);
-    setRetryCount(0);
-    refreshProfile();
-    setTimeout(() => setLocalLoading(false), 500);
-  }, [refreshProfile]);
-
-  // Fetch campaigns
-  const fetchCampaigns = useCallback(async (userId: string) => {
-    if (!userId) return;
-    
-    try {
-      setCampaignsLoading(true);
-      if (DEBUG) console.log(`Fetching campaigns for user ${userId}`);
-      const campaigns = await CampaignService.getCampaignsByUserId(userId);
-      if (DEBUG) console.log(`Fetched ${campaigns.length} campaigns`);
-      setCampaigns(campaigns);
-    } catch (error) {
-      if (DEBUG) console.error('Failed to fetch campaigns:', error);
-    } finally {
-      setCampaignsLoading(false);
-    }
-  }, []);
-
-  // Fetch campaigns when user is available
+  // Load campaigns when profile is available
   useEffect(() => {
-    if (user?.id) {
-      if (DEBUG) console.log(`User ID available, fetching campaigns: ${user.id}`);
-      fetchCampaigns(user.id);
-    } else {
-      if (DEBUG) console.log('No user ID available for fetching campaigns');
+    if (profile && !campaigns) {
+      loadCampaigns();
     }
-  }, [user, fetchCampaigns]);
+  }, [profile, campaigns, loadCampaigns]);
 
-  // Combined refresh function 
   const handleRefresh = useCallback(() => {
-    if (DEBUG) console.log('Manual refresh triggered');
     setIsRefreshing(true);
-    
-    // Refresh profile data
-    refreshProfile()
-      .catch(error => {
-        if (DEBUG) console.error('Error refreshing profile:', error);
-      });
-    
-    // Refresh campaigns if user exists
-    if (user?.id) {
-      fetchCampaigns(user.id)
-        .catch(error => {
-          if (DEBUG) console.error('Error refreshing campaigns:', error);
-        });
-    }
-    
-    // Reset refreshing state after a short delay
-    setTimeout(() => setIsRefreshing(false), 1000);
-  }, [refreshProfile, user, fetchCampaigns]);
-
+    retryProfile();
+    loadCampaigns();
+    setTimeout(() => setIsRefreshing(false), 800);
+  }, [retryProfile, loadCampaigns]);
+  
   // Show loading state
-  if (isLoading || localLoading) {
+  if (isLoading) {
+    return <RobotLoader title="Loading Dashboard" subtitle="Preparing your account" />;
+  }
+  
+  // Show error state
+  if (profileError && !profile) {
     return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <RobotLoader 
-          title="Loading Your Dashboard"
-          subtitle="Our robots are retrieving your data"
-          message="Verifying your account"
-          showRetry={true}
-          retryCount={retryCount}
-          maxRetries={3}
-        />
-      </main>
+      <ErrorDisplay 
+        message={profileError}
+        subMessage="We couldn't load your profile. Please try again."
+        onRetry={retryProfile}
+      />
     );
   }
-
-  // Show error state if we have an error or no profile
-  if (localError || authError || (!profile && !localProfile && isAuthenticated && !isLoading && !localLoading)) {
-    return (
-      <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-        <ErrorDisplay 
-          message={localError || authError || "Unable to load your profile data"}
-          subMessage={retryCount >= 3 ? 'Maximum retry attempts reached.' : undefined}
-          onRetry={handleRetry}
-          onBack={() => router.push('/login')}
-          backText="Back to Login"
-        />
-      </main>
-    );
+  
+  // If we don't have a profile somehow, but no error either
+  if (!profile) {
+    return <RobotLoader title="Loading Profile" subtitle="Still working on it..." showRetry />;
   }
 
-  // Show dashboard if we have profile data (either from auth context or local state)
-  if (displayProfile) {
-    return (
-      <>
-        <main className={`bg-gradient-to-br from-gray-50 to-gray-100 p-8 transition-opacity duration-500 ease-in-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="max-w-6xl mx-auto">
-            {/* Header */}
-            <DashboardHeader 
-              title="Your Dashboard" 
-              userName={displayProfile.email.split('@')[0] || 'User'}
-              onSignOut={handleSignOut}
-              onRefresh={handleRefresh}
-              isRefreshing={isRefreshing}
-            />
-            
-            {/* Profile Section */}
-            <section className={`mb-0 transform transition-all duration-700 delay-100 ease-out ${activeSection >= 1 ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-              <ProfileInfo profile={displayProfile} />
-            </section>
-          </div>
-        </main>
-        
-        {/* Campaigns Section - Completely separate from animation state */}
-        <div className="w-full bg-white py-6 border-t border-gray-200">
-          <div className="max-w-6xl mx-auto px-8">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">Your Campaigns</h2>
-              
-              {/* Debug info */}
-              {DEBUG && (
-                <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                  <p>User ID: {user?.id || 'None'}</p>
-                  <p>Campaigns: {campaigns ? `${campaigns.length} found` : 'None'}</p>
-                  <p>Loading: {campaignsLoading ? 'Yes' : 'No'}</p>
-                </div>
-              )}
-            
-              {user && (
-                <CreateCampaignButton 
-                  userId={user.id} 
-                  onCampaignCreated={() => fetchCampaigns(user.id)} 
-                />
-              )}
-            </div>
-            
-            <CampaignList 
-              campaigns={campaigns} 
-              isLoading={campaignsLoading} 
-              onRefreshNeeded={() => user && fetchCampaigns(user.id)}
-            />
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  // Fallback - should never reach this point with proper state handling
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-      <div className="text-center">
-        <p className="text-lg text-red-600">Something went wrong. Please try again.</p>
-        <button
-          onClick={() => router.push('/login')}
-          className="mt-4 px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          Back to Login
-        </button>
-      </div>
-    </main>
+    <div className={`container mx-auto px-4 py-8 transition-all duration-500 ease-out ${animateIn ? 'opacity-100' : 'opacity-0'}`}>
+      <DashboardHeader 
+        title="Dashboard" 
+        userName={profile.first_name || profile.email || 'User'} 
+        onSignOut={handleSignOut}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
+      />
+      
+      {/* Profile Section */}
+      {activeSection > 0 && (
+        <div className="mt-8">
+          <ProfileInfo profile={profile} />
+        </div>
+      )}
+      
+      {/* Campaigns Section */}
+      {activeSection > 1 && profile && (
+        <div className="mt-8">
+          <Card>
+            <div className="p-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Your Campaigns</h2>
+                <CreateCampaignButton userId={profile.id} onCampaignCreated={loadCampaigns} />
+              </div>
+              
+              <CampaignList 
+                campaigns={campaigns || []}
+                isLoading={campaignsLoading}
+                onRefreshNeeded={loadCampaigns}
+              />
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 } 

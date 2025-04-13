@@ -10,23 +10,23 @@ const DEBUG = process.env.NODE_ENV !== 'production';
 
 interface UseProfileReturn {
   profile: UserProfile | null;
-  localLoading: boolean;
-  localError: string | null;
+  loading: boolean;
+  error: string | null;
   retryCount: number;
-  handleRetry: () => void;
+  retry: () => void;
 }
 
 export function useProfile(maxRetries = 3): UseProfileReturn {
   const { profile, user, isLoading, isAuthenticated, refreshProfile, error: authError } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
-  const [localLoading, setLocalLoading] = useState(true);
-  const [localError, setLocalError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [localProfile, setLocalProfile] = useState<UserProfile | null>(null);
   
   // Reset states when auth changes
   useEffect(() => {
     if (!isLoading) {
-      setLocalLoading(false);
+      setLoading(false);
     }
   }, [isLoading]);
   
@@ -40,54 +40,51 @@ export function useProfile(maxRetries = 3): UseProfileReturn {
       
       if (userProfile) {
         setLocalProfile(userProfile);
-        setLocalError(null);
+        setError(null);
       } else {
-        setLocalError('Unable to find your profile. Please try again later.');
+        setError('Unable to find your profile. Please try again later.');
       }
     } catch (error) {
       if (DEBUG) console.error('Direct profile fetch error:', error);
-      setLocalError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
-      setLocalLoading(false);
+      setLoading(false);
     }
   }, [user]);
   
-  // Retry logic for profile fetching
+  // Simple retry logic
   useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    
     if (!isLoading && isAuthenticated && !profile && retryCount < maxRetries) {
-      if (DEBUG) console.log(`No profile found, will retry (${retryCount + 1}/${maxRetries})`);
-      
-      const timer = setTimeout(() => {
-        if (DEBUG) console.log(`Retrying profile fetch (attempt ${retryCount + 1}/${maxRetries})`);
+      timer = setTimeout(() => {
         refreshProfile();
         setRetryCount(prev => prev + 1);
       }, 1000 * (retryCount + 1)); // Exponential backoff
-      
-      return () => clearTimeout(timer);
-    }
-    
-    // If we've retried maximum times and still no profile, try direct fetch
-    if (!isLoading && isAuthenticated && !profile && retryCount >= maxRetries) {
-      if (DEBUG) console.log('Maximum retry attempts reached, trying direct fetch');
-      setLocalError('Unable to load your profile after multiple attempts.');
+    } else if (!isLoading && isAuthenticated && !profile && retryCount >= maxRetries) {
+      setError('Unable to load your profile after multiple attempts.');
       fetchProfileDirectly();
     }
+    
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [isLoading, isAuthenticated, profile, retryCount, maxRetries, refreshProfile, fetchProfileDirectly]);
   
   // Handle manual retry
-  const handleRetry = useCallback(() => {
-    setLocalLoading(true);
-    setLocalError(null);
+  const retry = useCallback(() => {
+    setLoading(true);
+    setError(null);
     setRetryCount(0);
     refreshProfile();
-    setTimeout(() => setLocalLoading(false), 500);
+    setTimeout(() => setLoading(false), 500);
   }, [refreshProfile]);
   
   return {
     profile: profile || localProfile,
-    localLoading,
-    localError: localError || authError,
+    loading,
+    error: error || authError,
     retryCount,
-    handleRetry,
+    retry,
   };
 } 
