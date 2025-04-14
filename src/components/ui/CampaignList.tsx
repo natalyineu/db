@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useCallback } from 'react';
 import { Campaign } from '@/types';
 import CampaignItem from './CampaignItem';
@@ -44,17 +46,17 @@ const CampaignList = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 theme-transition">
         {[...Array(3)].map((_, index) => (
-          <div key={`skeleton-${index}`} className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 animate-pulse">
+          <div key={`skeleton-${index}`} className="bg-card shadow-app-sm border-app rounded-lg p-5 animate-pulse">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+              <div className="w-10 h-10 bg-hover dark:bg-dark-hover rounded-full"></div>
               <div className="flex-1">
-                <div className="w-1/3 h-5 bg-gray-200 rounded mb-2"></div>
-                <div className="w-1/4 h-4 bg-gray-200 rounded mb-4"></div>
-                <div className="w-1/2 h-4 bg-gray-200 rounded"></div>
+                <div className="w-1/3 h-5 bg-hover dark:bg-dark-hover rounded mb-2"></div>
+                <div className="w-1/4 h-4 bg-hover dark:bg-dark-hover rounded mb-4"></div>
+                <div className="w-1/2 h-4 bg-hover dark:bg-dark-hover rounded"></div>
               </div>
-              <div className="w-20 h-6 bg-gray-200 rounded-full"></div>
+              <div className="w-20 h-6 bg-hover dark:bg-dark-hover rounded-full"></div>
             </div>
           </div>
         ))}
@@ -65,9 +67,9 @@ const CampaignList = ({
   // Empty state
   if (!campaigns || campaigns.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+      <div className="bg-card shadow-app-sm border-app rounded-lg p-8 text-center theme-transition">
         <svg 
-          className="mx-auto h-12 w-12 text-gray-400" 
+          className="mx-auto h-12 w-12 text-secondary" 
           fill="none" 
           viewBox="0 0 24 24" 
           stroke="currentColor" 
@@ -81,8 +83,8 @@ const CampaignList = ({
             d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" 
           />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No campaigns</h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <h3 className="mt-2 text-sm font-medium text-primary">No campaigns</h3>
+        <p className="mt-1 text-sm text-secondary">
           Get started by creating your first campaign.
         </p>
       </div>
@@ -95,7 +97,7 @@ const CampaignList = ({
     : paginatedCampaigns;
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 theme-transition">
       <SortControls 
         totalItems={campaigns.length}
         selectedStatus={selectedStatus}

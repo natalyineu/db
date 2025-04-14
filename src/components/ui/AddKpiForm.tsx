@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, memo } from 'react';
 import { KpiService } from '@/services/kpi-service';
 import KpiFormField from './KpiFormField';

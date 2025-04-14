@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { CampaignService } from '@/services/campaign-service';
 import { CampaignStatus } from '@/types';

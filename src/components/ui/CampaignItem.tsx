@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, memo, useCallback } from 'react';
 import { Campaign } from '@/types';
 import { formatDate } from '@/utils';
@@ -37,17 +39,17 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
   const description = (campaign as any).description;
   
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-[#DADCE0] p-5 mb-5 transition-all duration-200 hover:shadow-md will-change-auto">
+    <div className="bg-card border-app shadow-app-sm rounded-lg p-5 mb-5 transition-all duration-200 hover:shadow-app theme-transition">
       <div className="flex items-start gap-4">
         <CampaignIcon name={campaign.name} />
         
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <div>
-              <h3 className="text-lg font-medium text-[#3C4043]">{campaign.name}</h3>
-              <div className="flex flex-wrap items-center text-sm text-[#5F6368] mt-1 gap-3">
+              <h3 className="text-lg font-medium text-primary">{campaign.name}</h3>
+              <div className="flex flex-wrap items-center text-sm text-secondary mt-1 gap-3">
                 <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-1 text-[#5F6368]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 mr-1 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Created: {formatDate(campaign.created_at)}
@@ -55,7 +57,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
                 
                 {campaign.start_date && (
                   <span className="flex items-center">
-                    <svg className="w-4 h-4 mr-1 text-[#5F6368]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 mr-1 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Start: {formatDate(campaign.start_date)}
@@ -64,7 +66,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
                 
                 {campaign.end_date && (
                   <span className="flex items-center">
-                    <svg className="w-4 h-4 mr-1 text-[#5F6368]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-4 h-4 mr-1 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     End: {formatDate(campaign.end_date)}
@@ -79,7 +81,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
               {showEditButton && (
                 <button 
                   onClick={handleEdit}
-                  className="p-1.5 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors"
+                  className="p-1.5 rounded-full text-secondary hover:bg-hover transition-colors"
                   aria-label="Edit campaign"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +92,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
               
               <button 
                 onClick={() => setShowAssets(!showAssets)}
-                className="p-1.5 rounded-full text-[#5F6368] hover:bg-[#F1F3F4] transition-colors"
+                className="p-1.5 rounded-full text-secondary hover:bg-hover transition-colors"
                 aria-label={showAssets ? "Hide assets" : "Show assets"}
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,13 +107,13 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
           
           {/* Display description if available */}
           {description && (
-            <p className="mt-2 text-sm text-[#5F6368] max-w-2xl">{description}</p>
+            <p className="mt-2 text-sm text-secondary max-w-2xl">{description}</p>
           )}
           
           {/* Display existing assets and add new assets when expanded */}
           {showAssets && (
-            <div className={`mt-4 transition-opacity duration-500 ease-out ${refreshing ? 'opacity-40' : 'opacity-100'} will-change-opacity`}>
-              <h4 className="text-sm font-medium text-[#3C4043] mb-3">Campaign Assets:</h4>
+            <div className={`mt-4 transition-opacity duration-500 ease-out ${refreshing ? 'opacity-40' : 'opacity-100'}`}>
+              <h4 className="text-sm font-medium text-primary mb-3">Campaign Assets:</h4>
               
               {campaign.assets && campaign.assets.length > 0 ? (
                 <div className="space-y-2">
@@ -125,7 +127,7 @@ const CampaignItem = memo(({ campaign, onUpdate, showEditButton }: CampaignItemP
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#5F6368] italic mb-3">No assets added to this campaign yet.</p>
+                <p className="text-sm text-secondary italic mb-3">No assets added to this campaign yet.</p>
               )}
               
               <div className="mt-3">

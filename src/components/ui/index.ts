@@ -15,4 +15,5 @@ export { default as KpiMetricCard } from './KpiMetricCard';
 export { default as AddKpiForm } from './AddKpiForm';
 export { default as KpiFormField } from './KpiFormField';
 export { default as Pagination } from './Pagination';
-export { default as SortControls } from './SortControls'; 
+export { default as SortControls } from './SortControls';
+export { default as ThemeToggle } from './ThemeToggle'; 

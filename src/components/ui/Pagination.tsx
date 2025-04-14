@@ -11,24 +11,28 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
   if (totalPages <= 1) return null;
   
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6 rounded-b-lg">
+    <div className="flex items-center justify-between px-4 py-3 bg-card border-t border-app rounded-b-lg theme-transition">
       <div className="flex justify-between flex-1 sm:hidden">
         <button
           onClick={() => handlePageChange(page - 1)}
           disabled={page <= 1}
-          className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
-            ${page <= 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md theme-transition
+            ${page <= 1 
+              ? 'text-secondary opacity-50 cursor-not-allowed' 
+              : 'text-primary bg-card hover:bg-hover'}`}
         >
           Previous
         </button>
-        <span className="relative z-0 inline-flex">
+        <span className="relative z-0 inline-flex text-secondary">
           Page {page} of {totalPages}
         </span>
         <button
           onClick={() => handlePageChange(page + 1)}
           disabled={page >= totalPages}
-          className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md 
-            ${page >= totalPages ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50'}`}
+          className={`relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md theme-transition
+            ${page >= totalPages 
+              ? 'text-secondary opacity-50 cursor-not-allowed' 
+              : 'text-primary bg-card hover:bg-hover'}`}
         >
           Next
         </button>
@@ -36,7 +40,7 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
       
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-secondary">
             Showing <span className="font-medium">{Math.min((page - 1) * 10 + 1, totalItems)}</span> to{' '}
             <span className="font-medium">{Math.min(page * 10, totalItems)}</span> of{' '}
             <span className="font-medium">{totalItems}</span> results
@@ -44,12 +48,14 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
         </div>
         
         <div>
-          <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+          <nav className="inline-flex rounded-md shadow-app-sm -space-x-px" aria-label="Pagination">
             <button
               onClick={() => handlePageChange(1)}
               disabled={page <= 1}
-              className={`relative inline-flex items-center px-2 py-2 rounded-l-md border text-sm font-medium
-                ${page <= 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-app text-sm font-medium theme-transition
+                ${page <= 1 
+                  ? 'bg-hover text-secondary cursor-not-allowed' 
+                  : 'bg-card text-secondary hover:bg-hover'}`}
             >
               <span className="sr-only">First</span>
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -60,8 +66,10 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
             <button
               onClick={() => handlePageChange(page - 1)}
               disabled={page <= 1}
-              className={`relative inline-flex items-center px-2 py-2 border text-sm font-medium
-                ${page <= 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`relative inline-flex items-center px-2 py-2 border border-app text-sm font-medium theme-transition
+                ${page <= 1 
+                  ? 'bg-hover text-secondary cursor-not-allowed' 
+                  : 'bg-card text-secondary hover:bg-hover'}`}
             >
               <span className="sr-only">Previous</span>
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -87,10 +95,10 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
                 <button
                   key={`page-${pageNum}`}
                   onClick={() => handlePageChange(pageNum)}
-                  className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium
+                  className={`relative inline-flex items-center px-4 py-2 border border-app text-sm font-medium theme-transition
                     ${page === pageNum 
-                      ? 'z-10 bg-[#E8F0FE] border-[#AECBFA] text-[#1967D2]' 
-                      : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`}
+                      ? 'z-10 bg-primary-50 dark:bg-primary-900 border-primary-200 dark:border-primary-700 text-primary-600 dark:text-primary-300' 
+                      : 'bg-card border-app text-primary hover:bg-hover'}`}
                 >
                   {pageNum}
                 </button>
@@ -100,8 +108,10 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
             <button
               onClick={() => handlePageChange(page + 1)}
               disabled={page >= totalPages}
-              className={`relative inline-flex items-center px-2 py-2 border text-sm font-medium
-                ${page >= totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`relative inline-flex items-center px-2 py-2 border border-app text-sm font-medium theme-transition
+                ${page >= totalPages 
+                  ? 'bg-hover text-secondary cursor-not-allowed' 
+                  : 'bg-card text-secondary hover:bg-hover'}`}
             >
               <span className="sr-only">Next</span>
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -112,8 +122,10 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
             <button
               onClick={() => handlePageChange(totalPages)}
               disabled={page >= totalPages}
-              className={`relative inline-flex items-center px-2 py-2 rounded-r-md border text-sm font-medium
-                ${page >= totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+              className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-app text-sm font-medium theme-transition
+                ${page >= totalPages 
+                  ? 'bg-hover text-secondary cursor-not-allowed' 
+                  : 'bg-card text-secondary hover:bg-hover'}`}
             >
               <span className="sr-only">Last</span>
               <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
