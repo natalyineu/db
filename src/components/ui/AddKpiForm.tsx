@@ -1,5 +1,6 @@
 import { useState, memo } from 'react';
 import { KpiService } from '@/services/kpi-service';
+import KpiFormField from './KpiFormField';
 
 interface AddKpiFormProps {
   campaignId: string;
@@ -104,133 +105,41 @@ const AddKpiForm = ({ campaignId, onKpiAdded }: AddKpiFormProps) => {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Budget</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label htmlFor="budget_plan" className="block text-xs text-gray-500">
-                      Plan
-                    </label>
-                    <input
-                      type="number"
-                      id="budget_plan"
-                      name="budget_plan"
-                      value={formData.budget_plan}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="budget_fact" className="block text-xs text-gray-500">
-                      Fact
-                    </label>
-                    <input
-                      type="number"
-                      id="budget_fact"
-                      name="budget_fact"
-                      value={formData.budget_fact}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
+              <KpiFormField
+                title="Budget"
+                planName="budget_plan"
+                planValue={formData.budget_plan}
+                factName="budget_fact"
+                factValue={formData.budget_fact}
+                onChange={handleChange}
+              />
               
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Impressions</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label htmlFor="impressions_plan" className="block text-xs text-gray-500">
-                      Plan
-                    </label>
-                    <input
-                      type="number"
-                      id="impressions_plan"
-                      name="impressions_plan"
-                      value={formData.impressions_plan}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="impressions_fact" className="block text-xs text-gray-500">
-                      Fact
-                    </label>
-                    <input
-                      type="number"
-                      id="impressions_fact"
-                      name="impressions_fact"
-                      value={formData.impressions_fact}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
+              <KpiFormField
+                title="Impressions"
+                planName="impressions_plan"
+                planValue={formData.impressions_plan}
+                factName="impressions_fact"
+                factValue={formData.impressions_fact}
+                onChange={handleChange}
+              />
               
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Clicks</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label htmlFor="clicks_plan" className="block text-xs text-gray-500">
-                      Plan
-                    </label>
-                    <input
-                      type="number"
-                      id="clicks_plan"
-                      name="clicks_plan"
-                      value={formData.clicks_plan}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="clicks_fact" className="block text-xs text-gray-500">
-                      Fact
-                    </label>
-                    <input
-                      type="number"
-                      id="clicks_fact"
-                      name="clicks_fact"
-                      value={formData.clicks_fact}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
+              <KpiFormField
+                title="Clicks"
+                planName="clicks_plan"
+                planValue={formData.clicks_plan}
+                factName="clicks_fact"
+                factValue={formData.clicks_fact}
+                onChange={handleChange}
+              />
               
-              <div>
-                <h4 className="font-medium text-gray-700 mb-2">Reach</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label htmlFor="reach_plan" className="block text-xs text-gray-500">
-                      Plan
-                    </label>
-                    <input
-                      type="number"
-                      id="reach_plan"
-                      name="reach_plan"
-                      value={formData.reach_plan}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="reach_fact" className="block text-xs text-gray-500">
-                      Fact
-                    </label>
-                    <input
-                      type="number"
-                      id="reach_fact"
-                      name="reach_fact"
-                      value={formData.reach_fact}
-                      onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              </div>
+              <KpiFormField
+                title="Reach"
+                planName="reach_plan"
+                planValue={formData.reach_plan}
+                factName="reach_fact"
+                factValue={formData.reach_fact}
+                onChange={handleChange}
+              />
             </div>
             
             <div className="flex justify-end space-x-3">
@@ -244,9 +153,21 @@ const AddKpiForm = ({ campaignId, onKpiAdded }: AddKpiFormProps) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#1967D2] hover:bg-[#185ABC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#1967D2] hover:bg-[#185ABC] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                  isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
               >
-                {isSubmitting ? 'Saving...' : 'Save KPI Data'}
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  'Save KPI Data'
+                )}
               </button>
             </div>
           </form>
