@@ -41,15 +41,8 @@ const FormField: React.FC<FormFieldProps> = ({
 
   // Handle onChange properly for both function signatures
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (typeof onChange === 'function') {
-      if (onChange.length === 1) {
-        // If it accepts a string directly (like from FormInput)
-        (onChange as (value: string) => void)(e.target.value);
-      } else {
-        // If it accepts the event (original behavior)
-        onChange(e);
-      }
-    }
+    // Support both direct value and event callbacks
+    onChange(e.target.value);
   };
 
   return (

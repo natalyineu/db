@@ -52,9 +52,26 @@ export default function RegisterForm() {
       
     } catch (error) {
       console.error('Registration error:', error);
+      
+      // Display user-friendly error message
+      let errorMessage = 'An unexpected error occurred';
+      
+      if (error instanceof Error) {
+        // Handle specific error messages
+        if (error.message.includes('already registered')) {
+          errorMessage = 'This email is already registered';
+        } else if (error.message.includes('password')) {
+          errorMessage = 'Password is too weak. Please use a stronger password';
+        } else if (error.message.includes('connection')) {
+          errorMessage = 'Connection error. Please check your internet connection';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setMessageState({ 
         type: 'error', 
-        text: error instanceof Error ? error.message : 'An unexpected error occurred' 
+        text: errorMessage
       });
       setIsSubmitting(false);
     }
@@ -88,6 +105,7 @@ export default function RegisterForm() {
             autoComplete="email"
             required
             placeholder="you@example.com"
+            error={messageState?.text.includes('email') ? messageState.text : undefined}
           />
 
           <FormField
@@ -101,6 +119,7 @@ export default function RegisterForm() {
             placeholder="••••••••"
             showTogglePassword
             helperText="Password must be at least 6 characters"
+            error={messageState?.text.includes('Password') ? messageState.text : undefined}
           />
 
           <FormField
@@ -113,6 +132,7 @@ export default function RegisterForm() {
             required
             placeholder="••••••••"
             showTogglePassword
+            error={messageState?.text.includes('match') ? messageState.text : undefined}
           />
 
           <div>
@@ -121,7 +141,15 @@ export default function RegisterForm() {
               disabled={isSubmitting || loadingState.signUp}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting || loadingState.signUp ? 'Signing up...' : 'Sign Up'}
+              {isSubmitting || loadingState.signUp ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing up...
+                </span>
+              ) : 'Sign Up'}
             </button>
           </div>
         </form>
