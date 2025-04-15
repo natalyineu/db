@@ -7,4 +7,5 @@ export * from './profile-mapper';
 // Export other services
 export * from './api-client';
 export * from './error-handler';
-export * from './campaign-service'; 
+export * from './campaign-service';
+export * from './kpi-service'; 

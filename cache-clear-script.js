@@ -39,14 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => {
           console.log('Profile data refreshed:', response.ok);
-          return fetch('/api/dashboard-data?nocache=' + Date.now(), { 
-            method: 'GET',
-            headers: {
-              'Cache-Control': 'no-cache',
-              'Pragma': 'no-cache'
-            },
-            credentials: 'same-origin'
-          });
+          return fetchDashboardData();
         })
         .then(() => {
           console.log('Dashboard data refreshed, reloading page');
@@ -93,3 +86,29 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// Don't try to fetch dashboard data until it's implemented
+function fetchDashboardData() {
+  console.log('Dashboard data API not implemented yet');
+  return Promise.resolve({ success: false, message: 'API not implemented' });
+  
+  /* Original code commented out until API is implemented
+  return fetch('/api/dashboard-data?nocache=' + Date.now(), {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + getTokenFromLocalStorage()
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .catch(error => {
+    console.error('Error fetching dashboard data:', error);
+    return { success: false, error: error.message };
+  });
+  */
+}

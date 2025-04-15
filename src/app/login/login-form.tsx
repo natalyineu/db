@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
-import { FormInput, MessageDisplay } from '@/components/ui';
+import { FormField, MessageDisplay } from '@/components/ui';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -13,7 +13,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [messageState, setMessageState] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const { signIn, error: authError, isAuthenticated, loadingState } = useAuth();
   const router = useRouter();
   
@@ -30,17 +30,17 @@ export default function LoginForm() {
     e.preventDefault();
 
     if (!email || !email.includes('@')) {
-      setMessage({ type: 'error', text: 'Please enter a valid email address' });
+      setMessageState({ type: 'error', text: 'Please enter a valid email address' });
       return;
     }
 
     if (!password) {
-      setMessage({ type: 'error', text: 'Please enter your password' });
+      setMessageState({ type: 'error', text: 'Please enter your password' });
       return;
     }
 
     try {
-      setMessage(null);
+      setMessageState(null);
       setIsSubmitting(true);
       
       // Use the auth context sign in method
@@ -52,7 +52,7 @@ export default function LoginForm() {
       if (DEBUG) {
         console.error('Login error:', error);
       }
-      setMessage({
+      setMessageState({
         type: 'error',
         text: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
@@ -60,8 +60,10 @@ export default function LoginForm() {
     }
   };
 
-  // Display auth error from context if present
-  const displayError = message || (authError ? { type: 'error', text: authError } : null);
+  // Prepare message for MessageDisplay component
+  const messageForDisplay = messageState ? messageState.text : 
+                          authError ? authError : null;
+  const messageType = messageState?.type || 'error';
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
@@ -71,26 +73,29 @@ export default function LoginForm() {
           <p className="mt-2 text-gray-600">Sign in to your account</p>
         </div>
 
-        <MessageDisplay message={displayError} />
+        <MessageDisplay 
+          type={messageType as any} 
+          message={messageForDisplay} 
+        />
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <FormInput
+          <FormField
             id="email"
             label="Email address"
             type="email"
             value={email}
-            onChange={setEmail}
+            onChange={(val) => setEmail(typeof val === 'string' ? val : val.target.value)}
             autoComplete="email"
             required
             placeholder="you@example.com"
           />
 
-          <FormInput
+          <FormField
             id="password"
             label="Password"
             type="password"
             value={password}
-            onChange={setPassword}
+            onChange={(val) => setPassword(typeof val === 'string' ? val : val.target.value)}
             autoComplete="current-password"
             required
             placeholder="••••••••"

@@ -1,35 +1,44 @@
 import { UserProfile } from '@/types';
+import { ProfileMapper } from '@/services/profile-mapper';
 
 /**
  * Map database profile data to UserProfile type
+ * @deprecated Use ProfileMapper.mapProfileData instead
  */
-export const mapProfileData = (data: any): UserProfile => {
-  return {
-    id: data.id,
-    email: data.email || '',
-    created_at: data.created_at || new Date().toISOString(),
-    updated_at: data.updated_at,
-    status: data.status !== null ? String(data.status) : undefined,
-    
-    // Additional profile information - use empty values rather than fake data
-    first_name: data.first_name || undefined,
-    last_name: data.last_name || undefined,
-    phone: data.phone || undefined,
-    address: data.address || undefined,
-    city: data.city || undefined,
-    country: data.country || undefined,
-    postal_code: data.postal_code || undefined,
-    
-    // Preferences and settings
-    notification_preferences: data.notification_preferences || {
-      email: false,
-      sms: false,
-      push: false
-    },
-    theme_preference: data.theme_preference || 'system',
-    
-    // Activity data
-    last_login: data.last_login || undefined,
-    login_count: data.login_count || 0
-  };
+export const mapProfileData = ProfileMapper.mapProfileData;
+
+/**
+ * Safely parses a profile JSON string
+ * @param jsonString The JSON string to parse
+ * @returns UserProfile object or null if invalid
+ */
+export const parseProfileJSON = (jsonString: string): UserProfile | null => {
+  try {
+    if (!jsonString) return null;
+    const data = JSON.parse(jsonString);
+    return ProfileMapper.mapProfileData(data);
+  } catch (error) {
+    console.error('Error parsing profile JSON:', error);
+    return null;
+  }
+};
+
+/**
+ * Gets full name from profile
+ */
+export const getFullName = (profile: UserProfile | null): string => {
+  if (!profile) return '';
+  
+  const firstName = profile.first_name || '';
+  const lastName = profile.last_name || '';
+  
+  if (firstName && lastName) {
+    return `${firstName} ${lastName}`;
+  } else if (firstName) {
+    return firstName;
+  } else if (lastName) {
+    return lastName;
+  } else {
+    return '';
+  }
 }; 
