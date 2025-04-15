@@ -60,6 +60,7 @@ export default function AccountOverviewPage() {
   const [userBusinessType, setUserBusinessType] = useState<string>('Business');
   const [existingBrief, setExistingBrief] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const router = useRouter();
   const supabase = createBrowserClient();
   
@@ -335,6 +336,40 @@ export default function AccountOverviewPage() {
     }
   };
 
+  // Add handler for deleting a brief
+  const handleDeleteBrief = async () => {
+    if (!existingBrief?.id) return;
+    
+    try {
+      // Delete the campaign from Supabase
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', existingBrief.id);
+      
+      if (error) throw error;
+      
+      // Reset states
+      setExistingBrief(null);
+      setBriefStatus('No');
+      setShowDeleteConfirm(false);
+      
+      // Reset form
+      setFormData({
+        landingPageUrl: '',
+        creativesLink: '',
+        targetAudience: '',
+        location: '',
+        goal: 'Awareness',
+        additionalNotes: '',
+        consent: false
+      });
+      
+    } catch (error) {
+      console.error('Error deleting brief:', error);
+    }
+  };
+
   // Combined loading state
   const isLoading = authLoading || profileLoading;
 
@@ -470,15 +505,52 @@ export default function AccountOverviewPage() {
             </div>
             
             {existingBrief && !isEditing && (
-              <button 
-                onClick={handleEditBrief}
-                className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 flex items-center gap-1 text-sm"
-              >
-                {icons.edit}
-                <span>Edit Brief</span>
-              </button>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={handleEditBrief}
+                  className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 flex items-center gap-1 text-sm"
+                >
+                  {icons.edit}
+                  <span>Edit Brief</span>
+                </button>
+                <button 
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="px-3 py-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 flex items-center gap-1 text-sm"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span>Delete Brief</span>
+                </button>
+              </div>
             )}
           </div>
+          
+          {/* Delete Confirmation Dialog */}
+          {showDeleteConfirm && (
+            <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
+                <p className="text-sm text-gray-500 mb-6">
+                  Are you sure you want to delete this brief? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteBrief}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           
           {existingBrief && !isEditing ? (
             <div className="space-y-4">
