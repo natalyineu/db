@@ -7,28 +7,28 @@ export default function Home() {
   const [hoverEffect, setHoverEffect] = useState(false);
   
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="relative w-full max-w-5xl">
         {/* Decorative elements */}
-        <div className="absolute -top-16 -left-16 w-32 h-32 bg-purple-200 dark:bg-purple-900/30 rounded-full filter blur-3xl opacity-30"></div>
-        <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-pink-200 dark:bg-pink-900/30 rounded-full filter blur-3xl opacity-30"></div>
+        <div className="absolute -top-16 -left-16 w-32 h-32 bg-purple-200 rounded-full filter blur-3xl opacity-30"></div>
+        <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-pink-200 rounded-full filter blur-3xl opacity-30"></div>
         
-        <div className="relative bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl shadow-xl overflow-hidden">
+        <div className="relative bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
           
           <div className="grid md:grid-cols-2 gap-0">
             {/* Content Column */}
             <div className="p-8 md:p-12 flex flex-col justify-center">
-              <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 mb-6">
+              <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 mb-6">
                 <span className="flex h-2 w-2 rounded-full bg-indigo-500 mr-2"></span>
                 Powered by AI-Vertise 2025
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 dark:text-white mb-4">
+              <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
                 AI-Powered <span className="ai-vertise-gradient-text">Campaign</span> Management
               </h1>
               
-              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
+              <p className="text-lg text-gray-600 mb-8">
                 Streamline your advertising with predictive AI analytics. Create smarter campaigns and boost your ROI by up to 300%.
               </p>
               
@@ -51,7 +51,7 @@ export default function Home() {
                 
                 <Link 
                   href="/login" 
-                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-sm text-base font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                  className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 16L7 12M7 12L11 8M7 12H21M16 16V17C16 18.6569 14.6569 20 13 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H13C14.6569 4 16 5.34315 16 7V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -63,10 +63,10 @@ export default function Home() {
               <div className="flex items-center space-x-4">
                 <div className="flex -space-x-2">
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className={`w-8 h-8 rounded-full border-2 border-white dark:border-gray-800 bg-gray-${200 + i*100} dark:bg-gray-${600 - i*100}`}></div>
+                    <div key={i} className={`w-8 h-8 rounded-full border-2 border-white bg-gray-${200 + i*100}`}></div>
                   ))}
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span className="text-sm text-gray-500">
                   Join 2,500+ marketers today
                 </span>
               </div>
@@ -74,15 +74,15 @@ export default function Home() {
             
             {/* Image/Visual Column */}
             <div className="relative hidden md:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-900/20 dark:to-purple-900/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/90 to-purple-50/90"></div>
               <div className="relative h-full flex items-center justify-center p-8">
-                <div className="w-full max-w-md bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-6 transform transition-transform hover:scale-105 duration-500">
+                <div className="w-full max-w-md bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-lg p-6 transform transition-transform hover:scale-105 duration-500">
                   <div className="flex justify-between items-start mb-6">
                     <div>
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400">Campaign Performance</div>
-                      <div className="text-2xl font-bold text-gray-900 dark:text-white">247% ROI</div>
+                      <div className="text-xs font-medium text-gray-500">Campaign Performance</div>
+                      <div className="text-2xl font-bold text-gray-900">247% ROI</div>
                     </div>
-                    <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+                    <div className="p-2 bg-green-50 rounded-lg text-green-600">
                       <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M7 17L17 7M17 7H8M17 7V16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
@@ -91,13 +91,13 @@ export default function Home() {
                   
                   <div className="space-y-4">
                     {/* Mock chart */}
-                    <div className="h-32 bg-gradient-to-b from-transparent to-indigo-50 dark:to-indigo-900/20 rounded-lg flex items-end">
+                    <div className="h-32 bg-gradient-to-b from-transparent to-indigo-50 rounded-lg flex items-end">
                       {[...Array(12)].map((_, i) => {
                         const height = 20 + Math.random() * 80;
                         return (
                           <div 
                             key={i} 
-                            className="flex-1 mx-[1px] bg-indigo-500 dark:bg-indigo-400 rounded-t-sm" 
+                            className="flex-1 mx-[1px] bg-indigo-500 rounded-t-sm" 
                             style={{ height: `${height}%` }}
                           ></div>
                         );
@@ -106,9 +106,9 @@ export default function Home() {
                     
                     <div className="grid grid-cols-3 gap-2">
                       {['Clicks', 'Impressions', 'Conversions'].map((label, i) => (
-                        <div key={i} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
-                          <div className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</div>
-                          <div className="text-lg font-bold text-gray-900 dark:text-white">
+                        <div key={i} className="bg-gray-50 rounded-lg p-3">
+                          <div className="text-xs font-medium text-gray-500">{label}</div>
+                          <div className="text-lg font-bold text-gray-900">
                             {label === 'Clicks' ? '12.4K' : label === 'Impressions' ? '324K' : '843'}
                           </div>
                         </div>
@@ -116,10 +116,10 @@ export default function Home() {
                     </div>
                     
                     <div className="flex justify-between items-center">
-                      <div className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                      <div className="text-xs font-medium text-indigo-600">
                         AI Optimization Active
                       </div>
-                      <div className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 rounded text-xs font-medium text-indigo-700 dark:text-indigo-300">
+                      <div className="px-2 py-1 bg-indigo-100 rounded text-xs font-medium text-indigo-700">
                         Optimizing
                       </div>
                     </div>
@@ -166,12 +166,12 @@ export default function Home() {
               )
             }
           ].map((feature, index) => (
-            <div key={index} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 mb-4">
+            <div key={index} className="bg-white rounded-xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 mb-4">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{feature.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{feature.description}</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
+              <p className="text-gray-600">{feature.description}</p>
             </div>
           ))}
         </div>

@@ -50,38 +50,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-.dark {
-  --background: #0f0f13;
-  --foreground: #ededed;
-  
-  /* System Colors - Dark Theme with 2025 feel */
-  --color-primary: #4285f4;
-  --color-primary-light: #5a95f5;
-  --color-primary-dark: #2c6bdc;
-  --color-error: #f25c54;
-  --color-warning: #ffc857;
-  --color-success: #4cc38a;
-  --color-background: #131318;
-  --color-card: #1d1d25;
-  --color-text-primary: #EDEDED;
-  --color-text-secondary: #9AA0A6;
-  --color-border: #313135;
-  --color-hover: #222228;
-  --color-active: #2c2c35;
-  
-  /* Dark Theme Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2);
-  --shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25), 0 20px 48px rgba(0, 0, 0, 0.3);
-  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
-  
-  /* Glass Morphism - Dark */
-  --glass-background: rgba(29, 29, 37, 0.75);
-  --glass-border: rgba(60, 60, 70, 0.5);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  --glass-blur: 8px;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -164,11 +132,6 @@ body {
   background-image: linear-gradient(120deg, rgba(79, 70, 229, 0.05) 0%, rgba(138, 92, 246, 0.05) 50%, rgba(236, 72, 153, 0.05) 100%);
 }
 
-/* Dark mode tweak for the subtle gradient */
-.dark .ai-vertise-subtle-gradient {
-  background-image: linear-gradient(120deg, rgba(79, 70, 229, 0.1) 0%, rgba(138, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
-}
-
 /* Modern animated background */
 .bg-animated {
   background-size: 400% 400%;
@@ -237,12 +200,6 @@ body {
   box-shadow: 
     5px 5px 10px rgba(0, 0, 0, 0.03),
     -5px -5px 10px rgba(255, 255, 255, 0.05);
-}
-
-.dark .soft-ui {
-  box-shadow: 
-    5px 5px 10px rgba(0, 0, 0, 0.15),
-    -5px -5px 10px rgba(255, 255, 255, 0.03);
 }
 
 /* Modern micro-interactions */

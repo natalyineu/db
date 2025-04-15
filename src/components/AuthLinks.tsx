@@ -16,7 +16,7 @@ export default function AuthLinks() {
     <>
       <Link 
         href="/login"
-        className="hidden md:inline-flex text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white text-sm font-medium"
+        className="hidden md:inline-flex text-gray-700 hover:text-gray-900 text-sm font-medium"
       >
         Sign in
       </Link>
