@@ -167,16 +167,55 @@ export default function AccountOverviewPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    // Handle special field naming for the BriefForm component
+    if (name.startsWith('platforms[')) {
+      const index = parseInt(name.match(/\d+/)?.[0] || '0', 10);
+      if (index === 0) {
+        setFormData(prev => ({
+          ...prev,
+          landingPageUrl: value
+        }));
+      } else if (index === 1) {
+        setFormData(prev => ({
+          ...prev,
+          creativesLink: value
+        }));
+      }
+    } else if (name === 'target_audience') {
+      setFormData(prev => ({
+        ...prev,
+        targetAudience: value
+      }));
+    } else if (name === 'type') {
+      setFormData(prev => ({
+        ...prev,
+        goal: value.charAt(0).toUpperCase() + value.slice(1) // Capitalize first letter
+      }));
+    } else if (name === 'description') {
+      setFormData(prev => ({
+        ...prev,
+        additionalNotes: value
+      }));
+    } else {
+      // Handle standard field names
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
 
-    // Clear error when field is edited
-    if (formErrors[name]) {
+    // Clear error for the corresponding field
+    let errorKey = name;
+    if (name === 'target_audience') errorKey = 'targetAudience';
+    else if (name === 'type') errorKey = 'goal';
+    else if (name === 'description') errorKey = 'additionalNotes';
+    else if (name.startsWith('platforms[0]')) errorKey = 'landingPageUrl';
+    else if (name.startsWith('platforms[1]')) errorKey = 'creativesLink';
+
+    if (formErrors[errorKey]) {
       setFormErrors((prev) => {
         const newErrors = { ...prev };
-        delete newErrors[name];
+        delete newErrors[errorKey];
         return newErrors;
       });
     }
@@ -513,7 +552,7 @@ export default function AccountOverviewPage() {
               onEdit={handleEditBrief}
               onDelete={() => setShowDeleteConfirmation(true)}
             />
-            {!isEditing && <BriefDisplay brief={brief} />}
+            {brief && !isEditing && <BriefDisplay brief={brief} />}
           </div>
           
           {showDeleteConfirmation && (
@@ -528,14 +567,14 @@ export default function AccountOverviewPage() {
           {(brief === null || isEditing) && (
             <BriefForm 
               formData={{
-                platforms: [formData.landingPageUrl, formData.creativesLink],
-                target_audience: formData.targetAudience,
-                location: formData.location,
-                start_date: '', // Set default or current value if available
-                end_date: '', // Set default or current value if available
-                type: formData.goal.toLowerCase(),
-                description: formData.additionalNotes,
-                consent: formData.consent
+                platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
+                target_audience: formData.targetAudience || '',
+                location: formData.location || '',
+                start_date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                end_date: new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+                type: (formData.goal || 'Awareness').toLowerCase(),
+                description: formData.additionalNotes || '',
+                consent: formData.consent || false
               }}
               formErrors={Object.fromEntries(
                 Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
