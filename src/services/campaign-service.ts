@@ -1,4 +1,4 @@
-import { Campaign, CampaignAsset, CampaignStatus } from '@/types';
+import { Campaign, CampaignAsset, CampaignStatus, CampaignType } from '@/types';
 import { createBrowserClient } from '@/lib/supabase';
 
 // Only log in development
@@ -34,6 +34,8 @@ export class CampaignService {
         name: campaignData.name,
         status: campaignData.status,
         user_id: campaignData.user_id,
+        type: 'display' as CampaignType, // Default type
+        budget: 0, // Default budget
         ...(campaignData.start_date && { start_date: campaignData.start_date }),
         ...(campaignData.end_date && { end_date: campaignData.end_date })
       };
@@ -55,11 +57,23 @@ export class CampaignService {
         id: String(item.id || ''),
         name: String(item.name || ''),
         status: (item.status as CampaignStatus) || 'draft',
+        type: (item.type as CampaignType) || 'display',
         created_at: String(item.created_at || new Date().toISOString()),
         updated_at: item.updated_at ? String(item.updated_at) : undefined,
         start_date: item.start_date ? String(item.start_date) : undefined,
         end_date: item.end_date ? String(item.end_date) : undefined,
         user_id: String(item.user_id || ''),
+        budget: Number(item.budget || 0),
+        spent: Number(item.spent || 0),
+        roas: item.roas ? Number(item.roas) : undefined,
+        impressions: item.impressions ? Number(item.impressions) : undefined,
+        clicks: item.clicks ? Number(item.clicks) : undefined,
+        conversions: item.conversions ? Number(item.conversions) : undefined,
+        ctr: item.ctr ? Number(item.ctr) : undefined,
+        description: item.description ? String(item.description) : undefined,
+        target_audience: item.target_audience ? String(item.target_audience) : undefined,
+        platforms: Array.isArray(item.platforms) ? item.platforms : undefined,
+        performance_score: item.performance_score ? Number(item.performance_score) : undefined,
         assets: []
       };
     } catch (error) {
@@ -132,11 +146,23 @@ export class CampaignService {
         id: String(item.id || ''),
         name: String(item.name || ''),
         status: (item.status as CampaignStatus) || 'draft',
+        type: (item.type as CampaignType) || 'display',
         created_at: String(item.created_at || new Date().toISOString()),
         updated_at: item.updated_at ? String(item.updated_at) : undefined,
         start_date: item.start_date ? String(item.start_date) : undefined,
         end_date: item.end_date ? String(item.end_date) : undefined,
         user_id: String(item.user_id || ''),
+        budget: Number(item.budget || 0),
+        spent: Number(item.spent || 0),
+        roas: item.roas ? Number(item.roas) : undefined,
+        impressions: item.impressions ? Number(item.impressions) : undefined,
+        clicks: item.clicks ? Number(item.clicks) : undefined,
+        conversions: item.conversions ? Number(item.conversions) : undefined,
+        ctr: item.ctr ? Number(item.ctr) : undefined,
+        description: item.description ? String(item.description) : undefined,
+        target_audience: item.target_audience ? String(item.target_audience) : undefined,
+        platforms: Array.isArray(item.platforms) ? item.platforms : undefined,
+        performance_score: item.performance_score ? Number(item.performance_score) : undefined,
         assets: Array.isArray(item.assets) ? item.assets.map((asset: RawAssetData) => ({
           id: String(asset.id || ''),
           campaign_id: String(asset.campaign_id || ''),
@@ -179,11 +205,23 @@ export class CampaignService {
         id: String(item.id || ''),
         name: String(item.name || ''),
         status: (item.status as CampaignStatus) || 'draft',
+        type: (item.type as CampaignType) || 'display',
         created_at: String(item.created_at || new Date().toISOString()),
         updated_at: item.updated_at ? String(item.updated_at) : undefined,
         start_date: item.start_date ? String(item.start_date) : undefined,
         end_date: item.end_date ? String(item.end_date) : undefined,
         user_id: String(item.user_id || ''),
+        budget: Number(item.budget || 0),
+        spent: Number(item.spent || 0),
+        roas: item.roas ? Number(item.roas) : undefined,
+        impressions: item.impressions ? Number(item.impressions) : undefined,
+        clicks: item.clicks ? Number(item.clicks) : undefined,
+        conversions: item.conversions ? Number(item.conversions) : undefined,
+        ctr: item.ctr ? Number(item.ctr) : undefined,
+        description: item.description ? String(item.description) : undefined,
+        target_audience: item.target_audience ? String(item.target_audience) : undefined,
+        platforms: Array.isArray(item.platforms) ? item.platforms : undefined,
+        performance_score: item.performance_score ? Number(item.performance_score) : undefined,
         assets: Array.isArray(item.assets) ? item.assets.map((asset: RawAssetData) => ({
           id: String(asset.id || ''),
           campaign_id: String(asset.campaign_id || ''),

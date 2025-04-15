@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@/lib/supabase';
-import type { Campaign, CampaignAsset, CampaignStatus } from '@/types';
+import type { Campaign, CampaignAsset, CampaignStatus, CampaignType } from '@/types';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
@@ -231,11 +231,23 @@ export class CampaignService {
       id: String(item.id || ''),
       name: String(item.name || ''),
       status: (item.status as CampaignStatus) || 'draft',
+      type: (item.type as CampaignType) || 'display',
       created_at: String(item.created_at || new Date().toISOString()),
       updated_at: item.updated_at ? String(item.updated_at) : undefined,
       start_date: item.start_date ? String(item.start_date) : undefined,
       end_date: item.end_date ? String(item.end_date) : undefined,
       user_id: String(item.user_id || ''),
+      budget: Number(item.budget || 0),
+      spent: Number(item.spent || 0),
+      roas: item.roas ? Number(item.roas) : undefined,
+      impressions: item.impressions ? Number(item.impressions) : undefined,
+      clicks: item.clicks ? Number(item.clicks) : undefined,
+      conversions: item.conversions ? Number(item.conversions) : undefined,
+      ctr: item.ctr ? Number(item.ctr) : undefined,
+      description: item.description ? String(item.description) : undefined,
+      target_audience: item.target_audience ? String(item.target_audience) : undefined,
+      platforms: Array.isArray(item.platforms) ? item.platforms : undefined,
+      performance_score: item.performance_score ? Number(item.performance_score) : undefined,
       assets: Array.isArray(item.assets) 
         ? item.assets.map((asset: any) => this.transformAssetData(asset)) 
         : []

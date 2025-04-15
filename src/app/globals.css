@@ -4,16 +4,24 @@
   --background: #ffffff;
   --foreground: #171717;
   
-  /* AI-Vertise Brand Colors */
+  /* AI-Vertise Brand Colors - Enhanced for 2025 */
   --ai-vertise-purple: #8a5cf6;
+  --ai-vertise-purple-light: #a78bfa;
+  --ai-vertise-purple-dark: #7c3aed;
   --ai-vertise-pink: #ec4899;
+  --ai-vertise-pink-light: #f472b6;
+  --ai-vertise-pink-dark: #db2777;
   --ai-vertise-indigo: #4f46e5;
+  --ai-vertise-indigo-light: #6366f1;
   --ai-vertise-indigo-dark: #3730a3;
   
-  /* System Colors */
-  --color-primary: #1967D2;
-  --color-error: #D93025;
-  --color-success: #137333;
+  /* System Colors - Google Ads inspired but modernized */
+  --color-primary: #1a73e8;
+  --color-primary-light: #4285f4;
+  --color-primary-dark: #0d48a1;
+  --color-error: #ea4335;
+  --color-warning: #fbbc05;
+  --color-success: #34a853;
   --color-background: #FFFFFF;
   --color-card: #FFFFFF;
   --color-text-primary: #202124;
@@ -21,41 +29,63 @@
   --color-border: #DADCE0;
   --color-hover: #F8F9FA;
   --color-active: #F1F3F4;
-  --shadow-sm: 0 1px 2px 0 rgba(60, 64, 67, 0.1), 0 1px 3px 1px rgba(60, 64, 67, 0.08);
-  --shadow: 0 2px 4px 0 rgba(60, 64, 67, 0.1), 0 3px 6px 2px rgba(60, 64, 67, 0.08);
+  
+  /* Modern Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.04), 0 10px 15px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.05), 0 20px 48px rgba(0, 0, 0, 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  
+  /* Glass Morphism */
+  --glass-background: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  --glass-blur: 8px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: #0f0f13;
   --foreground: #ededed;
   
-  /* System Colors - Dark Theme */
-  --color-primary: #4F8EF4;
-  --color-error: #E24434;
-  --color-success: #3BAB59;
-  --color-background: #1F1F1F;
-  --color-card: #2D2D2D;
-  --color-text-primary: #E8EAED;
+  /* System Colors - Dark Theme with 2025 feel */
+  --color-primary: #4285f4;
+  --color-primary-light: #5a95f5;
+  --color-primary-dark: #2c6bdc;
+  --color-error: #f25c54;
+  --color-warning: #ffc857;
+  --color-success: #4cc38a;
+  --color-background: #131318;
+  --color-card: #1d1d25;
+  --color-text-primary: #EDEDED;
   --color-text-secondary: #9AA0A6;
-  --color-border: #3C4043;
-  --color-hover: #2D2D2D;
-  --color-active: #3C4043;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
-  --shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 3px 6px 2px rgba(0, 0, 0, 0.15);
+  --color-border: #313135;
+  --color-hover: #222228;
+  --color-active: #2c2c35;
+  
+  /* Dark Theme Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.25), 0 20px 48px rgba(0, 0, 0, 0.3);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+  
+  /* Glass Morphism - Dark */
+  --glass-background: rgba(29, 29, 37, 0.75);
+  --glass-border: rgba(60, 60, 70, 0.5);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --glass-blur: 8px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-  background-image: linear-gradient(90deg, rgba(63, 94, 251, .03), rgba(252, 70, 107, .03));
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* Theme-based utility classes */
@@ -87,7 +117,30 @@ body {
   box-shadow: var(--shadow);
 }
 
-/* Custom gradient classes */
+.shadow-app-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.shadow-app-inner {
+  box-shadow: var(--shadow-inner);
+}
+
+/* 2025 Glassmorphism utilities */
+.glass {
+  background: var(--glass-background);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-hover:hover {
+  background: var(--glass-background);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+}
+
+/* Custom gradient classes - Enhanced for 2025 */
 .ai-vertise-gradient-text {
   background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
   -webkit-background-clip: text;
@@ -99,20 +152,42 @@ body {
   background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
 }
 
+.ai-vertise-gradient-hover:hover {
+  background-image: linear-gradient(to right, var(--ai-vertise-purple-dark), var(--ai-vertise-pink-dark));
+}
+
 .ai-vertise-gradient-indigo {
   background-image: linear-gradient(to right, var(--ai-vertise-indigo), var(--ai-vertise-indigo-dark));
 }
 
-.subtle-gradient-bg {
-  background-image: linear-gradient(90deg, rgba(63, 94, 251, .03), rgba(252, 70, 107, .03));
+.ai-vertise-subtle-gradient {
+  background-image: linear-gradient(120deg, rgba(79, 70, 229, 0.05) 0%, rgba(138, 92, 246, 0.05) 50%, rgba(236, 72, 153, 0.05) 100%);
 }
 
 /* Dark mode tweak for the subtle gradient */
-.dark .subtle-gradient-bg {
-  background-image: linear-gradient(90deg, rgba(63, 94, 251, .05), rgba(252, 70, 107, .05));
+.dark .ai-vertise-subtle-gradient {
+  background-image: linear-gradient(120deg, rgba(79, 70, 229, 0.1) 0%, rgba(138, 92, 246, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%);
 }
 
-/* Background patterns for KPI metrics */
+/* Modern animated background */
+.bg-animated {
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Background patterns for KPI metrics - 2025 style */
 .bg-dots-pattern {
   background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
   background-size: 12px 12px;
@@ -123,9 +198,11 @@ body {
   background-size: 10px 10px;
 }
 
-.bg-circles-pattern {
-  background-image: radial-gradient(circle, currentColor 8px, transparent 8px);
-  background-size: 40px 40px;
+.bg-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(var(--ai-vertise-indigo-light), 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--ai-vertise-indigo-light), 0.05) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .bg-waves-pattern {
@@ -138,9 +215,71 @@ body {
   );
 }
 
-/* Transition utility for theme changes */
+/* Modern CSS for buttons */
+.btn-3d {
+  transform: translateY(0);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-3d:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-3d:active {
+  transform: translateY(0);
+}
+
+/* Soft UI (Neumorphism) for elegant inputs */
+.soft-ui {
+  border-radius: 16px;
+  background: var(--color-background);
+  box-shadow: 
+    5px 5px 10px rgba(0, 0, 0, 0.03),
+    -5px -5px 10px rgba(255, 255, 255, 0.05);
+}
+
+.dark .soft-ui {
+  box-shadow: 
+    5px 5px 10px rgba(0, 0, 0, 0.15),
+    -5px -5px 10px rgba(255, 255, 255, 0.03);
+}
+
+/* Modern micro-interactions */
+.pulse {
+  position: relative;
+}
+
+.pulse::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: inherit;
+  animation: pulse 2s infinite;
+  z-index: -1;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.05);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* Transition utility for theme changes - Enhanced for smoother transitions */
 .theme-transition {
-  transition-property: color, background-color, border-color, box-shadow;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
   transition-duration: 200ms;
-  transition-timing-function: ease-out;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
