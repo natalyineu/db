@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase';
 
 export default function AccountOverviewPage() {
-  const { isLoading: authLoading, isAuthenticated } = useAuth();
+  const { isLoading: authLoading, isAuthenticated, signOut } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const [briefStatus, setBriefStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
   const [paymentStatus, setPaymentStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
@@ -112,6 +112,15 @@ export default function AccountOverviewPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // No need to redirect here as the signOut method will redirect to the home page
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   // Combined loading state
   const isLoading = authLoading || profileLoading;
 
@@ -155,6 +164,12 @@ export default function AccountOverviewPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors"
+          >
+            Sign Out
+          </button>
           <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
             <span className="w-2 h-2 mr-1 rounded-full bg-purple-600"></span>
             Coffee Shop

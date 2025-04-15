@@ -3,7 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "./providers";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ui";
+import { ThemeToggle, UserMenu } from "@/components/ui";
+import AuthLinks from "@/components/AuthLinks";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -58,23 +59,11 @@ export default function RootLayout({
             <div className="flex items-center gap-3 md:gap-4">
               <ThemeToggle />
               
-              <Link 
-                href="/login"
-                className="hidden md:inline-flex text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white text-sm font-medium"
-              >
-                Sign in
-              </Link>
+              {/* User Menu (displays only when authenticated) */}
+              <UserMenu />
               
-              <Link 
-                href="/register"
-                className="text-sm px-3 md:px-4 py-2 rounded-full ai-vertise-gradient-bg text-white hover:opacity-90 transition-opacity inline-flex items-center"
-              >
-                <span className="hidden md:inline">Get Started</span>
-                <span className="md:hidden">Sign Up</span>
-                <svg className="w-4 h-4 ml-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
+              {/* Auth links (dynamic client component) */}
+              <AuthLinks />
               
               {/* Mobile menu button */}
               <button className="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
