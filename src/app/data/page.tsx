@@ -29,34 +29,31 @@ export default function AccountOverviewPage() {
     }
   }, [authLoading, isAuthenticated, router]);
 
-  // Load status data from Supabase
+  // Load status data from Supabase - modified to use profiles and campaigns
   useEffect(() => {
     async function loadStatusData() {
       if (!profile?.id) return;
 
       try {
-        const { data, error } = await supabase
-          .from('user_status')
-          .select('payment_status, brief_status')
+        // Check if there are any campaigns to determine brief status
+        const { data: campaignData, error: campaignError } = await supabase
+          .from('campaigns')
+          .select('id')
           .eq('user_id', profile.id)
-          .single();
+          .limit(1);
 
-        if (error) {
-          console.error('Error fetching status:', error);
+        if (campaignError) {
+          console.error('Error fetching campaigns:', campaignError);
           return;
         }
 
-        if (data) {
-          setPaymentStatus(data.payment_status || 'No');
-          setBriefStatus(data.brief_status || 'No');
-        } else {
-          // Create initial record if not exists
-          await supabase.from('user_status').insert({
-            user_id: profile.id,
-            payment_status: 'No',
-            brief_status: 'No'
-          });
-        }
+        // Use the existence of campaigns as an indicator for brief status
+        const hasBrief = campaignData && campaignData.length > 0;
+        setBriefStatus(hasBrief ? 'Yes' : 'No');
+        
+        // For payment status, we can use a convention like storing it in metadata
+        // This is a placeholder - in a real app you'd have a payment system
+        setPaymentStatus('No');
       } catch (error) {
         console.error('Error:', error);
       }
@@ -81,29 +78,24 @@ export default function AccountOverviewPage() {
     if (!profile?.id) return;
 
     try {
-      // Save brief data
-      const { error: briefError } = await supabase
-        .from('user_briefs')
+      // Instead of using user_briefs, create a campaign with the brief info
+      const { error: campaignError } = await supabase
+        .from('campaigns')
         .insert({
           user_id: profile.id,
-          landing_page_url: formData.landingPageUrl,
-          creatives_link: formData.creativesLink,
+          name: 'New Campaign',
+          status: 'draft',
+          type: formData.goal.toLowerCase() as any, // Convert goal to campaign type
+          budget: 0,
+          description: formData.additionalNotes,
           target_audience: formData.targetAudience,
-          goal: formData.goal,
-          notes: formData.additionalNotes
+          // Store landing page and creatives as platforms array or in description
+          platforms: [formData.landingPageUrl, formData.creativesLink]
         });
 
-      if (briefError) throw briefError;
+      if (campaignError) throw campaignError;
 
-      // Update status
-      const { error: statusError } = await supabase
-        .from('user_status')
-        .update({ brief_status: 'Yes' })
-        .eq('user_id', profile.id);
-
-      if (statusError) throw statusError;
-
-      // Update local state
+      // Update local state to reflect that the user has submitted a brief
       setBriefStatus('Yes');
       
       // Reset form

@@ -68,11 +68,31 @@ export default function KpiDashboardPage() {
       try {
         setIsLoading(true);
         
+        // Fetch KPI data from the existing kpi table
+        const { data: userCampaigns, error: campaignError } = await supabase
+          .from('campaigns')
+          .select('id')
+          .eq('user_id', profile.id);
+
+        if (campaignError) {
+          console.error('Error fetching user campaigns:', campaignError);
+          return;
+        }
+
+        if (!userCampaigns || userCampaigns.length === 0) {
+          setKpiData([]);
+          setSummary('No campaign data available yet.');
+          setIsLoading(false);
+          return;
+        }
+
+        const campaignIds = userCampaigns.map(c => c.id);
+        
         // Fetch KPI data
-        const { data: kpiData, error: kpiError } = await supabase
-          .from('kpi_data')
+        const { data: kpiResults, error: kpiError } = await supabase
+          .from('kpi')
           .select('*')
-          .eq('user_id', profile.id)
+          .in('campaign_id', campaignIds)
           .order('date', { ascending: false });
 
         if (kpiError) {
@@ -80,19 +100,36 @@ export default function KpiDashboardPage() {
           return;
         }
 
-        // Fetch summary
-        const { data: summaryData, error: summaryError } = await supabase
-          .from('campaign_summaries')
-          .select('summary_notes')
+        // Convert the kpi table data to match the expected format
+        const formattedKpiData = kpiResults ? kpiResults.map(kpi => ({
+          id: kpi.id,
+          user_id: profile.id, // Derive from profile
+          campaign_id: kpi.campaign_id,
+          date: kpi.date,
+          impressions: kpi.impressions_fact || 0,
+          clicks: kpi.clicks_fact || 0,
+          reach: kpi.reach_fact || 0,
+          delta_impressions: 0, // Can calculate if needed
+          delta_clicks: 0,      // Can calculate if needed
+          delta_reach: 0,       // Can calculate if needed
+          created_at: kpi.created_at
+        })) : [];
+
+        // For summary, we can use the description from the first campaign
+        const { data: campaignData, error: descError } = await supabase
+          .from('campaigns')
+          .select('description')
           .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
           .single();
 
-        if (summaryError && summaryError.code !== 'PGRST116') { // Not found error is ok
-          console.error('Error fetching summary:', summaryError);
+        if (descError && descError.code !== 'PGRST116') { // Not found error is ok
+          console.error('Error fetching campaign description:', descError);
         }
 
-        setKpiData(kpiData || []);
-        setSummary(summaryData?.summary_notes || '');
+        setKpiData(formattedKpiData);
+        setSummary(campaignData?.description || 'No summary available.');
       } catch (error) {
         console.error('Error:', error);
       } finally {
