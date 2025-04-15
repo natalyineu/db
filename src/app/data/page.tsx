@@ -46,12 +46,16 @@ export default function AccountOverviewPage() {
     landingPageUrl: '',
     creativesLink: '',
     targetAudience: '',
+    location: '',
     goal: 'Awareness',
-    additionalNotes: ''
+    additionalNotes: '',
+    consent: false
   });
   const [formErrors, setFormErrors] = useState<{
     landingPageUrl?: string;
     creativesLink?: string;
+    location?: string;
+    consent?: string;
   }>({});
   const [userBusinessType, setUserBusinessType] = useState<string>('Business');
   const [existingBrief, setExistingBrief] = useState<any>(null);
@@ -135,6 +139,23 @@ export default function AccountOverviewPage() {
     }
   };
 
+  // New handler for checkbox changes
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+
+    // Clear error for this field when user checks
+    if (formErrors[name as keyof typeof formErrors]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
@@ -144,6 +165,8 @@ export default function AccountOverviewPage() {
     const errors: {
       landingPageUrl?: string;
       creativesLink?: string;
+      location?: string;
+      consent?: string;
     } = {};
     
     // Basic domain validation (non-empty and contains at least one dot)
@@ -154,8 +177,20 @@ export default function AccountOverviewPage() {
     }
     
     // Optional creative link validation - only if provided
-    if (formData.creativesLink && !formData.creativesLink.includes('.')) {
-      errors.creativesLink = 'Please enter a valid URL';
+    if (formData.creativesLink && !formData.creativesLink.includes('.') && 
+        formData.creativesLink.toLowerCase() !== 'none' && 
+        formData.creativesLink.toLowerCase() !== 'no') {
+      errors.creativesLink = 'Please enter a valid URL or type "none" or "no"';
+    }
+
+    // Location validation - required field
+    if (!formData.location) {
+      errors.location = 'Location is required';
+    }
+
+    // Consent validation
+    if (!formData.consent) {
+      errors.consent = 'You must agree to our terms and services';
     }
     
     // If there are any errors, don't submit the form
@@ -178,10 +213,21 @@ export default function AccountOverviewPage() {
         formDataToSubmit.landingPageUrl = `https://${formDataToSubmit.landingPageUrl}`;
       }
       
-      // Do the same for creatives link if provided
-      if (formDataToSubmit.creativesLink && !formDataToSubmit.creativesLink.match(/^https?:\/\//)) {
+      // Do the same for creatives link if provided and not 'none' or 'no'
+      if (formDataToSubmit.creativesLink && 
+          formDataToSubmit.creativesLink.toLowerCase() !== 'none' && 
+          formDataToSubmit.creativesLink.toLowerCase() !== 'no' && 
+          !formDataToSubmit.creativesLink.match(/^https?:\/\//)) {
         formDataToSubmit.creativesLink = `https://${formDataToSubmit.creativesLink}`;
       }
+
+      // Calculate default start date (1-2 days from now)
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 2) + 1); // Random 1-2 days
+      
+      // Calculate default end date (30 days from start date)
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 30);
 
       if (isEditing && existingBrief?.id) {
         // Update existing campaign
@@ -191,7 +237,10 @@ export default function AccountOverviewPage() {
             type: formDataToSubmit.goal.toLowerCase() as any,
             description: formDataToSubmit.additionalNotes,
             target_audience: formDataToSubmit.targetAudience,
-            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink]
+            location: formDataToSubmit.location,
+            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+            start_date: startDate.toISOString().split('T')[0],
+            end_date: endDate.toISOString().split('T')[0]
           })
           .eq('id', existingBrief.id);
 
@@ -203,7 +252,10 @@ export default function AccountOverviewPage() {
           type: formDataToSubmit.goal.toLowerCase(),
           description: formDataToSubmit.additionalNotes,
           target_audience: formDataToSubmit.targetAudience,
-          platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink]
+          location: formDataToSubmit.location,
+          platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0]
         });
 
         setIsEditing(false);
@@ -219,7 +271,10 @@ export default function AccountOverviewPage() {
             budget: 0,
             description: formDataToSubmit.additionalNotes,
             target_audience: formDataToSubmit.targetAudience,
-            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink]
+            location: formDataToSubmit.location,
+            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+            start_date: startDate.toISOString().split('T')[0],
+            end_date: endDate.toISOString().split('T')[0]
           })
           .select();
 
@@ -239,8 +294,10 @@ export default function AccountOverviewPage() {
         landingPageUrl: '',
         creativesLink: '',
         targetAudience: '',
+        location: '',
         goal: 'Awareness',
-        additionalNotes: ''
+        additionalNotes: '',
+        consent: false
       });
       
     } catch (error) {
@@ -259,8 +316,10 @@ export default function AccountOverviewPage() {
         landingPageUrl,
         creativesLink,
         targetAudience: existingBrief.target_audience || '',
+        location: existingBrief.location || '',
         goal: existingBrief.type ? existingBrief.type.charAt(0).toUpperCase() + existingBrief.type.slice(1) : 'Awareness',
-        additionalNotes: existingBrief.description || ''
+        additionalNotes: existingBrief.description || '',
+        consent: true
       });
       
       setIsEditing(true);
@@ -459,6 +518,19 @@ export default function AccountOverviewPage() {
               </div>
               
               <div>
+                <h3 className="text-sm font-medium text-gray-500">Location:</h3>
+                <p className="mt-1">{existingBrief.location || "Not specified"}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium text-gray-500">Campaign Period:</h3>
+                <p className="mt-1">
+                  {existingBrief.start_date ? new Date(existingBrief.start_date).toLocaleDateString() : "Not specified"} - {existingBrief.end_date ? new Date(existingBrief.end_date).toLocaleDateString() : "Not specified"} 
+                  (30 days)
+                </p>
+              </div>
+              
+              <div>
                 <h3 className="text-sm font-medium text-gray-500">Goal:</h3>
                 <p className="mt-1 capitalize">{existingBrief.type || "Awareness"}</p>
               </div>
@@ -518,7 +590,7 @@ export default function AccountOverviewPage() {
                 {formErrors.creativesLink && (
                   <p className="mt-1 text-sm text-red-600">{formErrors.creativesLink}</p>
                 )}
-                <p className="mt-1 text-xs text-gray-500">Optional: Links to campaign assets or creatives</p>
+                <p className="mt-1 text-xs text-gray-500">Optional: Links to campaign assets or creatives, or type "no" for AI-generated ones</p>
               </div>
               
               <div>
@@ -542,6 +614,33 @@ export default function AccountOverviewPage() {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700">
+                  Location
+                </label>
+                <div className="mt-1 relative rounded-md shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className={`block w-full pl-10 pr-3 py-2 sm:text-sm border ${
+                      formErrors.location ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                    } rounded-md`}
+                    placeholder="e.g., United States, New York"
+                  />
+                </div>
+                {formErrors.location && (
+                  <p className="mt-1 text-sm text-red-600">{formErrors.location}</p>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
                   Goal
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
@@ -555,10 +654,8 @@ export default function AccountOverviewPage() {
                     className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     <option value="Awareness">Awareness</option>
-                    <option value="Conversion">Conversion</option>
-                    <option value="Traffic">Traffic</option>
-                    <option value="Engagement">Engagement</option>
-                    <option value="Lead">Lead Generation</option>
+                    <option value="Consideration">Consideration</option>
+                    <option value="Conversions">Conversions</option>
                   </select>
                 </div>
               </div>
@@ -577,8 +674,32 @@ export default function AccountOverviewPage() {
                     onChange={handleInputChange}
                     rows={3}
                     className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Any specific requirements or additional information..."
+                    placeholder="Any specific requirements or additional information... (Default campaign start: 1-2 days from now, duration: 30 days)"
                   />
+                </div>
+                <p className="mt-1 text-xs text-gray-500">By default, your campaign will start in 1-2 days and run for 30 days. If you need specific dates, please mention them here.</p>
+              </div>
+
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="consent"
+                    name="consent"
+                    type="checkbox"
+                    checked={formData.consent}
+                    onChange={handleCheckboxChange}
+                    className={`h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 ${
+                      formErrors.consent ? 'border-red-300' : ''
+                    }`}
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="consent" className="font-medium text-gray-700">
+                    I agree to AI-Vertise's <a href="#" className="text-indigo-600 hover:text-indigo-500">Terms of Service</a> and <a href="#" className="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
+                  </label>
+                  {formErrors.consent && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.consent}</p>
+                  )}
                 </div>
               </div>
               
