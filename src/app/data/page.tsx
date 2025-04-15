@@ -299,79 +299,79 @@ export default function AccountOverviewPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 theme-transition dark:bg-gray-900">
+    <div className="container mx-auto p-6 theme-transition">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16 bg-purple-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+          <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
             {profile.first_name?.[0] || profile.email[0].toUpperCase()}
           </div>
           <div>
-            <h1 className="text-2xl font-bold dark:text-white">AI-Vertise Dashboard</h1>
-            <p className="text-gray-600 dark:text-gray-300">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
+            <h1 className="text-2xl font-bold">AI-Vertise Dashboard</h1>
+            <p className="text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors shadow-sm"
           >
             Sign Out
           </button>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
-            <span className="w-2 h-2 mr-1 rounded-full bg-indigo-600 dark:bg-indigo-400"></span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+            <span className="w-2 h-2 mr-1.5 rounded-full bg-indigo-600"></span>
             {userBusinessType}
           </span>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
-            <span className="w-2 h-2 mr-1 rounded-full bg-green-600 dark:bg-green-400"></span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+            <span className="w-2 h-2 mr-1.5 rounded-full bg-green-600"></span>
             Active
           </span>
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 theme-transition">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">Account Information</h2>
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
+          <h2 className="text-xl font-semibold mb-4">Account Information</h2>
           <div className="space-y-4">
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Email:</span>
-              <span className="font-medium dark:text-white">{profile.email}</span>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-600">Email:</span>
+              <span className="font-medium">{profile.email}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600 dark:text-gray-400">Member since:</span>
-              <span className="font-medium dark:text-white">{new Date(profile.created_at).toLocaleDateString()}</span>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-600">Member since:</span>
+              <span className="font-medium">{new Date(profile.created_at).toLocaleDateString()}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 theme-transition">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">Next Steps</h2>
+        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
+          <h2 className="text-xl font-semibold mb-4">Next Steps</h2>
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Account created:</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-600">Account created:</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                 Yes
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Payment:</span>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-600">Payment:</span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 paymentStatus === 'Yes' 
-                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                  ? 'bg-green-100 text-green-800' 
                   : paymentStatus === 'In Progress' 
-                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' 
-                    : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                    ? 'bg-yellow-100 text-yellow-800' 
+                    : 'bg-red-100 text-red-800'
               }`}>
                 {paymentStatus}
               </span>
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600 dark:text-gray-400">Brief Sent:</span>
+            <div className="flex justify-between items-center py-1">
+              <span className="text-gray-600">Brief Sent:</span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 briefStatus === 'Yes' 
-                  ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
+                  ? 'bg-green-100 text-green-800' 
                   : briefStatus === 'In Progress' 
-                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' 
-                    : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                    ? 'bg-yellow-100 text-yellow-800' 
+                    : 'bg-red-100 text-red-800'
               }`}>
                 {briefStatus}
               </span>
@@ -382,54 +382,54 @@ export default function AccountOverviewPage() {
 
       {/* Show Edit button if brief exists and not in editing mode */}
       {briefStatus === 'Yes' && !isEditing && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 theme-transition">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition">
           <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold dark:text-white">Your Brief</h2>
+            <h2 className="text-xl font-semibold">Your Brief</h2>
             <button
               onClick={handleEditBrief}
-              className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-sm transition-colors"
             >
               {icons.edit}
-              <span className="ml-1">Edit Brief</span>
+              <span className="ml-1.5">Edit Brief</span>
             </button>
           </div>
-          <div className="mt-4 space-y-4">
+          <div className="mt-6 space-y-5">
             <div>
-              <span className="text-gray-600 dark:text-gray-400 block mb-1">Landing Page URL:</span>
+              <span className="text-gray-600 text-sm block mb-1">Landing Page URL:</span>
               <a 
                 href={existingBrief?.platforms?.[0]} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                className="text-indigo-600 hover:underline break-all font-medium"
               >
                 {existingBrief?.platforms?.[0]}
               </a>
             </div>
             {existingBrief?.platforms?.[1] && (
               <div>
-                <span className="text-gray-600 dark:text-gray-400 block mb-1">Creatives Link:</span>
+                <span className="text-gray-600 text-sm block mb-1">Creatives Link:</span>
                 <a 
                   href={existingBrief?.platforms?.[1]} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                  className="text-indigo-600 hover:underline break-all font-medium"
                 >
                   {existingBrief?.platforms?.[1]}
                 </a>
               </div>
             )}
             <div>
-              <span className="text-gray-600 dark:text-gray-400 block mb-1">Target Audience:</span>
-              <p className="dark:text-white">{existingBrief?.target_audience}</p>
+              <span className="text-gray-600 text-sm block mb-1">Target Audience:</span>
+              <p>{existingBrief?.target_audience}</p>
             </div>
             <div>
-              <span className="text-gray-600 dark:text-gray-400 block mb-1">Goal:</span>
-              <p className="dark:text-white">{existingBrief?.type ? existingBrief.type.charAt(0).toUpperCase() + existingBrief.type.slice(1) : 'N/A'}</p>
+              <span className="text-gray-600 text-sm block mb-1">Goal:</span>
+              <p>{existingBrief?.type ? existingBrief.type.charAt(0).toUpperCase() + existingBrief.type.slice(1) : 'N/A'}</p>
             </div>
             {existingBrief?.description && (
               <div>
-                <span className="text-gray-600 dark:text-gray-400 block mb-1">Additional Notes:</span>
-                <p className="dark:text-white">{existingBrief?.description}</p>
+                <span className="text-gray-600 text-sm block mb-1">Additional Notes:</span>
+                <p>{existingBrief?.description}</p>
               </div>
             )}
           </div>
@@ -438,16 +438,16 @@ export default function AccountOverviewPage() {
 
       {/* Show form if no brief exists or in editing mode */}
       {(briefStatus !== 'Yes' || isEditing) && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8 theme-transition">
-          <h2 className="text-xl font-semibold mb-4 dark:text-white">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition">
+          <h2 className="text-xl font-semibold mb-6">
             {isEditing ? 'Edit Your Brief' : 'Submit Your Brief'}
           </h2>
           <form onSubmit={handleSubmit}>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-x-6 gap-y-5">
               <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
                   {icons.url}
-                  <span className="ml-1">Landing Page URL *</span>
+                  <span className="ml-1.5">Landing Page URL *</span>
                 </label>
                 <input
                   type="text"
@@ -457,24 +457,24 @@ export default function AccountOverviewPage() {
                   required
                   placeholder="e.g. google.com"
                   className={`w-full px-3 py-2 border ${
-                    formErrors.landingPageUrl ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
+                    formErrors.landingPageUrl ? 'border-red-500' : 'border-gray-300'
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm`}
                 />
                 {formErrors.landingPageUrl ? (
-                  <p className="mt-1 text-xs text-red-500">
+                  <p className="mt-1.5 text-xs text-red-500">
                     {formErrors.landingPageUrl}
                   </p>
                 ) : (
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  <p className="mt-1.5 text-xs text-gray-500">
                     Just enter the domain name - we'll add https:// for you
                   </p>
                 )}
               </div>
               <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
                   {icons.url}
-                  <span className="ml-1">Creatives (Google Drive Link)</span>
-                  <span className="ml-1 text-xs text-gray-500 dark:text-gray-400">(optional)</span>
+                  <span className="ml-1.5">Creatives (Google Drive Link)</span>
+                  <span className="ml-1.5 text-xs text-gray-500">(optional)</span>
                 </label>
                 <input
                   type="text"
@@ -483,22 +483,23 @@ export default function AccountOverviewPage() {
                   onChange={handleInputChange}
                   placeholder="e.g. drive.google.com/your-folder"
                   className={`w-full px-3 py-2 border ${
-                    formErrors.creativesLink ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white`}
+                    formErrors.creativesLink ? 'border-red-500' : 'border-gray-300'
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm`}
                 />
-                {formErrors.creativesLink && (
-                  <p className="mt-1 text-xs text-red-500">
+                {formErrors.creativesLink ? (
+                  <p className="mt-1.5 text-xs text-red-500">
                     {formErrors.creativesLink}
                   </p>
+                ) : (
+                  <p className="mt-1.5 text-xs text-gray-500">
+                    We can create creatives for you if you don't have them
+                  </p>
                 )}
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                  We can create creatives for you if you don't have them
-                </p>
               </div>
               <div className="md:col-span-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
                   {icons.target}
-                  <span className="ml-1">Target Audience, Location, Persona</span>
+                  <span className="ml-1.5">Target Audience, Location, Persona</span>
                 </label>
                 <textarea
                   name="targetAudience"
@@ -506,19 +507,19 @@ export default function AccountOverviewPage() {
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Describe your target audience"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 ></textarea>
               </div>
               <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
                   {icons.goal}
-                  <span className="ml-1">Goal</span>
+                  <span className="ml-1.5">Goal</span>
                 </label>
                 <select
                   name="goal"
                   value={formData.goal}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 >
                   <option value="Awareness">Awareness</option>
                   <option value="Consideration">Consideration</option>
@@ -526,9 +527,9 @@ export default function AccountOverviewPage() {
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
                   {icons.notes}
-                  <span className="ml-1">Additional Notes</span>
+                  <span className="ml-1.5">Additional Notes</span>
                 </label>
                 <textarea
                   name="additionalNotes"
@@ -536,7 +537,7 @@ export default function AccountOverviewPage() {
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="Any additional information"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
                 ></textarea>
               </div>
             </div>
@@ -554,14 +555,14 @@ export default function AccountOverviewPage() {
                       additionalNotes: ''
                     });
                   }}
-                  className="px-6 py-2 mr-2 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                  className="px-6 py-2 mr-3 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 shadow-sm"
                 >
                   Cancel
                 </button>
               )}
               <button
                 type="submit"
-                className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
               >
                 {isEditing ? 'Update Brief' : 'Submit Brief'}
               </button>
@@ -570,17 +571,17 @@ export default function AccountOverviewPage() {
         </div>
       )}
 
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 theme-transition">
+      <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold dark:text-white">Campaign Analytics</h2>
+          <h2 className="text-xl font-semibold">Campaign Analytics</h2>
           <Link 
             href="/data/kpi" 
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-sm"
           >
             View KPI Dashboard
           </Link>
         </div>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-gray-600">
           Track your campaign performance with our comprehensive KPI dashboard. 
           Monitor impressions, clicks, and reach to optimize your marketing efforts.
         </p>
