@@ -299,7 +299,7 @@ export default function AccountOverviewPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 theme-transition">
+    <div className="container mx-auto p-6 theme-transition bg-gray-50 bg-dots-pattern">
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
@@ -329,9 +329,16 @@ export default function AccountOverviewPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
-          <h2 className="text-xl font-semibold mb-4">Account Information</h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-50 rounded-bl-full opacity-70"></div>
+          <div className="absolute w-6 h-6 bg-indigo-100 rounded-full top-12 right-12"></div>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Account Information
+          </h2>
+          <div className="space-y-4 relative z-10">
             <div className="flex justify-between items-center py-1">
               <span className="text-gray-600">Email:</span>
               <span className="font-medium">{profile.email}</span>
@@ -343,9 +350,16 @@ export default function AccountOverviewPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
-          <h2 className="text-xl font-semibold mb-4">Next Steps</h2>
-          <div className="space-y-4">
+        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
+          <div className="absolute bottom-0 right-0 w-24 h-24 bg-green-50 rounded-tl-full opacity-70"></div>
+          <div className="absolute w-5 h-5 bg-green-100 rounded-full bottom-14 right-16"></div>
+          <h2 className="text-xl font-semibold mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            Next Steps
+          </h2>
+          <div className="space-y-4 relative z-10">
             <div className="flex justify-between items-center py-1">
               <span className="text-gray-600">Account created:</span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -382,9 +396,16 @@ export default function AccountOverviewPage() {
 
       {/* Show Edit button if brief exists and not in editing mode */}
       {briefStatus === 'Yes' && !isEditing && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Your Brief</h2>
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-16 h-16 bg-purple-50 rounded-br-full opacity-70"></div>
+          <div className="absolute w-4 h-4 bg-purple-100 rounded-full top-10 left-12"></div>
+          <div className="flex justify-between items-center relative z-10">
+            <h2 className="text-xl font-semibold flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Your Brief
+            </h2>
             <button
               onClick={handleEditBrief}
               className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-sm transition-colors"
@@ -393,7 +414,7 @@ export default function AccountOverviewPage() {
               <span className="ml-1.5">Edit Brief</span>
             </button>
           </div>
-          <div className="mt-6 space-y-5">
+          <div className="mt-6 space-y-5 relative z-10">
             <div>
               <span className="text-gray-600 text-sm block mb-1">Landing Page URL:</span>
               <a 
@@ -438,11 +459,16 @@ export default function AccountOverviewPage() {
 
       {/* Show form if no brief exists or in editing mode */}
       {(briefStatus !== 'Yes' || isEditing) && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition">
-          <h2 className="text-xl font-semibold mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition relative overflow-hidden">
+          <div className="absolute bottom-0 left-0 w-28 h-28 bg-indigo-50 rounded-tr-full opacity-70"></div>
+          <div className="absolute w-6 h-6 bg-indigo-100 rounded-full bottom-16 left-16"></div>
+          <h2 className="text-xl font-semibold mb-6 flex items-center relative z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
             {isEditing ? 'Edit Your Brief' : 'Submit Your Brief'}
           </h2>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="relative z-10">
             <div className="grid md:grid-cols-2 gap-x-6 gap-y-5">
               <div>
                 <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
@@ -571,17 +597,27 @@ export default function AccountOverviewPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm p-6 theme-transition">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Campaign Analytics</h2>
+      <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full opacity-70"></div>
+        <div className="absolute w-8 h-8 bg-blue-100 rounded-full top-16 right-16"></div>
+        <div className="flex justify-between items-center mb-4 relative z-10">
+          <h2 className="text-xl font-semibold flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Campaign Analytics
+          </h2>
           <Link 
             href="/data/kpi" 
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-sm"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-sm flex items-center"
           >
-            View KPI Dashboard
+            <span>View KPI Dashboard</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </Link>
         </div>
-        <p className="text-gray-600">
+        <p className="text-gray-600 relative z-10">
           Track your campaign performance with our comprehensive KPI dashboard. 
           Monitor impressions, clicks, and reach to optimize your marketing efforts.
         </p>
