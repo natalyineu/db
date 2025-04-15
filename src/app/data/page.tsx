@@ -490,7 +490,7 @@ export default function AccountOverviewPage() {
     return (
       <div className="container mx-auto p-6 text-center">
         <h2 className="text-xl font-semibold mb-4">Profile Not Found</h2>
-        <p className="mb-4">We couldn't find your profile information.</p>
+        <p className="mb-4">We couldn&apos;t find your profile information.</p>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           onClick={() => router.push('/')}

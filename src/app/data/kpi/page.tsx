@@ -174,6 +174,39 @@ export default function KpiDashboardPage() {
     };
   }, [kpiData]);
 
+  // Calculate plan usage percentage
+  const impressionsUsage = useMemo(() => {
+    if (!profile?.plan?.impressions_limit) return 0;
+    return Math.min(100, Math.round((latestMetrics.impressions / profile.plan.impressions_limit) * 100));
+  }, [latestMetrics.impressions, profile]);
+
+  // Determine if showing upgrade recommendation
+  const showUpgradeRecommendation = useMemo(() => {
+    return impressionsUsage >= 80; // Show upgrade options if usage is high
+  }, [impressionsUsage]);
+
+  // Get next tier plan based on current plan
+  const getNextTierPlan = useMemo(() => {
+    if (!profile?.plan?.name) return 'Growth';
+    
+    switch(profile.plan.name) {
+      case 'Starter': return 'Growth';
+      case 'Growth': return 'Impact';
+      case 'Impact': return 'Tailored';
+      default: return 'Tailored';
+    }
+  }, [profile]);
+
+  // Get impressions limit for the next tier
+  const getNextTierImpressions = useMemo(() => {
+    switch(getNextTierPlan) {
+      case 'Growth': return 46500;
+      case 'Impact': return 96500;
+      case 'Tailored': return 100000;
+      default: return 46500;
+    }
+  }, [getNextTierPlan]);
+
   // Prepare chart data
   const chartData: ChartData<'line'> = useMemo(() => {
     if (kpiData.length === 0) {
@@ -202,8 +235,8 @@ export default function KpiDashboardPage() {
         ],
       };
     }
-
-    // Sort by date ascending for chart
+    
+    // Sort data by date (oldest to newest)
     const sortedData = [...kpiData].sort((a, b) => 
       new Date(a.date).getTime() - new Date(b.date).getTime()
     );
@@ -279,7 +312,7 @@ export default function KpiDashboardPage() {
     return (
       <div className="container mx-auto p-6 text-center">
         <h2 className="text-xl font-semibold mb-4">Profile Not Found</h2>
-        <p className="mb-4">We couldn't find your profile information.</p>
+        <p className="mb-4">We couldn&apos;t find your profile information.</p>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           onClick={() => router.push('/')}
@@ -306,6 +339,121 @@ export default function KpiDashboardPage() {
           </Link>
         </div>
 
+        {/* Account Information Section */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Account Information</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Current Plan</h3>
+              <div className="flex items-center">
+                <p className="text-lg font-semibold">
+                  {profile.plan?.name || 'Starter'}
+                </p>
+                <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full">
+                  {profile.plan?.impressions_limit?.toLocaleString()} impressions
+                </span>
+              </div>
+              <div className="mt-2 flex space-x-2">
+                <Link 
+                  href="/account/plans" 
+                  className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  View Plans
+                </Link>
+                {profile.plan?.name !== 'Tailored' && (
+                  <button className="text-xs px-2 py-1 border border-indigo-300 rounded hover:bg-indigo-50 text-indigo-700">
+                    Upgrade
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Payment Status</h3>
+              <div className="flex items-center">
+                <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                  profile.plan?.payment_status === 'active' ? 'bg-green-500' :
+                  profile.plan?.payment_status === 'past_due' ? 'bg-yellow-500' :
+                  'bg-gray-500'
+                }`}></span>
+                <p className="text-lg font-semibold">
+                  {profile.plan?.payment_status === 'active' ? 'Active' :
+                   profile.plan?.payment_status === 'past_due' ? 'Past Due' :
+                   profile.plan?.payment_status === 'canceled' ? 'Canceled' : 'Not Available'}
+                </p>
+              </div>
+              <div className="mt-2">
+                <Link 
+                  href="/account/billing" 
+                  className="text-xs px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  Billing History
+                </Link>
+              </div>
+            </div>
+            
+            <div className="border rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Next Billing Date</h3>
+              <p className="text-lg font-semibold">
+                {profile.plan?.renewal_date ? new Date(profile.plan.renewal_date).toLocaleDateString() : 'Not Available'}
+              </p>
+              <div className="mt-2 text-xs text-gray-500">
+                Your subscription will renew automatically
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Impressions Usage Meter */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="flex justify-between items-center mb-2">
+            <h2 className="text-lg font-semibold">Impressions Usage</h2>
+            <span className="text-sm text-gray-500">
+              {latestMetrics.impressions.toLocaleString()} / {profile.plan?.impressions_limit?.toLocaleString() || '∞'} impressions
+            </span>
+          </div>
+          
+          <div className="w-full bg-gray-200 rounded-full h-4">
+            <div 
+              className={`h-4 rounded-full ${
+                impressionsUsage < 70 ? 'bg-green-500' :
+                impressionsUsage < 90 ? 'bg-yellow-500' : 'bg-red-500'
+              }`} 
+              style={{ width: `${impressionsUsage}%` }}
+            ></div>
+          </div>
+          
+          <div className="flex justify-between mt-1">
+            <span className="text-xs text-gray-500">0%</span>
+            <span className="text-xs text-gray-500">100%</span>
+          </div>
+          
+          {showUpgradeRecommendation && (
+            <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+              <div className="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <h3 className="text-sm font-medium text-indigo-800">You&apos;re approaching your plan limit</h3>
+                  <p className="text-xs text-indigo-600 mt-1">
+                    You&apos;ve used {impressionsUsage}% of your current {profile.plan?.name || 'Starter'} plan&apos;s impressions. 
+                    Consider upgrading to our {getNextTierPlan} plan with {getNextTierImpressions.toLocaleString()} impressions.
+                  </p>
+                  <div className="mt-2">
+                    <button className="text-xs px-3 py-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 inline-flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                      Upgrade Now
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Impressions Card */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -322,6 +470,11 @@ export default function KpiDashboardPage() {
                 </span>
               )}
             </div>
+            {profile.plan?.impressions_limit && (
+              <div className="mt-2 text-xs text-gray-500">
+                Plan limit: {profile.plan.impressions_limit.toLocaleString()} impressions
+              </div>
+            )}
           </div>
 
           {/* Clicks Card */}

@@ -190,7 +190,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
           onChange={handleCheckboxChange}
         />
         <label htmlFor="consent" className="text-sm">
-          I agree to AI-Vertise's <a href="/terms" className="text-indigo-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-indigo-600 hover:underline">Privacy Policy</a> <span className="text-red-500">*</span>
+          I agree to AI-Vertise&apos;s <a href="/terms" className="text-indigo-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-indigo-600 hover:underline">Privacy Policy</a> <span className="text-red-500">*</span>
         </label>
       </div>
       {formErrors.consent && (
