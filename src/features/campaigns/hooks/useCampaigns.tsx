@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { CampaignService } from '../services/campaign-service';
+import { CampaignService } from '@/services/campaign-service';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import type { Campaign, CampaignStatus } from '@/types';
 
