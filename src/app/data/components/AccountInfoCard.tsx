@@ -3,9 +3,13 @@ import React from 'react';
 interface AccountInfoCardProps {
   profileEmail: string;
   createdAt: string;
+  plan?: {
+    name?: string;
+    impressions_limit?: number;
+  };
 }
 
-const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ profileEmail, createdAt }) => {
+const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ profileEmail, createdAt, plan }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-center gap-2 mb-4">
@@ -25,6 +29,18 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ profileEmail, created
           <span className="text-gray-500">Member since:</span>
           <span className="font-medium">
             {new Date(createdAt).toLocaleDateString()}
+          </span>
+        </div>
+        
+        <div className="flex justify-between border-b border-gray-100 pb-2">
+          <span className="text-gray-500">Plan:</span>
+          <span className="font-medium">
+            {plan?.name || 'Starter'} 
+            {plan?.impressions_limit && (
+              <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded-full">
+                {plan.impressions_limit.toLocaleString()} impressions
+              </span>
+            )}
           </span>
         </div>
       </div>

@@ -534,6 +534,7 @@ export default function AccountOverviewPage() {
           <AccountInfoCard 
             profileEmail={profile.email} 
             createdAt={profile.created_at} 
+            plan={profile.plan}
           />
 
           {/* Next Steps */}

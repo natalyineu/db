@@ -492,7 +492,7 @@ export default function KpiDashboardPage() {
             </div>
             {getProfileWithPlan().plan?.impressions_limit && (
               <div className="mt-2 text-xs text-gray-500">
-                Plan limit: {getProfileWithPlan().plan?.impressions_limit?.toLocaleString() || 0} impressions
+                Plan: {getProfileWithPlan().plan?.impressions_limit?.toLocaleString() || 0} / Actual: {latestMetrics.impressions.toLocaleString()}
               </div>
             )}
           </div>
