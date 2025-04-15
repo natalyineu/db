@@ -6,26 +6,27 @@ import { useRouter } from 'next/navigation';
 import { useProfile } from '@/hooks/useProfile';
 import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase';
+import { CleanBackground } from '@/components/ui';
 
 // Icons for the form
 const icons = {
   url: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
     </svg>
   ),
   target: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   ),
   goal: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
     </svg>
   ),
   notes: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
   ),
@@ -57,6 +58,13 @@ export default function AccountOverviewPage() {
   const [isEditing, setIsEditing] = useState(false);
   const router = useRouter();
   const supabase = createBrowserClient();
+  
+  // Mock data for campaigns - in a real app, you would fetch this from your backend
+  const campaigns = [
+    { id: 1, name: 'Summer Promotion', status: 'active', platform: 'Facebook', budget: 500 },
+    { id: 2, name: 'Product Launch', status: 'draft', platform: 'Instagram', budget: 750 },
+    { id: 3, name: 'Holiday Special', status: 'paused', platform: 'Google', budget: 1000 }
+  ];
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -299,329 +307,121 @@ export default function AccountOverviewPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 theme-transition bg-gray-50 bg-dots-pattern">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
-            {profile.first_name?.[0] || profile.email[0].toUpperCase()}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold">AI-Vertise Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 transition-colors shadow-sm"
-          >
-            Sign Out
-          </button>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-            <span className="w-2 h-2 mr-1.5 rounded-full bg-indigo-600"></span>
-            {userBusinessType}
-          </span>
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            <span className="w-2 h-2 mr-1.5 rounded-full bg-green-600"></span>
-            Active
-          </span>
-        </div>
-      </div>
-
-      <div className="grid md:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-50 rounded-bl-full opacity-70"></div>
-          <div className="absolute w-6 h-6 bg-indigo-100 rounded-full top-12 right-12"></div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Account Information
-          </h2>
-          <div className="space-y-4 relative z-10">
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-600">Email:</span>
-              <span className="font-medium">{profile.email}</span>
-            </div>
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-600">Member since:</span>
-              <span className="font-medium">{new Date(profile.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
-          <div className="absolute bottom-0 right-0 w-24 h-24 bg-green-50 rounded-tl-full opacity-70"></div>
-          <div className="absolute w-5 h-5 bg-green-100 rounded-full bottom-14 right-16"></div>
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Next Steps
-          </h2>
-          <div className="space-y-4 relative z-10">
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-600">Account created:</span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                Yes
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-600">Payment:</span>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                paymentStatus === 'Yes' 
-                  ? 'bg-green-100 text-green-800' 
-                  : paymentStatus === 'In Progress' 
-                    ? 'bg-yellow-100 text-yellow-800' 
-                    : 'bg-red-100 text-red-800'
-              }`}>
-                {paymentStatus}
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-1">
-              <span className="text-gray-600">Brief Sent:</span>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                briefStatus === 'Yes' 
-                  ? 'bg-green-100 text-green-800' 
-                  : briefStatus === 'In Progress' 
-                    ? 'bg-yellow-100 text-yellow-800' 
-                    : 'bg-red-100 text-red-800'
-              }`}>
-                {briefStatus}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Show Edit button if brief exists and not in editing mode */}
-      {briefStatus === 'Yes' && !isEditing && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-16 h-16 bg-purple-50 rounded-br-full opacity-70"></div>
-          <div className="absolute w-4 h-4 bg-purple-100 rounded-full top-10 left-12"></div>
-          <div className="flex justify-between items-center relative z-10">
-            <h2 className="text-xl font-semibold flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              Your Brief
-            </h2>
-            <button
-              onClick={handleEditBrief}
-              className="inline-flex items-center px-4 py-2 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-sm transition-colors"
-            >
-              {icons.edit}
-              <span className="ml-1.5">Edit Brief</span>
-            </button>
-          </div>
-          <div className="mt-6 space-y-5 relative z-10">
-            <div>
-              <span className="text-gray-600 text-sm block mb-1">Landing Page URL:</span>
-              <a 
-                href={existingBrief?.platforms?.[0]} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-indigo-600 hover:underline break-all font-medium"
-              >
-                {existingBrief?.platforms?.[0]}
-              </a>
-            </div>
-            {existingBrief?.platforms?.[1] && (
-              <div>
-                <span className="text-gray-600 text-sm block mb-1">Creatives Link:</span>
-                <a 
-                  href={existingBrief?.platforms?.[1]} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-indigo-600 hover:underline break-all font-medium"
-                >
-                  {existingBrief?.platforms?.[1]}
-                </a>
-              </div>
-            )}
-            <div>
-              <span className="text-gray-600 text-sm block mb-1">Target Audience:</span>
-              <p>{existingBrief?.target_audience}</p>
-            </div>
-            <div>
-              <span className="text-gray-600 text-sm block mb-1">Goal:</span>
-              <p>{existingBrief?.type ? existingBrief.type.charAt(0).toUpperCase() + existingBrief.type.slice(1) : 'N/A'}</p>
-            </div>
-            {existingBrief?.description && (
-              <div>
-                <span className="text-gray-600 text-sm block mb-1">Additional Notes:</span>
-                <p>{existingBrief?.description}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Show form if no brief exists or in editing mode */}
-      {(briefStatus !== 'Yes' || isEditing) && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 theme-transition relative overflow-hidden">
-          <div className="absolute bottom-0 left-0 w-28 h-28 bg-indigo-50 rounded-tr-full opacity-70"></div>
-          <div className="absolute w-6 h-6 bg-indigo-100 rounded-full bottom-16 left-16"></div>
-          <h2 className="text-xl font-semibold mb-6 flex items-center relative z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            {isEditing ? 'Edit Your Brief' : 'Submit Your Brief'}
-          </h2>
-          <form onSubmit={handleSubmit} className="relative z-10">
-            <div className="grid md:grid-cols-2 gap-x-6 gap-y-5">
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
-                  {icons.url}
-                  <span className="ml-1.5">Landing Page URL *</span>
-                </label>
-                <input
-                  type="text"
-                  name="landingPageUrl"
-                  value={formData.landingPageUrl}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="e.g. google.com"
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.landingPageUrl ? 'border-red-500' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm`}
-                />
-                {formErrors.landingPageUrl ? (
-                  <p className="mt-1.5 text-xs text-red-500">
-                    {formErrors.landingPageUrl}
-                  </p>
-                ) : (
-                  <p className="mt-1.5 text-xs text-gray-500">
-                    Just enter the domain name - we'll add https:// for you
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
-                  {icons.url}
-                  <span className="ml-1.5">Creatives (Google Drive Link)</span>
-                  <span className="ml-1.5 text-xs text-gray-500">(optional)</span>
-                </label>
-                <input
-                  type="text"
-                  name="creativesLink"
-                  value={formData.creativesLink}
-                  onChange={handleInputChange}
-                  placeholder="e.g. drive.google.com/your-folder"
-                  className={`w-full px-3 py-2 border ${
-                    formErrors.creativesLink ? 'border-red-500' : 'border-gray-300'
-                  } rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm`}
-                />
-                {formErrors.creativesLink ? (
-                  <p className="mt-1.5 text-xs text-red-500">
-                    {formErrors.creativesLink}
-                  </p>
-                ) : (
-                  <p className="mt-1.5 text-xs text-gray-500">
-                    We can create creatives for you if you don't have them
-                  </p>
-                )}
-              </div>
-              <div className="md:col-span-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
-                  {icons.target}
-                  <span className="ml-1.5">Target Audience, Location, Persona</span>
-                </label>
-                <textarea
-                  name="targetAudience"
-                  value={formData.targetAudience}
-                  onChange={handleInputChange}
-                  rows={3}
-                  placeholder="Describe your target audience"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                ></textarea>
-              </div>
-              <div>
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
-                  {icons.goal}
-                  <span className="ml-1.5">Goal</span>
-                </label>
-                <select
-                  name="goal"
-                  value={formData.goal}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                >
-                  <option value="Awareness">Awareness</option>
-                  <option value="Consideration">Consideration</option>
-                  <option value="Conversions">Conversions</option>
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <label className="flex items-center text-sm font-medium text-gray-700 mb-1.5">
-                  {icons.notes}
-                  <span className="ml-1.5">Additional Notes</span>
-                </label>
-                <textarea
-                  name="additionalNotes"
-                  value={formData.additionalNotes}
-                  onChange={handleInputChange}
-                  rows={3}
-                  placeholder="Any additional information"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                ></textarea>
-              </div>
-            </div>
-            <div className="flex justify-end mt-6">
-              {isEditing && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({
-                      landingPageUrl: '',
-                      creativesLink: '',
-                      targetAudience: '',
-                      goal: 'Awareness',
-                      additionalNotes: ''
-                    });
-                  }}
-                  className="px-6 py-2 mr-3 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 shadow-sm"
-                >
-                  Cancel
-                </button>
-              )}
+    <CleanBackground>
+      <div className="container mx-auto p-6">
+        <div className="grid grid-cols-1 md:grid-cols-8 gap-4">
+          {/* Welcome user card */}
+          <div className="col-span-1 md:col-span-8">
+            <div className="bg-white rounded-lg p-4">
+              <h1 className="text-2xl font-semibold mb-4">
+                Welcome back, {profile?.first_name || 'User'}! 
+              </h1>
+              <p className="text-base text-gray-500 mb-4">
+                Here's what's happening with your campaigns today:
+              </p>
               <button
-                type="submit"
-                className="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => router.push('/campaigns/new')}
               >
-                {isEditing ? 'Update Brief' : 'Submit Brief'}
+                Create New Campaign
               </button>
             </div>
-          </form>
+          </div>
+          
+          {/* Account overview card */}
+          <div className="col-span-1 md:col-span-4">
+            <div className="bg-white rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-4">
+                Account Status
+              </h2>
+              <div className="mb-4">
+                <p className="text-base text-gray-500">
+                  Plan: {((profile as any)?.subscription_tier) || 'Free'}
+                </p>
+                <p className="text-base text-gray-500">
+                  Next billing: {((profile as any)?.next_billing_date) || 'N/A'}
+                </p>
+              </div>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => router.push('/settings')}
+              >
+                Manage Account
+              </button>
+            </div>
+          </div>
+          
+          {/* Recent campaigns */}
+          <div className="col-span-1 md:col-span-8">
+            <div className="bg-white rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-4">
+                Recent Campaigns
+              </h2>
+              <div className="mb-4">
+                <table className="table-auto w-full">
+                  <thead>
+                    <tr>
+                      <th className="px-4 py-2">Campaign</th>
+                      <th className="px-4 py-2">Status</th>
+                      <th className="px-4 py-2">Platform</th>
+                      <th className="px-4 py-2 text-right">Budget</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {campaigns.map((campaign) => (
+                      <tr key={campaign.id}>
+                        <td className="border px-4 py-2">{campaign.name}</td>
+                        <td className="border px-4 py-2">
+                          <span className={`px-2 py-1 rounded-full text-sm ${
+                            campaign.status === 'active' ? 'bg-green-200 text-green-800' :
+                            campaign.status === 'paused' ? 'bg-yellow-200 text-yellow-800' :
+                            'bg-gray-200 text-gray-800'
+                          }`}>
+                            {campaign.status}
+                          </span>
+                        </td>
+                        <td className="border px-4 py-2">{campaign.platform}</td>
+                        <td className="border px-4 py-2 text-right">${campaign.budget}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => router.push('/campaigns')}
+              >
+                View All Campaigns
+              </button>
+            </div>
+          </div>
+          
+          {/* Tips & Resources */}
+          <div className="col-span-1 md:col-span-8">
+            <div className="bg-white rounded-lg p-4">
+              <h2 className="text-xl font-semibold mb-4">
+                Tips & Resources
+              </h2>
+              <div className="mb-4">
+                <p className="text-base text-gray-500">
+                  Optimize Your Campaigns
+                </p>
+                <p className="text-base text-gray-500">
+                  Check your analytics regularly to adjust your targeting and improve ROI.
+                </p>
+              </div>
+              <div className="mb-4">
+                <p className="text-base text-gray-500">
+                  New Features Available
+                </p>
+                <p className="text-base text-gray-500">
+                  We've added new audience targeting options. Try them in your next campaign!
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
-
-      <div className="bg-white rounded-lg shadow-sm p-6 theme-transition relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full opacity-70"></div>
-        <div className="absolute w-8 h-8 bg-blue-100 rounded-full top-16 right-16"></div>
-        <div className="flex justify-between items-center mb-4 relative z-10">
-          <h2 className="text-xl font-semibold flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Campaign Analytics
-          </h2>
-          <Link 
-            href="/data/kpi" 
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-sm flex items-center"
-          >
-            <span>View KPI Dashboard</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-        <p className="text-gray-600 relative z-10">
-          Track your campaign performance with our comprehensive KPI dashboard. 
-          Monitor impressions, clicks, and reach to optimize your marketing efforts.
-        </p>
       </div>
-    </div>
+    </CleanBackground>
   );
 } 

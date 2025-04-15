@@ -14,4 +14,5 @@ export { default as KpiFormField } from './KpiFormField';
 export { default as Pagination } from './Pagination';
 export { default as SortControls } from './SortControls';
 export { default as ThemeToggle } from './ThemeToggle';
-export { default as UserMenu } from './UserMenu'; 
+export { default as UserMenu } from './UserMenu';
+export { default as CleanBackground } from './CleanBackground'; 

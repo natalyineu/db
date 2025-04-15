@@ -152,8 +152,9 @@ body {
 
 /* Background patterns for KPI metrics - 2025 style */
 .bg-dots-pattern {
-  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
-  background-size: 12px 12px;
+  background-image: radial-gradient(circle, currentColor 0.5px, transparent 0.5px);
+  background-size: 24px 24px;
+  opacity: 0.03;
 }
 
 .bg-lines-pattern {
@@ -239,4 +240,15 @@ body {
   transition-property: color, background-color, border-color, box-shadow, transform, opacity;
   transition-duration: 200ms;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Clean background utility for removing patterns */
+.bg-clean {
+  background-image: none !important;
+  background-color: white !important;
+}
+
+.bg-clean-light {
+  background-image: none !important;
+  background-color: #f9fafb !important;
 }
