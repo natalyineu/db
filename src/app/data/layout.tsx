@@ -8,7 +8,7 @@ export default function DataLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-white" style={{ background: 'white' }}>
+    <div className="min-h-screen" style={{ background: '#F7F2F9' }}>
       {children}
     </div>
   );

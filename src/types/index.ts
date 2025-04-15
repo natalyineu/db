@@ -5,6 +5,14 @@ export interface UserProfile {
   updated_at?: string;
   status?: string; // User account status
   
+  // Plan information
+  plan?: {
+    name: string;        // e.g., 'Free', 'Basic', 'Premium', 'Enterprise'
+    impressions_limit: number;  // Monthly impressions limit
+    payment_status?: string;  // e.g., 'active', 'past_due', 'canceled'
+    renewal_date?: string;   // Next billing date
+  };
+  
   // Additional profile information
   first_name?: string;
   last_name?: string;

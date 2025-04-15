@@ -81,11 +81,11 @@ export default function LoginForm() {
   const messageType = messageState?.type || 'error';
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Login</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Login</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Sign in to your account</p>
         </div>
 
         <MessageDisplay 
@@ -93,7 +93,7 @@ export default function LoginForm() {
           message={messageForDisplay} 
         />
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+        <form className="mt-6 space-y-5" onSubmit={handleLogin}>
           <FormField
             id="email"
             label="Email address"
@@ -119,11 +119,11 @@ export default function LoginForm() {
             error={messageState?.text.includes('password') ? messageState.text : undefined}
           />
 
-          <div>
+          <div className="pt-2">
             <button
               type="submit"
               disabled={isSubmitting || loadingState.signIn}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 dark:focus:ring-offset-gray-800"
             >
               {isSubmitting || loadingState.signIn ? (
                 <span className="flex items-center">
@@ -139,16 +139,16 @@ export default function LoginForm() {
         </form>
 
         <div className="mt-6 text-center text-sm">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
               Sign up
             </Link>
           </p>
         </div>
 
-        <div className="mt-2 text-center text-sm">
-          <Link href="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+        <div className="mt-3 text-center text-sm">
+          <Link href="/" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
             Back to home
           </Link>
         </div>

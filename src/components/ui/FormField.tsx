@@ -47,7 +47,7 @@ const FormField: React.FC<FormFieldProps> = ({
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-200">
         {label}
       </label>
       <div className="mt-1 relative">
@@ -60,14 +60,15 @@ const FormField: React.FC<FormFieldProps> = ({
           value={value}
           onChange={handleChange}
           className={`appearance-none block w-full px-3 py-2 border ${
-            error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
-          } rounded-md shadow-sm placeholder-gray-400 focus:outline-none sm:text-sm`}
+            error ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-indigo-500 focus:border-indigo-500'
+          } rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none sm:text-sm
+          bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
           placeholder={placeholder}
         />
         {type === 'password' && showTogglePassword && (
           <button
             type="button"
-            className="absolute inset-y-0 right-0 px-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700"
+            className="absolute inset-y-0 right-0 px-3 flex items-center text-sm leading-5 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
             onClick={togglePasswordVisibility}
           >
             {showPassword ? "Hide" : "Show"}
@@ -75,10 +76,10 @@ const FormField: React.FC<FormFieldProps> = ({
         )}
       </div>
       {helperText && !error && (
-        <p className="mt-1 text-xs text-gray-500">{helperText}</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{helperText}</p>
       )}
       {error && (
-        <p className="mt-1 text-xs text-red-600">{error}</p>
+        <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
       )}
     </div>
   );

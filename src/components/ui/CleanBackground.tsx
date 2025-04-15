@@ -17,9 +17,9 @@ const CleanBackground: React.FC<CleanBackgroundProps> = ({
 }) => {
   return (
     <div 
-      className={`bg-white ${className}`} 
+      className={`${className}`} 
       style={{ 
-        background: 'white',
+        background: '#F7F2F9',
         backgroundImage: 'none',
         position: 'relative',
         zIndex: 1
