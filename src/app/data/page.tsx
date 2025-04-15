@@ -7,6 +7,15 @@ import { useProfile } from '@/hooks/useProfile';
 import Link from 'next/link';
 import { createBrowserClient } from '@/lib/supabase';
 import { CleanBackground } from '@/components/ui';
+import { 
+  AccountInfoCard, 
+  NextStepsCard, 
+  DeleteConfirmationDialog, 
+  BriefDisplay, 
+  CampaignPerformanceCard,
+  BriefHeader
+} from './components';
+import BriefForm from './components/BriefForm';
 
 // Icons for the form
 const icons = {
@@ -37,30 +46,61 @@ const icons = {
   )
 };
 
+// Define the interface for the form data
+interface BriefFormData {
+  businessName: string;
+  targetAudience: string;
+  goal: string;
+  additionalNotes: string;
+  landingPageUrl: string;
+  creativesLink: string;
+  location: string;
+  consent: boolean;
+}
+
+// Interface for form errors
+interface FormErrors {
+  [key: string]: string | undefined;
+}
+
+// Add a separate interface for the submission data structure
+interface SubmissionData {
+  user_id: string;
+  submitted_at: string;
+  business_type: string;
+  business_name: string;
+  platforms: string[];
+  target_audience: string;
+  location: string;
+  type: string;
+  description: string;
+  consent: boolean;
+}
+
 export default function AccountOverviewPage() {
   const { isLoading: authLoading, isAuthenticated, signOut } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
   const [briefStatus, setBriefStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
   const [paymentStatus, setPaymentStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
-  const [formData, setFormData] = useState({
+  const [isEditing, setIsEditing] = useState(false);
+  const [hasBrief, setHasBrief] = useState(false);
+  const [brief, setBrief] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [kpiStats, setKpiStats] = useState<any>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [userBusinessType, setUserBusinessType] = useState<string>('Business');
+  const [formData, setFormData] = useState<BriefFormData>({
+    businessName: '',
+    targetAudience: '',
     landingPageUrl: '',
     creativesLink: '',
-    targetAudience: '',
-    location: '',
     goal: 'Awareness',
     additionalNotes: '',
-    consent: false
+    location: '',
+    consent: false,
   });
-  const [formErrors, setFormErrors] = useState<{
-    landingPageUrl?: string;
-    creativesLink?: string;
-    location?: string;
-    consent?: string;
-  }>({});
-  const [userBusinessType, setUserBusinessType] = useState<string>('Business');
-  const [existingBrief, setExistingBrief] = useState<any>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
   const router = useRouter();
   const supabase = createBrowserClient();
   
@@ -108,7 +148,7 @@ export default function AccountOverviewPage() {
         
         // If there's an existing brief, store it
         if (hasBrief) {
-          setExistingBrief(campaignData[0]);
+          setBrief(campaignData[0]);
         }
         
         // For payment status, we can use a convention like storing it in metadata
@@ -124,19 +164,21 @@ export default function AccountOverviewPage() {
     }
   }, [profile, supabase]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
-    // Clear error for this field when user types
-    if (formErrors[name as keyof typeof formErrors]) {
-      setFormErrors(prev => ({
-        ...prev,
-        [name]: undefined
-      }));
+    // Clear error when field is edited
+    if (formErrors[name]) {
+      setFormErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
     }
   };
 
@@ -157,71 +199,85 @@ export default function AccountOverviewPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    if (!profile?.id) return;
-
-    // Basic domain validation
-    const errors: {
-      landingPageUrl?: string;
-      creativesLink?: string;
-      location?: string;
-      consent?: string;
-    } = {};
+    // Validate form data
+    const errors: Record<string, string> = {};
     
-    // Basic domain validation (non-empty and contains at least one dot)
     if (!formData.landingPageUrl) {
-      errors.landingPageUrl = 'Landing page URL is required';
-    } else if (!formData.landingPageUrl.includes('.')) {
-      errors.landingPageUrl = 'Please enter a valid domain name (e.g., example.com)';
+      errors.landingPageUrl = 'Please enter a landing page URL';
+    } else if (
+      formData.landingPageUrl !== 'no' && 
+      !formData.landingPageUrl.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)
+    ) {
+      errors.landingPageUrl = 'Please enter a valid URL';
     }
     
-    // Optional creative link validation - only if provided
-    if (formData.creativesLink && !formData.creativesLink.includes('.') && 
-        formData.creativesLink.toLowerCase() !== 'none' && 
-        formData.creativesLink.toLowerCase() !== 'no') {
-      errors.creativesLink = 'Please enter a valid URL or type "none" or "no"';
+    if (formData.creativesLink && 
+        formData.creativesLink !== 'no' && 
+        !formData.creativesLink.match(/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/)
+    ) {
+      errors.creativesLink = 'Please enter a valid URL or "no" for AI-generated creatives';
     }
-
-    // Location validation - required field
+    
+    if (!formData.targetAudience) {
+      errors.targetAudience = 'Please describe your target audience';
+    }
+    
     if (!formData.location) {
-      errors.location = 'Location is required';
-    }
-
-    // Consent validation
-    if (!formData.consent) {
-      errors.consent = 'You must agree to our terms and services';
+      errors.location = 'Please specify the campaign location';
     }
     
-    // If there are any errors, don't submit the form
+    if (!formData.goal) {
+      errors.goal = 'Please select a campaign goal';
+    }
+    
+    if (!formData.consent) {
+      errors.consent = 'You must agree to the terms and conditions';
+    }
+    
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
+      setIsSubmitting(false);
       return;
     }
     
-    // Clear any previous errors
-    setFormErrors({});
-
     try {
-      // Prepare form data - ensure URL has protocol
-      const formDataToSubmit = {
-        ...formData
+      // Format brief data for submission
+      if (!profile?.id) return;
+      
+      // Make sure URLs have proper protocol
+      let formattedLandingUrl = formData.landingPageUrl;
+      if (formattedLandingUrl && !formattedLandingUrl.match(/^https?:\/\//)) {
+        formattedLandingUrl = `https://${formattedLandingUrl}`;
+      }
+      
+      let formattedCreativesLink = formData.creativesLink;
+      if (formattedCreativesLink && 
+          formattedCreativesLink !== 'no' && 
+          !formattedCreativesLink.match(/^https?:\/\//)) {
+        formattedCreativesLink = `https://${formattedCreativesLink}`;
+      }
+      
+      // Format the form data to match the expected structure for submission
+      const formDataToSubmit: SubmissionData = {
+        user_id: profile.id,
+        submitted_at: new Date().toISOString(),
+        business_type: userBusinessType,
+        business_name: formData.businessName,
+        platforms: [
+          formattedLandingUrl,
+          formattedCreativesLink
+        ],
+        target_audience: formData.targetAudience,
+        location: formData.location,
+        type: formData.goal.toLowerCase(),
+        description: formData.additionalNotes,
+        consent: formData.consent
       };
       
-      // Add https:// protocol if missing
-      if (formDataToSubmit.landingPageUrl && !formDataToSubmit.landingPageUrl.match(/^https?:\/\//)) {
-        formDataToSubmit.landingPageUrl = `https://${formDataToSubmit.landingPageUrl}`;
-      }
-      
-      // Do the same for creatives link if provided and not 'none' or 'no'
-      if (formDataToSubmit.creativesLink && 
-          formDataToSubmit.creativesLink.toLowerCase() !== 'none' && 
-          formDataToSubmit.creativesLink.toLowerCase() !== 'no' && 
-          !formDataToSubmit.creativesLink.match(/^https?:\/\//)) {
-        formDataToSubmit.creativesLink = `https://${formDataToSubmit.creativesLink}`;
-      }
-
       // Calculate default start date (1-2 days from now)
       const startDate = new Date();
       startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 2) + 1); // Random 1-2 days
@@ -230,31 +286,31 @@ export default function AccountOverviewPage() {
       const endDate = new Date(startDate);
       endDate.setDate(startDate.getDate() + 30);
 
-      if (isEditing && existingBrief?.id) {
+      if (isEditing && brief?.id) {
         // Update existing campaign
         const { error: updateError } = await supabase
           .from('campaigns')
           .update({
-            type: formDataToSubmit.goal.toLowerCase() as any,
-            description: formDataToSubmit.additionalNotes,
-            target_audience: formDataToSubmit.targetAudience,
+            type: formDataToSubmit.type,
+            description: formDataToSubmit.description,
+            target_audience: formDataToSubmit.target_audience,
             location: formDataToSubmit.location,
-            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+            platforms: formDataToSubmit.platforms,
             start_date: startDate.toISOString().split('T')[0],
             end_date: endDate.toISOString().split('T')[0]
           })
-          .eq('id', existingBrief.id);
+          .eq('id', brief.id);
 
         if (updateError) throw updateError;
 
         // Update local state
-        setExistingBrief({
-          ...existingBrief,
-          type: formDataToSubmit.goal.toLowerCase(),
-          description: formDataToSubmit.additionalNotes,
-          target_audience: formDataToSubmit.targetAudience,
+        setBrief({
+          ...brief,
+          type: formDataToSubmit.type,
+          description: formDataToSubmit.description,
+          target_audience: formDataToSubmit.target_audience,
           location: formDataToSubmit.location,
-          platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+          platforms: formDataToSubmit.platforms,
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0]
         });
@@ -268,12 +324,12 @@ export default function AccountOverviewPage() {
             user_id: profile.id,
             name: 'New Campaign',
             status: 'draft',
-            type: formDataToSubmit.goal.toLowerCase() as any,
+            type: formDataToSubmit.type,
             budget: 0,
-            description: formDataToSubmit.additionalNotes,
-            target_audience: formDataToSubmit.targetAudience,
+            description: formDataToSubmit.description,
+            target_audience: formDataToSubmit.target_audience,
             location: formDataToSubmit.location,
-            platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink],
+            platforms: formDataToSubmit.platforms,
             start_date: startDate.toISOString().split('T')[0],
             end_date: endDate.toISOString().split('T')[0]
           })
@@ -283,7 +339,7 @@ export default function AccountOverviewPage() {
 
         // Set the new brief as the existing brief
         if (newCampaign && newCampaign.length > 0) {
-          setExistingBrief(newCampaign[0]);
+          setBrief(newCampaign[0]);
         }
 
         // Update brief status
@@ -292,34 +348,39 @@ export default function AccountOverviewPage() {
       
       // Reset form
       setFormData({
+        businessName: '',
+        targetAudience: '',
         landingPageUrl: '',
         creativesLink: '',
-        targetAudience: '',
-        location: '',
         goal: 'Awareness',
         additionalNotes: '',
+        location: '',
         consent: false
       });
+
+      setIsSubmitting(false);
       
     } catch (error) {
       console.error('Error submitting brief:', error);
+      setIsSubmitting(false);
     }
   };
 
   const handleEditBrief = () => {
     // Load existing brief data into the form
-    if (existingBrief) {
+    if (brief) {
       // Extract the URLs from platforms array
-      const landingPageUrl = existingBrief.platforms?.[0] || '';
-      const creativesLink = existingBrief.platforms?.[1] || '';
+      const landingPageUrl = brief.platforms?.[0] || '';
+      const creativesLink = brief.platforms?.[1] || '';
       
       setFormData({
+        businessName: brief.name || '',
+        targetAudience: brief.target_audience || '',
         landingPageUrl,
         creativesLink,
-        targetAudience: existingBrief.target_audience || '',
-        location: existingBrief.location || '',
-        goal: existingBrief.type ? existingBrief.type.charAt(0).toUpperCase() + existingBrief.type.slice(1) : 'Awareness',
-        additionalNotes: existingBrief.description || '',
+        goal: brief.type ? brief.type.charAt(0).toUpperCase() + brief.type.slice(1) : 'Awareness',
+        additionalNotes: brief.description || '',
+        location: brief.location || '',
         consent: true
       });
       
@@ -338,30 +399,31 @@ export default function AccountOverviewPage() {
 
   // Add handler for deleting a brief
   const handleDeleteBrief = async () => {
-    if (!existingBrief?.id) return;
+    if (!brief?.id) return;
     
     try {
       // Delete the campaign from Supabase
       const { error } = await supabase
         .from('campaigns')
         .delete()
-        .eq('id', existingBrief.id);
+        .eq('id', brief.id);
       
       if (error) throw error;
       
       // Reset states
-      setExistingBrief(null);
+      setBrief(null);
       setBriefStatus('No');
-      setShowDeleteConfirm(false);
+      setShowDeleteConfirmation(false);
       
       // Reset form
       setFormData({
+        businessName: '',
+        targetAudience: '',
         landingPageUrl: '',
         creativesLink: '',
-        targetAudience: '',
-        location: '',
         goal: 'Awareness',
         additionalNotes: '',
+        location: '',
         consent: false
       });
       
@@ -430,404 +492,66 @@ export default function AccountOverviewPage() {
         {/* Account Information & Next Steps */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Account Information */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-              </svg>
-              <h2 className="text-lg font-semibold">Account Information</h2>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Email:</span>
-                <span className="font-medium">{profile.email}</span>
-              </div>
-              
-              <div className="flex justify-between border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Member since:</span>
-                <span className="font-medium">
-                  {new Date(profile.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </div>
+          <AccountInfoCard 
+            profileEmail={profile.email} 
+            createdAt={profile.created_at} 
+          />
 
           {/* Next Steps */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-              </svg>
-              <h2 className="text-lg font-semibold">Next Steps</h2>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Account created:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  briefStatus === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  Yes
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Payment:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  paymentStatus === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                  {paymentStatus === 'Yes' ? 'Completed' : 'Required'}
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center border-b border-gray-100 pb-2">
-                <span className="text-gray-500">Brief Sent:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                  briefStatus === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {briefStatus === 'Yes' ? 'Submitted' : 'Pending'}
-                </span>
-              </div>
-            </div>
-          </div>
+          <NextStepsCard 
+            briefStatus={briefStatus} 
+            paymentStatus={paymentStatus} 
+          />
         </div>
         
         {/* Your Brief */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-              </svg>
-              <h2 className="text-lg font-semibold">Your Brief</h2>
-            </div>
-            
-            {existingBrief && !isEditing && (
-              <div className="flex space-x-2">
-                <button 
-                  onClick={handleEditBrief}
-                  className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 flex items-center gap-1 text-sm"
-                >
-                  {icons.edit}
-                  <span>Edit Brief</span>
-                </button>
-                <button 
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-3 py-1 bg-red-50 text-red-600 rounded-md hover:bg-red-100 flex items-center gap-1 text-sm"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                  <span>Delete Brief</span>
-                </button>
-              </div>
-            )}
+          <div className="mb-6">
+            <BriefHeader 
+              existingBrief={brief}
+              isEditing={isEditing}
+              onEdit={handleEditBrief}
+              onDelete={() => setShowDeleteConfirmation(true)}
+            />
+            {!isEditing && <BriefDisplay brief={brief} />}
           </div>
           
-          {/* Delete Confirmation Dialog */}
-          {showDeleteConfirm && (
-            <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg shadow-lg p-6 max-w-md mx-auto">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Deletion</h3>
-                <p className="text-sm text-gray-500 mb-6">
-                  Are you sure you want to delete this brief? This action cannot be undone.
-                </p>
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDeleteBrief}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
+          {showDeleteConfirmation && (
+            <DeleteConfirmationDialog
+              isOpen={showDeleteConfirmation}
+              onCancel={() => setShowDeleteConfirmation(false)}
+              onConfirm={handleDeleteBrief}
+            />
           )}
-          
-          {existingBrief && !isEditing ? (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Landing Page URL:</h3>
-                <p className="mt-1 break-all">
-                  <a 
-                    href={existingBrief.platforms?.[0]} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 hover:underline"
-                  >
-                    {existingBrief.platforms?.[0]}
-                  </a>
-                </p>
-              </div>
-              
-              {existingBrief.platforms?.[1] && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Creatives Link:</h3>
-                  <p className="mt-1 break-all">
-                    <a 
-                      href={existingBrief.platforms?.[1]} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-indigo-600 hover:underline"
-                    >
-                      {existingBrief.platforms?.[1]}
-                    </a>
-                  </p>
-                </div>
-              )}
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Target Audience:</h3>
-                <p className="mt-1">{existingBrief.target_audience || "Not specified"}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Location:</h3>
-                <p className="mt-1">{existingBrief.location || "Not specified"}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Campaign Period:</h3>
-                <p className="mt-1">
-                  {existingBrief.start_date ? new Date(existingBrief.start_date).toLocaleDateString() : "Not specified"} - {existingBrief.end_date ? new Date(existingBrief.end_date).toLocaleDateString() : "Not specified"} 
-                  (30 days)
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Goal:</h3>
-                <p className="mt-1 capitalize">{existingBrief.type || "Awareness"}</p>
-              </div>
-              
-              {existingBrief.description && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Additional Notes:</h3>
-                  <p className="mt-1">{existingBrief.description}</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Landing Page URL<span className="text-red-500">*</span>
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {icons.url}
-                  </div>
-                  <input
-                    type="text"
-                    name="landingPageUrl"
-                    value={formData.landingPageUrl}
-                    onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-3 py-2 sm:text-sm border ${
-                      formErrors.landingPageUrl ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
-                    } rounded-md`}
-                    placeholder="www.example.com"
-                  />
-                </div>
-                {formErrors.landingPageUrl && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.landingPageUrl}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Creatives Link
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {icons.url}
-                  </div>
-                  <input
-                    type="text"
-                    name="creativesLink"
-                    value={formData.creativesLink}
-                    onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-3 py-2 sm:text-sm border ${
-                      formErrors.creativesLink ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
-                    } rounded-md`}
-                    placeholder="drive.google.com/..."
-                  />
-                </div>
-                {formErrors.creativesLink && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.creativesLink}</p>
-                )}
-                <p className="mt-1 text-xs text-gray-500">Optional: Links to campaign assets or creatives, or type "no" for AI-generated ones</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Target Audience
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {icons.target}
-                  </div>
-                  <input
-                    type="text"
-                    name="targetAudience"
-                    value={formData.targetAudience}
-                    onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="e.g., Women 25-34 interested in fitness"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Location
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    className={`block w-full pl-10 pr-3 py-2 sm:text-sm border ${
-                      formErrors.location ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
-                    } rounded-md`}
-                    placeholder="e.g., United States, New York"
-                  />
-                </div>
-                {formErrors.location && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.location}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Goal
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    {icons.goal}
-                  </div>
-                  <select
-                    name="goal"
-                    value={formData.goal}
-                    onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="Awareness">Awareness</option>
-                    <option value="Consideration">Consideration</option>
-                    <option value="Conversions">Conversions</option>
-                  </select>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Additional Notes
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute top-3 left-3 flex items-start pointer-events-none">
-                    {icons.notes}
-                  </div>
-                  <textarea
-                    name="additionalNotes"
-                    value={formData.additionalNotes}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Any specific requirements or additional information... (Default campaign start: 1-2 days from now, duration: 30 days)"
-                  />
-                </div>
-                <p className="mt-1 text-xs text-gray-500">By default, your campaign will start in 1-2 days and run for 30 days. If you need specific dates, please mention them here.</p>
-              </div>
 
-              <div className="flex items-start">
-                <div className="flex items-center h-5">
-                  <input
-                    id="consent"
-                    name="consent"
-                    type="checkbox"
-                    checked={formData.consent}
-                    onChange={handleCheckboxChange}
-                    className={`h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 ${
-                      formErrors.consent ? 'border-red-300' : ''
-                    }`}
-                  />
-                </div>
-                <div className="ml-3 text-sm">
-                  <label htmlFor="consent" className="font-medium text-gray-700">
-                    I agree to AI-Vertise's <a href="#" className="text-indigo-600 hover:text-indigo-500">Terms of Service</a> and <a href="#" className="text-indigo-600 hover:text-indigo-500">Privacy Policy</a>
-                  </label>
-                  {formErrors.consent && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.consent}</p>
-                  )}
-                </div>
-              </div>
-              
-              <div className="flex justify-end">
-                {isEditing && (
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(false)}
-                    className="mr-3 px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
-                    Cancel
-                  </button>
-                )}
-                <button
-                  type="submit"
-                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
-                  {isEditing ? 'Save Changes' : 'Submit Brief'}
-                </button>
-              </div>
-            </form>
+          {/* Show BriefForm if no brief exists or if editing */}
+          {(brief === null || isEditing) && (
+            <BriefForm 
+              formData={{
+                platforms: [formData.landingPageUrl, formData.creativesLink],
+                target_audience: formData.targetAudience,
+                location: formData.location,
+                start_date: '', // Set default or current value if available
+                end_date: '', // Set default or current value if available
+                type: formData.goal.toLowerCase(),
+                description: formData.additionalNotes,
+                consent: formData.consent
+              }}
+              formErrors={Object.fromEntries(
+                Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
+              )}
+              handleChange={handleChange}
+              handleCheckboxChange={handleCheckboxChange}
+              handleSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
+              currentDate={new Date().toISOString().split('T')[0]}
+              defaultEndDate={new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]}
+            />
           )}
         </div>
         
         {/* KPI Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
-              </svg>
-              <h2 className="text-lg font-semibold">Campaign Performance</h2>
-            </div>
-            
-            <Link
-              href="/data/kpi"
-              className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-md hover:bg-indigo-100 text-sm"
-            >
-              View Full Dashboard
-            </Link>
-          </div>
-          
-          <div className="text-center p-10 border border-dashed border-gray-200 rounded-lg bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <h3 className="text-gray-500 font-medium mb-2">No campaign data yet</h3>
-            <p className="text-gray-400 mb-4">Performance metrics will appear here once your campaign is live</p>
-            <Link 
-              href="/data/kpi"
-              className="px-4 py-2 inline-flex bg-indigo-600 text-white rounded-md hover:bg-indigo-700 text-sm"
-            >
-              Set Up KPI Tracking
-            </Link>
-          </div>
-        </div>
+        <CampaignPerformanceCard />
       </div>
     </CleanBackground>
   );
