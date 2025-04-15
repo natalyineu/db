@@ -19,6 +19,10 @@ export default function AccountOverviewPage() {
     goal: 'Awareness',
     additionalNotes: ''
   });
+  const [formErrors, setFormErrors] = useState<{
+    landingPageUrl?: string;
+    creativesLink?: string;
+  }>({});
   const router = useRouter();
   const supabase = createBrowserClient();
 
@@ -70,6 +74,14 @@ export default function AccountOverviewPage() {
       ...prev,
       [name]: value
     }));
+
+    // Clear error for this field when user types
+    if (formErrors[name as keyof typeof formErrors]) {
+      setFormErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +89,49 @@ export default function AccountOverviewPage() {
     
     if (!profile?.id) return;
 
+    // Basic domain validation
+    const errors: {
+      landingPageUrl?: string;
+      creativesLink?: string;
+    } = {};
+    
+    // Basic domain validation (non-empty and contains at least one dot)
+    if (!formData.landingPageUrl) {
+      errors.landingPageUrl = 'Landing page URL is required';
+    } else if (!formData.landingPageUrl.includes('.')) {
+      errors.landingPageUrl = 'Please enter a valid domain name (e.g., example.com)';
+    }
+    
+    // Optional creative link validation
+    if (formData.creativesLink && !formData.creativesLink.includes('.')) {
+      errors.creativesLink = 'Please enter a valid URL';
+    }
+    
+    // If there are any errors, don't submit the form
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    // Clear any previous errors
+    setFormErrors({});
+
     try {
+      // Prepare form data - ensure URL has protocol
+      const formDataToSubmit = {
+        ...formData
+      };
+      
+      // Add https:// protocol if missing
+      if (formDataToSubmit.landingPageUrl && !formDataToSubmit.landingPageUrl.match(/^https?:\/\//)) {
+        formDataToSubmit.landingPageUrl = `https://${formDataToSubmit.landingPageUrl}`;
+      }
+      
+      // Do the same for creatives link if provided
+      if (formDataToSubmit.creativesLink && !formDataToSubmit.creativesLink.match(/^https?:\/\//)) {
+        formDataToSubmit.creativesLink = `https://${formDataToSubmit.creativesLink}`;
+      }
+
       // Instead of using user_briefs, create a campaign with the brief info
       const { error: campaignError } = await supabase
         .from('campaigns')
@@ -85,12 +139,12 @@ export default function AccountOverviewPage() {
           user_id: profile.id,
           name: 'New Campaign',
           status: 'draft',
-          type: formData.goal.toLowerCase() as any, // Convert goal to campaign type
+          type: formDataToSubmit.goal.toLowerCase() as any, // Convert goal to campaign type
           budget: 0,
-          description: formData.additionalNotes,
-          target_audience: formData.targetAudience,
+          description: formDataToSubmit.additionalNotes,
+          target_audience: formDataToSubmit.targetAudience,
           // Store landing page and creatives as platforms array or in description
-          platforms: [formData.landingPageUrl, formData.creativesLink]
+          platforms: [formDataToSubmit.landingPageUrl, formDataToSubmit.creativesLink]
         });
 
       if (campaignError) throw campaignError;
@@ -243,27 +297,45 @@ export default function AccountOverviewPage() {
                   Landing Page URL *
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="landingPageUrl"
                   value={formData.landingPageUrl}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter your landing page URL"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. google.com"
+                  className={`w-full px-3 py-2 border ${
+                    formErrors.landingPageUrl ? 'border-red-500' : 'border-gray-300'
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
+                {formErrors.landingPageUrl ? (
+                  <p className="mt-1 text-xs text-red-500">
+                    {formErrors.landingPageUrl}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-xs text-gray-500">
+                    Just enter the domain name - we'll add https:// for you
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Creatives (Google Drive Link)
                 </label>
                 <input
-                  type="url"
+                  type="text"
                   name="creativesLink"
                   value={formData.creativesLink}
                   onChange={handleInputChange}
-                  placeholder="Google Drive link to your creatives"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. drive.google.com/your-folder"
+                  className={`w-full px-3 py-2 border ${
+                    formErrors.creativesLink ? 'border-red-500' : 'border-gray-300'
+                  } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
+                {formErrors.creativesLink && (
+                  <p className="mt-1 text-xs text-red-500">
+                    {formErrors.creativesLink}
+                  </p>
+                )}
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
