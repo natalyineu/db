@@ -86,7 +86,7 @@ export class CampaignService {
       };
       
       const { data: result, error } = await this.supabaseClient
-        .from('campaign_assets')
+        .from('assets')
         .insert(data)
         .select()
         .single();
@@ -117,7 +117,7 @@ export class CampaignService {
         .from('campaigns')
         .select(`
           *,
-          assets:campaign_assets(*)
+          assets:assets(*)
         `)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
@@ -150,7 +150,7 @@ export class CampaignService {
         .from('campaigns')
         .select(`
           *,
-          assets:campaign_assets(*)
+          assets:assets(*)
         `)
         .eq('id', campaignId)
         .single();
@@ -189,7 +189,7 @@ export class CampaignService {
         .eq('id', campaignId)
         .select(`
           *,
-          assets:campaign_assets(*)
+          assets:assets(*)
         `)
         .single();
 
