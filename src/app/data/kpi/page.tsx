@@ -8,6 +8,7 @@ import { createBrowserClient } from '@/lib/supabase';
 import Link from 'next/link';
 import { Line } from 'react-chartjs-2';
 import { CleanBackground } from '@/components/ui';
+import { UserProfile } from '@/types';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -54,6 +55,18 @@ export default function KpiDashboardPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createBrowserClient();
+
+  // Helper function to safely access profile.plan with proper type assertion
+  const getProfileWithPlan = () => {
+    return profile as UserProfile & { 
+      plan?: { 
+        impressions_limit: number;
+        name?: string;
+        payment_status?: string;
+        renewal_date?: string;
+      } 
+    };
+  };
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -176,8 +189,10 @@ export default function KpiDashboardPage() {
 
   // Calculate plan usage percentage
   const impressionsUsage = useMemo(() => {
-    if (!profile?.plan?.impressions_limit) return 0;
-    return Math.min(100, Math.round((latestMetrics.impressions / profile.plan.impressions_limit) * 100));
+    const profileWithPlan = getProfileWithPlan();
+    
+    if (!profileWithPlan?.plan?.impressions_limit) return 0;
+    return Math.min(100, Math.round((latestMetrics.impressions / profileWithPlan.plan.impressions_limit) * 100));
   }, [latestMetrics.impressions, profile]);
 
   // Determine if showing upgrade recommendation
@@ -187,9 +202,11 @@ export default function KpiDashboardPage() {
 
   // Get next tier plan based on current plan
   const getNextTierPlan = useMemo(() => {
-    if (!profile?.plan?.name) return 'Growth';
+    const profileWithPlan = getProfileWithPlan();
     
-    switch(profile.plan.name) {
+    if (!profileWithPlan?.plan?.name) return 'Growth';
+    
+    switch(profileWithPlan.plan.name) {
       case 'Starter': return 'Growth';
       case 'Growth': return 'Impact';
       case 'Impact': return 'Tailored';
@@ -347,10 +364,10 @@ export default function KpiDashboardPage() {
               <h3 className="text-sm font-medium text-gray-500 mb-1">Current Plan</h3>
               <div className="flex items-center">
                 <p className="text-lg font-semibold">
-                  {profile.plan?.name || 'Starter'}
+                  {getProfileWithPlan().plan?.name || 'Starter'}
                 </p>
                 <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-800 text-xs rounded-full">
-                  {profile.plan?.impressions_limit?.toLocaleString()} impressions
+                  {getProfileWithPlan().plan?.impressions_limit?.toLocaleString()} impressions
                 </span>
               </div>
               <div className="mt-2 flex space-x-2">
@@ -360,7 +377,7 @@ export default function KpiDashboardPage() {
                 >
                   View Plans
                 </Link>
-                {profile.plan?.name !== 'Tailored' && (
+                {getProfileWithPlan().plan?.name !== 'Tailored' && (
                   <button className="text-xs px-2 py-1 border border-indigo-300 rounded hover:bg-indigo-50 text-indigo-700">
                     Upgrade
                   </button>
@@ -372,14 +389,14 @@ export default function KpiDashboardPage() {
               <h3 className="text-sm font-medium text-gray-500 mb-1">Payment Status</h3>
               <div className="flex items-center">
                 <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                  profile.plan?.payment_status === 'active' ? 'bg-green-500' :
-                  profile.plan?.payment_status === 'past_due' ? 'bg-yellow-500' :
+                  getProfileWithPlan().plan?.payment_status === 'active' ? 'bg-green-500' :
+                  getProfileWithPlan().plan?.payment_status === 'past_due' ? 'bg-yellow-500' :
                   'bg-gray-500'
                 }`}></span>
                 <p className="text-lg font-semibold">
-                  {profile.plan?.payment_status === 'active' ? 'Active' :
-                   profile.plan?.payment_status === 'past_due' ? 'Past Due' :
-                   profile.plan?.payment_status === 'canceled' ? 'Canceled' : 'Not Available'}
+                  {getProfileWithPlan().plan?.payment_status === 'active' ? 'Active' :
+                   getProfileWithPlan().plan?.payment_status === 'past_due' ? 'Past Due' :
+                   getProfileWithPlan().plan?.payment_status === 'canceled' ? 'Canceled' : 'Not Available'}
                 </p>
               </div>
               <div className="mt-2">
@@ -395,7 +412,10 @@ export default function KpiDashboardPage() {
             <div className="border rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-500 mb-1">Next Billing Date</h3>
               <p className="text-lg font-semibold">
-                {profile.plan?.renewal_date ? new Date(profile.plan.renewal_date).toLocaleDateString() : 'Not Available'}
+                {getProfileWithPlan().plan?.renewal_date 
+                  ? new Date(String(getProfileWithPlan().plan?.renewal_date)).toLocaleDateString() 
+                  : 'Not Available'
+                }
               </p>
               <div className="mt-2 text-xs text-gray-500">
                 Your subscription will renew automatically
@@ -409,7 +429,7 @@ export default function KpiDashboardPage() {
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">Impressions Usage</h2>
             <span className="text-sm text-gray-500">
-              {latestMetrics.impressions.toLocaleString()} / {profile.plan?.impressions_limit?.toLocaleString() || '∞'} impressions
+              {latestMetrics.impressions.toLocaleString()} / {getProfileWithPlan().plan?.impressions_limit?.toLocaleString() || '∞'} impressions
             </span>
           </div>
           
@@ -437,7 +457,7 @@ export default function KpiDashboardPage() {
                 <div>
                   <h3 className="text-sm font-medium text-indigo-800">You&apos;re approaching your plan limit</h3>
                   <p className="text-xs text-indigo-600 mt-1">
-                    You&apos;ve used {impressionsUsage}% of your current {profile.plan?.name || 'Starter'} plan&apos;s impressions. 
+                    You&apos;ve used {impressionsUsage}% of your current {getProfileWithPlan().plan?.name || 'Starter'} plan&apos;s impressions. 
                     Consider upgrading to our {getNextTierPlan} plan with {getNextTierImpressions.toLocaleString()} impressions.
                   </p>
                   <div className="mt-2">
@@ -470,9 +490,9 @@ export default function KpiDashboardPage() {
                 </span>
               )}
             </div>
-            {profile.plan?.impressions_limit && (
+            {getProfileWithPlan().plan?.impressions_limit && (
               <div className="mt-2 text-xs text-gray-500">
-                Plan limit: {profile.plan.impressions_limit.toLocaleString()} impressions
+                Plan limit: {getProfileWithPlan().plan?.impressions_limit?.toLocaleString() || 0} impressions
               </div>
             )}
           </div>
