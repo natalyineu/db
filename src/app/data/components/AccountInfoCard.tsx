@@ -5,8 +5,7 @@ const PLAN_LIMITS = {
   'Starter': 16500,
   'Growth': 46500,
   'Impact': 96500,
-  'Tailored': 200000,
-  'Free': 1000
+  'Tailored': 100000
 };
 
 interface AccountInfoCardProps {
