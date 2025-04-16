@@ -11,15 +11,38 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
     (acc, item) => {
       return {
         impressions: acc.impressions + item.impressions,
+        impressions_plan: acc.impressions_plan + item.impressions_plan,
         clicks: acc.clicks + item.clicks,
+        clicks_plan: acc.clicks_plan + item.clicks_plan,
         reach: acc.reach + item.reach,
+        reach_plan: acc.reach_plan + item.reach_plan,
       };
     },
-    { impressions: 0, clicks: 0, reach: 0 }
+    { 
+      impressions: 0, 
+      impressions_plan: 0, 
+      clicks: 0, 
+      clicks_plan: 0, 
+      reach: 0, 
+      reach_plan: 0 
+    }
   );
 
   // Calculate click-through rate (CTR)
   const ctr = totals.impressions > 0 ? ((totals.clicks / totals.impressions) * 100).toFixed(2) : '0.00';
+  
+  // Calculate goal achievement percentages
+  const impressionsAchievement = totals.impressions_plan > 0 
+    ? Math.min(Math.round((totals.impressions / totals.impressions_plan) * 100), 100)
+    : 0;
+    
+  const clicksAchievement = totals.clicks_plan > 0 
+    ? Math.min(Math.round((totals.clicks / totals.clicks_plan) * 100), 100)
+    : 0;
+    
+  const reachAchievement = totals.reach_plan > 0 
+    ? Math.min(Math.round((totals.reach / totals.reach_plan) * 100), 100)
+    : 0;
 
   return (
     <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl shadow-lg border border-gray-100 p-6 mb-8 transform transition-all duration-300 hover:shadow-xl">
@@ -45,10 +68,10 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Total Impressions</p>
-                <h3 className="text-2xl font-bold text-gray-800">{totals.impressions.toLocaleString()}</h3>
+                <h3 className="text-xl font-bold text-gray-800">{totals.impressions.toLocaleString()}</h3>
               </div>
               <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
                 <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -57,13 +80,23 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
                 </svg>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-indigo-600 h-2 rounded-full" 
+                style={{ width: `${impressionsAchievement}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="text-xs text-gray-500">Goal: {totals.impressions_plan.toLocaleString()}</span>
+              <span className="text-xs font-medium text-indigo-600">{impressionsAchievement}%</span>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Total Clicks</p>
-                <h3 className="text-2xl font-bold text-gray-800">{totals.clicks.toLocaleString()}</h3>
+                <h3 className="text-xl font-bold text-gray-800">{totals.clicks.toLocaleString()}</h3>
               </div>
               <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                 <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -71,13 +104,23 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
                 </svg>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full" 
+                style={{ width: `${clicksAchievement}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="text-xs text-gray-500">Goal: {totals.clicks_plan.toLocaleString()}</span>
+              <span className="text-xs font-medium text-blue-600">{clicksAchievement}%</span>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <div>
                 <p className="text-sm text-gray-500 mb-1">Total Reach</p>
-                <h3 className="text-2xl font-bold text-gray-800">{totals.reach.toLocaleString()}</h3>
+                <h3 className="text-xl font-bold text-gray-800">{totals.reach.toLocaleString()}</h3>
               </div>
               <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                 <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -85,13 +128,23 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
                 </svg>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-purple-600 h-2 rounded-full" 
+                style={{ width: `${reachAchievement}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between mt-1">
+              <span className="text-xs text-gray-500">Goal: {totals.reach_plan.toLocaleString()}</span>
+              <span className="text-xs font-medium text-purple-600">{reachAchievement}%</span>
+            </div>
           </div>
 
           <div className="bg-white rounded-lg p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500 mb-1">CTR</p>
-                <h3 className="text-2xl font-bold text-gray-800">{ctr}%</h3>
+                <h3 className="text-xl font-bold text-gray-800">{ctr}%</h3>
               </div>
               <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                 <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -99,6 +152,9 @@ const KpiSummary = ({ kpiData }: KpiSummaryProps) => {
                 </svg>
               </div>
             </div>
+            <p className="text-xs text-gray-500 mt-3">
+              Click-through rate is the percentage of impressions that resulted in a click.
+            </p>
           </div>
         </div>
       )}

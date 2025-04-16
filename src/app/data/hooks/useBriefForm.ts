@@ -11,6 +11,8 @@ export interface BriefFormData {
   creativesLink: string;
   location: string;
   consent: boolean;
+  start_date: string;
+  end_date: string;
 }
 
 // Interface for form errors
@@ -62,6 +64,8 @@ export function useBriefForm(
     additionalNotes: '',
     location: '',
     consent: false,
+    start_date: '',
+    end_date: '',
   });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,6 +104,12 @@ export function useBriefForm(
       setFormData(prev => ({
         ...prev,
         additionalNotes: value
+      }));
+    } else if (name === 'start_date' || name === 'end_date') {
+      // Directly map date fields
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
       }));
     } else {
       // Handle standard field names
@@ -222,13 +232,24 @@ export function useBriefForm(
         consent: formData.consent
       };
       
-      // Calculate default start date (1-2 days from now)
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 2) + 1); // Random 1-2 days
+      // Get dates from form if provided, otherwise calculate defaults
+      let startDate, endDate;
       
-      // Calculate default end date (30 days from start date)
-      const endDate = new Date(startDate);
-      endDate.setDate(startDate.getDate() + 30);
+      // Use provided start date if available, otherwise default to 1-2 days from now
+      if (formData.start_date) {
+        startDate = new Date(formData.start_date);
+      } else {
+        startDate = new Date();
+        startDate.setDate(startDate.getDate() + Math.floor(Math.random() * 2) + 1);
+      }
+      
+      // Use provided end date if available, otherwise default to 30 days from start date
+      if (formData.end_date) {
+        endDate = new Date(formData.end_date);
+      } else {
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 30);
+      }
 
       if (isEditing && brief?.id) {
         // Update existing campaign
@@ -302,7 +323,9 @@ export function useBriefForm(
         goal: 'Awareness',
         additionalNotes: '',
         location: '',
-        consent: false
+        consent: false,
+        start_date: '',
+        end_date: '',
       });
 
       setIsSubmitting(false);
@@ -328,7 +351,9 @@ export function useBriefForm(
         goal: brief.type ? brief.type.charAt(0).toUpperCase() + brief.type.slice(1) : 'Awareness',
         additionalNotes: brief.description || '',
         location: brief.location || '',
-        consent: true
+        consent: true,
+        start_date: brief.start_date || '',
+        end_date: brief.end_date || '',
       });
       
       setIsEditing(true);
@@ -336,9 +361,14 @@ export function useBriefForm(
   };
 
   const handleDeleteBrief = async () => {
-    if (!brief?.id) return;
+    if (!brief?.id) {
+      console.error('Cannot delete: No brief ID found');
+      return;
+    }
     
     try {
+      setIsSubmitting(true); // Show loading state during deletion
+      
       // Delete the campaign from Supabase
       const { error } = await supabase
         .from('campaigns')
@@ -361,11 +391,19 @@ export function useBriefForm(
         goal: 'Awareness',
         additionalNotes: '',
         location: '',
-        consent: false
+        consent: false,
+        start_date: '',
+        end_date: '',
       });
+      
+      // Ensure editing mode is turned off
+      setIsEditing(false);
       
     } catch (error) {
       console.error('Error deleting brief:', error);
+      // Show error toast or notification here if you have a notification system
+    } finally {
+      setIsSubmitting(false); // Always turn off loading state
     }
   };
 

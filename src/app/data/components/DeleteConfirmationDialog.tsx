@@ -4,12 +4,14 @@ interface DeleteConfirmationDialogProps {
   isOpen: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  isLoading?: boolean;
 }
 
 const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({ 
   isOpen, 
   onCancel, 
-  onConfirm 
+  onConfirm,
+  isLoading = false
 }) => {
   if (!isOpen) return null;
   
@@ -23,15 +25,24 @@ const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> = ({
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200"
+            disabled={isLoading}
+            className="px-4 py-2 bg-gray-100 text-gray-800 rounded-md hover:bg-gray-200 disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            disabled={isLoading}
+            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 flex items-center"
           >
-            Delete
+            {isLoading ? (
+              <>
+                <span className="animate-spin inline-block h-4 w-4 mr-2 border-t-2 border-white rounded-full"></span>
+                Deleting...
+              </>
+            ) : (
+              'Delete'
+            )}
           </button>
         </div>
       </div>

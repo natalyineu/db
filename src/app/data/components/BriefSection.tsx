@@ -38,6 +38,21 @@ const BriefSection: React.FC<BriefSectionProps> = ({
   handleSubmit
 }) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const handleConfirmDelete = async () => {
+    if (isDeleting) return; // Prevent multiple clicks
+    
+    setIsDeleting(true);
+    try {
+      await onDelete();
+      setShowDeleteConfirmation(false);
+    } catch (error) {
+      console.error("Error during deletion:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
@@ -46,7 +61,13 @@ const BriefSection: React.FC<BriefSectionProps> = ({
           existingBrief={brief}
           isEditing={isEditing}
           onEdit={onEdit}
-          onDelete={() => setShowDeleteConfirmation(true)}
+          onDelete={() => {
+            if (!brief?.id) {
+              console.error("Cannot delete: No brief exists");
+              return;
+            }
+            setShowDeleteConfirmation(true);
+          }}
         />
         {brief && !isEditing && <BriefDisplay brief={brief} />}
       </div>
@@ -55,10 +76,8 @@ const BriefSection: React.FC<BriefSectionProps> = ({
         <DeleteConfirmationDialog
           isOpen={showDeleteConfirmation}
           onCancel={() => setShowDeleteConfirmation(false)}
-          onConfirm={() => {
-            onDelete();
-            setShowDeleteConfirmation(false);
-          }}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
         />
       )}
 
@@ -70,7 +89,7 @@ const BriefSection: React.FC<BriefSectionProps> = ({
           handleChange={handleChange}
           handleCheckboxChange={handleCheckboxChange}
           handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isDeleting}
           currentDate={new Date().toISOString().split('T')[0]}
           defaultEndDate={new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]}
         />

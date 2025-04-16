@@ -165,10 +165,11 @@ export default function AccountOverviewPage() {
           onLogout={handleLogout}
         />
         
-        {/* Main Content Area - Updated Layout with 50/50 split */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Left Column - Brief Section (50% width) */}
-          <div className="h-full">
+        {/* Main Content Area - Fixed Layout with consistent spacing */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
+          {/* Left Column - Brief Section (spans 7 columns on medium+ screens) */}
+          <div className="md:col-span-7 flex flex-col space-y-6">
+            {/* Brief Section */}
             <BriefSection
               brief={brief}
               isEditing={isEditing}
@@ -176,8 +177,8 @@ export default function AccountOverviewPage() {
                 platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
                 target_audience: formData.targetAudience || '',
                 location: formData.location || '',
-                start_date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-                end_date: new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+                start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
                 type: (formData.goal || 'Awareness').toLowerCase(),
                 description: formData.additionalNotes || '',
                 consent: formData.consent || false
@@ -194,8 +195,8 @@ export default function AccountOverviewPage() {
             />
           </div>
           
-          {/* Right Column - Account Info and Next Steps (50% width) */}
-          <div className="flex flex-col space-y-6">
+          {/* Right Column - Account Info and Next Steps (spans 5 columns on medium+ screens) */}
+          <div className="md:col-span-5 flex flex-col space-y-6">
             {/* Account Information */}
             <AccountInfoCard 
               profileEmail={profile.email} 
@@ -210,15 +211,15 @@ export default function AccountOverviewPage() {
               campaignStatus={campaignStatus}
             />
           </div>
-        </div>
-        
-        {/* Campaign Performance - Full width below both columns */}
-        <div className="w-full max-w-3xl mx-auto mb-8">
-          <CampaignPerformanceCard />
+
+          {/* Campaign Performance - Full Width (spans 12 columns for better alignment) */}
+          <div className="md:col-span-12">
+            <CampaignPerformanceCard />
+          </div>
         </div>
         
         {/* Footer */}
-        <footer className="mt-12 py-6 border-t border-gray-200">
+        <footer className="mt-6 py-6 border-t border-gray-200">
           <div className="container mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">

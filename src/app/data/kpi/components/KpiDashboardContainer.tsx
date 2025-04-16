@@ -99,23 +99,47 @@ const KpiDashboardContainer = () => {
           return;
         }
 
+        // Get user's plan information
+        const profileWithPlan = getProfileWithPlan();
+        const defaultImpressionLimit = profileWithPlan?.plan?.impressions_limit || 16500;
+        
         // Convert the kpi table data to match the expected format
-        const formattedKpiData = kpiResults ? kpiResults.map(kpi => ({
-          id: kpi.id,
-          user_id: profile.id, // Derive from profile
-          campaign_id: kpi.campaign_id,
-          date: kpi.date,
-          impressions: kpi.impressions_fact || 0,
-          impressions_plan: kpi.impressions_plan || getProfileWithPlan().plan?.impressions_limit || 16500,
-          clicks: kpi.clicks_fact || 0,
-          clicks_plan: kpi.clicks_plan || 0,
-          reach: kpi.reach_fact || 0,
-          reach_plan: kpi.reach_plan || 0,
-          delta_impressions: 0, // Can calculate if needed
-          delta_clicks: 0,      // Can calculate if needed
-          delta_reach: 0,       // Can calculate if needed
-          created_at: kpi.created_at
-        })) : [];
+        const formattedKpiData = kpiResults ? kpiResults.map(kpi => {
+          // Use actual plan values if available, otherwise use defaults
+          const impressions_plan = kpi.impressions_plan || defaultImpressionLimit;
+          const clicks_plan = kpi.clicks_plan || Math.round(impressions_plan * 0.02); // Default 2% CTR
+          const reach_plan = kpi.reach_plan || Math.round(impressions_plan * 0.7); // Default 70% of impressions
+          
+          // Calculate deltas from plan (actual vs plan)
+          const delta_impressions = impressions_plan > 0 
+            ? ((kpi.impressions_fact || 0) / impressions_plan) * 100
+            : 0;
+            
+          const delta_clicks = clicks_plan > 0 
+            ? ((kpi.clicks_fact || 0) / clicks_plan) * 100 
+            : 0;
+            
+          const delta_reach = reach_plan > 0 
+            ? ((kpi.reach_fact || 0) / reach_plan) * 100
+            : 0;
+          
+          return {
+            id: kpi.id,
+            user_id: profile.id,
+            campaign_id: kpi.campaign_id,
+            date: kpi.date,
+            impressions: kpi.impressions_fact || 0,
+            impressions_plan: impressions_plan,
+            clicks: kpi.clicks_fact || 0,
+            clicks_plan: clicks_plan,
+            reach: kpi.reach_fact || 0,
+            reach_plan: reach_plan,
+            delta_impressions,
+            delta_clicks,
+            delta_reach,
+            created_at: kpi.created_at
+          };
+        }) : [];
 
         // For summary, we can use the description from the first campaign
         const { data: campaignData, error: descError } = await supabase
