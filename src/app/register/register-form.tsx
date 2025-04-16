@@ -77,9 +77,8 @@ export default function RegisterForm() {
     }
   };
 
-  // Prepare message for MessageDisplay component
-  const messageForDisplay = messageState ? messageState.text : 
-                          authError ? authError : null;
+  // Prepare message for MessageDisplay component - use messageState as the source of truth
+  const messageForDisplay = messageState?.text || authError || null;
   const messageType = messageState?.type || 'error';
 
   return (
@@ -90,10 +89,12 @@ export default function RegisterForm() {
           <p className="mt-2 text-gray-600">Sign up with your email and password</p>
         </div>
         
-        <MessageDisplay 
-          type={messageType as any} 
-          message={messageForDisplay} 
-        />
+        {messageForDisplay && (
+          <MessageDisplay 
+            type={messageType} 
+            message={messageForDisplay} 
+          />
+        )}
         
         <form className="mt-8 space-y-6" onSubmit={handleRegister}>
           <FormField
@@ -105,7 +106,8 @@ export default function RegisterForm() {
             autoComplete="email"
             required
             placeholder="you@example.com"
-            error={messageState?.text.includes('email') ? messageState.text : undefined}
+            // Don't show individual field errors when there's a global success message
+            error={messageState?.type === 'error' && messageState?.text.includes('email') ? messageState.text : undefined}
           />
 
           <FormField
@@ -119,7 +121,8 @@ export default function RegisterForm() {
             placeholder="••••••••"
             showTogglePassword
             helperText="Password must be at least 6 characters"
-            error={messageState?.text.includes('Password') ? messageState.text : undefined}
+            // Don't show individual field errors when there's a global success message
+            error={messageState?.type === 'error' && messageState?.text.includes('Password') ? messageState.text : undefined}
           />
 
           <FormField
@@ -132,7 +135,8 @@ export default function RegisterForm() {
             required
             placeholder="••••••••"
             showTogglePassword
-            error={messageState?.text.includes('match') ? messageState.text : undefined}
+            // Don't show individual field errors when there's a global success message
+            error={messageState?.type === 'error' && messageState?.text.includes('match') ? messageState.text : undefined}
           />
 
           <div>
