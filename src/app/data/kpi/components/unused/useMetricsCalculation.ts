@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { KpiData, LatestMetrics } from './types';
+import { KpiData, LatestMetrics } from '../types';
 
 /**
  * Hook to calculate latest metrics and trends from KPI data

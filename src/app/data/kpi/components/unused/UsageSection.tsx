@@ -1,7 +1,7 @@
 import { UserProfile } from '@/types';
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
-import { Plan, DEFAULT_IMPRESSION_LIMIT } from './types';
+import { Plan, DEFAULT_IMPRESSION_LIMIT } from '../types';
 
 interface UsageSectionProps {
   profile: UserProfile;

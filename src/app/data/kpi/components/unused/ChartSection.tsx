@@ -1,5 +1,5 @@
 import React from 'react';
-import { KpiData } from './types';
+import { KpiData } from '../types';
 
 // Chart component without fake random data
 const ChartSection = ({ kpiData }: { kpiData: KpiData[] }) => {

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { UserProfile } from '@/types';
 import { createBrowserClient } from '@/lib/supabase';
-import { Plan, DEFAULT_IMPRESSION_LIMIT } from './types';
+import { Plan, DEFAULT_IMPRESSION_LIMIT } from '../types';
 
 interface AccountInfoSectionProps {
   profile: UserProfile;

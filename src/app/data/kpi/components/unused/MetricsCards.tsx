@@ -1,5 +1,5 @@
 import React from 'react';
-import { LatestMetrics } from './types';
+import { LatestMetrics } from '../types';
 
 interface MetricsCardsProps {
   metrics: LatestMetrics;
