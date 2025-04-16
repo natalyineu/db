@@ -1,13 +1,5 @@
 import React from 'react';
 
-// Define fixed plans with their impression limits
-const PLAN_LIMITS = {
-  'Starter': 16500,
-  'Growth': 46500,
-  'Impact': 96500,
-  'Tailored': 100000
-};
-
 interface AccountInfoCardProps {
   profileEmail: string;
   createdAt: string;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BriefDisplay, BriefHeader, DeleteConfirmationDialog } from './';
 import BriefForm from './BriefForm';
-import { BriefFormData, FormErrors } from '../hooks/useBriefForm';
+import { BriefFormData, FormErrors } from '../hooks/types';
 
 interface BriefSectionProps {
   brief: any;

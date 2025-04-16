@@ -1,20 +1,16 @@
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { UserProfile } from '@/types';
-
-// Define fixed plans with their impression limits
-const PLAN_LIMITS = {
-  'Starter': 16500,
-  'Growth': 46500,
-  'Impact': 96500,
-  'Tailored': 200000
-};
+import { createBrowserClient } from '@/lib/supabase';
+import { Plan, DEFAULT_IMPRESSION_LIMIT } from './types';
 
 interface AccountInfoSectionProps {
   profile: UserProfile;
+  plans?: Plan[];
 }
 
 // Helper function to safely access profile.plan with proper type assertion
-const getProfileWithPlan = (profile: UserProfile) => {
+const getProfileWithPlan = (profile: UserProfile, plans: Plan[]) => {
   const profileWithPlan = profile as UserProfile & { 
     plan?: { 
       impressions_limit: number;
@@ -24,17 +20,49 @@ const getProfileWithPlan = (profile: UserProfile) => {
     } 
   };
   
-  // If plan name exists but no impressions_limit, use predefined limit based on plan name
-  if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit) {
+  // If plan name exists but no impressions_limit, look up from plans
+  if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit && plans.length > 0) {
     const planName = profileWithPlan.plan.name;
-    profileWithPlan.plan.impressions_limit = PLAN_LIMITS[planName as keyof typeof PLAN_LIMITS] || 16500;
+    const planData = plans.find(p => p.name === planName);
+    profileWithPlan.plan.impressions_limit = planData?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
   }
   
   return profileWithPlan;
 };
 
-const AccountInfoSection = ({ profile }: AccountInfoSectionProps) => {
-  const profileWithPlan = getProfileWithPlan(profile);
+const AccountInfoSection = ({ profile, plans: propPlans }: AccountInfoSectionProps) => {
+  const [plans, setPlans] = useState<Plan[]>(propPlans || []);
+  const supabase = createBrowserClient();
+  
+  // Fetch plans if not provided as props
+  useEffect(() => {
+    if (propPlans && propPlans.length > 0) {
+      setPlans(propPlans);
+      return;
+    }
+    
+    async function fetchPlans() {
+      try {
+        const { data, error } = await supabase
+          .from('plans')
+          .select('*')
+          .order('impressions_limit');
+          
+        if (error) {
+          console.error('Error fetching plans:', error);
+          return;
+        }
+        
+        setPlans(data as Plan[]);
+      } catch (error) {
+        console.error('Error loading plans:', error);
+      }
+    }
+    
+    fetchPlans();
+  }, [supabase, propPlans]);
+  
+  const profileWithPlan = getProfileWithPlan(profile, plans);
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">

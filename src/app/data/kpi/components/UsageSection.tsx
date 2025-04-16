@@ -1,34 +1,38 @@
 import { UserProfile } from '@/types';
-
-// Define fixed plans with their impression limits
-const PLAN_LIMITS = {
-  'Starter': 16500,
-  'Growth': 46500,
-  'Impact': 96500,
-  'Tailored': 200000
-};
-
-// Helper function to get the next tier plan
-const getNextTierPlan = (currentPlan: string): string => {
-  if (currentPlan === 'Starter') return 'Growth';
-  if (currentPlan === 'Growth') return 'Impact';
-  if (currentPlan === 'Impact') return 'Tailored';
-  return 'Tailored';
-};
-
-// Helper function to get next tier impressions
-const getNextTierImpressions = (currentPlan: string): number => {
-  const nextPlan = getNextTierPlan(currentPlan);
-  return PLAN_LIMITS[nextPlan as keyof typeof PLAN_LIMITS];
-};
+import { useState, useEffect } from 'react';
+import { createBrowserClient } from '@/lib/supabase';
+import { Plan, DEFAULT_IMPRESSION_LIMIT } from './types';
 
 interface UsageSectionProps {
   profile: UserProfile;
   impressions: number;
+  plans?: Plan[];
 }
 
+// Helper function to get the next tier plan
+const getNextTierPlan = (currentPlan: string, plans: Plan[]): string => {
+  if (!plans || plans.length === 0) return 'Growth';
+  
+  const sortedPlans = [...plans].sort((a, b) => a.impressions_limit - b.impressions_limit);
+  const currentPlanIndex = sortedPlans.findIndex(plan => plan.name === currentPlan);
+  
+  // Return next plan if found, otherwise return the highest plan
+  return currentPlanIndex >= 0 && currentPlanIndex < sortedPlans.length - 1
+    ? sortedPlans[currentPlanIndex + 1].name
+    : sortedPlans[sortedPlans.length - 1].name;
+};
+
+// Helper function to get next tier impressions
+const getNextTierImpressions = (currentPlan: string, plans: Plan[]): number => {
+  if (!plans || plans.length === 0) return 46500;
+  
+  const nextPlan = getNextTierPlan(currentPlan, plans);
+  const nextPlanData = plans.find(plan => plan.name === nextPlan);
+  return nextPlanData?.impressions_limit || 46500;
+};
+
 // Helper function to safely access profile.plan with proper type assertion
-const getProfileWithPlan = (profile: UserProfile) => {
+const getProfileWithPlan = (profile: UserProfile, plans: Plan[]) => {
   const profileWithPlan = profile as UserProfile & { 
     plan?: { 
       impressions_limit: number;
@@ -36,23 +40,55 @@ const getProfileWithPlan = (profile: UserProfile) => {
     } 
   };
   
-  // If plan name exists but no impressions_limit, use predefined limit based on plan name
-  if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit) {
+  // If plan name exists but no impressions_limit, look up from plans
+  if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit && plans.length > 0) {
     const planName = profileWithPlan.plan.name;
-    profileWithPlan.plan.impressions_limit = PLAN_LIMITS[planName as keyof typeof PLAN_LIMITS] || 16500;
+    const planData = plans.find(p => p.name === planName);
+    profileWithPlan.plan.impressions_limit = planData?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
   }
   
   return profileWithPlan;
 };
 
-const UsageSection = ({ profile, impressions }: UsageSectionProps) => {
-  const profileWithPlan = getProfileWithPlan(profile);
-  const limit = profileWithPlan.plan?.impressions_limit || 16500;
+const UsageSection = ({ profile, impressions, plans: propPlans }: UsageSectionProps) => {
+  const [plans, setPlans] = useState<Plan[]>(propPlans || []);
+  const supabase = createBrowserClient();
+  
+  // Fetch plans if not provided as props
+  useEffect(() => {
+    if (propPlans && propPlans.length > 0) {
+      setPlans(propPlans);
+      return;
+    }
+    
+    async function fetchPlans() {
+      try {
+        const { data, error } = await supabase
+          .from('plans')
+          .select('*')
+          .order('impressions_limit');
+          
+        if (error) {
+          console.error('Error fetching plans:', error);
+          return;
+        }
+        
+        setPlans(data as Plan[]);
+      } catch (error) {
+        console.error('Error loading plans:', error);
+      }
+    }
+    
+    fetchPlans();
+  }, [supabase, propPlans]);
+
+  const profileWithPlan = getProfileWithPlan(profile, plans);
+  const limit = profileWithPlan.plan?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
   const impressionsUsage = Math.min(Math.round((impressions / limit) * 100), 100);
   const showUpgradeRecommendation = impressionsUsage > 70;
   const currentPlanName = profileWithPlan.plan?.name || 'Starter';
-  const nextTierPlan = getNextTierPlan(currentPlanName);
-  const nextTierImpressions = getNextTierImpressions(currentPlanName);
+  const nextTierPlan = getNextTierPlan(currentPlanName, plans);
+  const nextTierImpressions = getNextTierImpressions(currentPlanName, plans);
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
