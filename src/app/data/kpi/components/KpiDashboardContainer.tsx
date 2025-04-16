@@ -8,15 +8,10 @@ import Link from 'next/link';
 import { useKpiData } from './useKpiData';
 import { useMetricsCalculation } from './useMetricsCalculation';
 import KpiSummary from './KpiSummary';
-import MetricsCards from './MetricsCards';
-import ChartSection from './ChartSection';
-import AccountInfoSection from './AccountInfoSection';
-import UsageSection from './UsageSection';
-import SummarySection from './SummarySection';
 
 /**
  * Main container component for the KPI dashboard
- * Handles authentication, data loading, and renders dashboard sections
+ * Handles authentication, data loading, and renders the campaign summary
  */
 const KpiDashboardContainer = () => {
   const { isLoading: authLoading, isAuthenticated } = useAuth();
@@ -27,19 +22,8 @@ const KpiDashboardContainer = () => {
   const { 
     kpiData, 
     isLoading: kpiLoading, 
-    errorMessage, 
-    getProfileWithPlan 
+    errorMessage
   } = useKpiData(profile);
-
-  // Get the profile with plan information
-  const profileWithPlan = getProfileWithPlan();
-  const defaultImpressionLimit = profileWithPlan?.plan?.impressions_limit || 16500;
-
-  // Calculate metrics using custom hook
-  const { 
-    latestMetrics, 
-    performanceScores 
-  } = useMetricsCalculation(kpiData, defaultImpressionLimit);
 
   // Combined loading state
   const isLoading = authLoading || profileLoading || kpiLoading;
@@ -107,42 +91,10 @@ const KpiDashboardContainer = () => {
     );
   }
 
-  // Render the full dashboard
+  // Render only the campaign summary
   return (
     <div className="container mx-auto p-4">
-      {/* Header and account info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <div className="lg:col-span-2">
-          <KpiSummary 
-            kpiData={kpiData}
-          />
-        </div>
-        <div>
-          <AccountInfoSection profile={profileWithPlan} />
-        </div>
-      </div>
-      
-      {/* Metrics cards */}
-      <div className="mb-6">
-        <MetricsCards 
-          metrics={latestMetrics} 
-          isLoading={false}
-        />
-      </div>
-      
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartSection kpiData={kpiData} />
-        <UsageSection 
-          profile={profileWithPlan}
-          impressions={latestMetrics.impressions}
-        />
-      </div>
-      
-      {/* Summary and recommendations */}
-      <SummarySection 
-        summary={`Your campaign is ${performanceScores.overall}% towards its goal. Impressions are at ${performanceScores.impressions}%, clicks at ${performanceScores.clicks}%, and reach at ${performanceScores.reach}%.`}
-      />
+      <KpiSummary kpiData={kpiData} />
     </div>
   );
 };
