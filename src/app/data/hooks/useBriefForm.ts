@@ -388,27 +388,38 @@ export function useBriefForm(
         // Also update the KPI record if it exists
         try {
           // Check if KPI record exists
-          const { data: existingKpi } = await supabase
+          const today = new Date().toISOString().split('T')[0];
+          const { data: existingKpi, error: checkError } = await supabase
             .from('kpi')
             .select('id')
             .eq('campaign_id', brief.id)
-            .order('date', { ascending: false })
-            .limit(1);
+            .eq('date', today);
             
+          if (checkError) {
+            console.error('Error checking for existing KPI record during edit:', checkError);
+          }
+          
           if (existingKpi && existingKpi.length > 0) {
+            console.log('KPI record exists, updating:', existingKpi[0].id);
             // Update the existing KPI record
-            const { error: kpiUpdateError } = await supabase
+            const { data: updatedKpi, error: kpiUpdateError } = await supabase
               .from('kpi')
               .update({
+                impressions_plan: await getImpressionLimit(),
+                clicks_plan: Math.round((await getImpressionLimit()) * 0.02),
+                reach_plan: Math.round((await getImpressionLimit()) * 0.7),
+                budget_plan: 0,
                 updated_at: new Date().toISOString()
               })
-              .eq('id', existingKpi[0].id);
+              .eq('id', existingKpi[0].id)
+              .select();
               
             if (kpiUpdateError) {
               console.error('Error updating KPI record:', kpiUpdateError);
+            } else {
+              console.log('KPI record updated successfully:', updatedKpi);
             }
           } else {
-            // If no KPI record exists, create one
             console.log("No KPI record found for edited brief, creating one:", brief.id);
             
             let impressionsLimit = await getImpressionLimit();
@@ -418,11 +429,16 @@ export function useBriefForm(
             const kpiData = {
               campaign_id: brief.id,
               user_id: profile.id,
-              date: new Date().toISOString().split('T')[0],
+              date: today,
               impressions_plan: impressionsLimit,
               clicks_plan: Math.round(impressionsLimit * 0.02),
               reach_plan: Math.round(impressionsLimit * 0.7),
               budget_plan: 0,
+              // Add required fact values with defaults
+              impressions_fact: 0,
+              clicks_fact: 0,
+              reach_fact: 0,
+              budget_fact: 0,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             };
@@ -442,6 +458,8 @@ export function useBriefForm(
                 console.error('Permission denied - check RLS policies for kpi table');
               } else if (kpiError.code === '23503') {
                 console.error('Foreign key violation - check campaign_id relationship');
+              } else if (kpiError.code === '23505') {
+                console.error('Unique constraint violation - record already exists for this campaign and date');
               }
             } else {
               console.log('KPI record created successfully on edit:', kpiData_result);
@@ -487,37 +505,79 @@ export function useBriefForm(
             let impressionsLimit = await getImpressionLimit();
             console.log("Retrieved impression limit:", impressionsLimit);
             
-            // Prepare data for KPI record
-            const kpiData = {
-              campaign_id: newCampaign[0].id,
-              user_id: profile.id,
-              date: new Date().toISOString().split('T')[0],
-              impressions_plan: impressionsLimit,
-              clicks_plan: Math.round(impressionsLimit * 0.02), // 2% CTR
-              reach_plan: Math.round(impressionsLimit * 0.7),   // 70% of impressions
-              budget_plan: 0, // Default or calculate from plan if needed
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            };
-            
-            console.log("Preparing to insert KPI data:", kpiData);
-            
-            // Create KPI record with plan values (no fact values yet)
-            const { data: kpiData_result, error: kpiError } = await supabase
+            // Check if a record already exists for this campaign and date
+            const today = new Date().toISOString().split('T')[0];
+            const { data: existingKpi, error: checkError } = await supabase
               .from('kpi')
-              .insert(kpiData)
-              .select();
+              .select('id')
+              .eq('campaign_id', newCampaign[0].id)
+              .eq('date', today);
               
-            if (kpiError) {
-              console.error('Error creating KPI record:', kpiError);
-              // Try to check RLS policy issues
-              if (kpiError.code === '42501') {
-                console.error('Permission denied - check RLS policies for kpi table');
-              } else if (kpiError.code === '23503') {
-                console.error('Foreign key violation - check campaign_id relationship');
+            if (checkError) {
+              console.error('Error checking for existing KPI record:', checkError);
+            }
+            
+            // If record exists for today, update it instead of creating a new one
+            if (existingKpi && existingKpi.length > 0) {
+              console.log('KPI record already exists for today, updating instead:', existingKpi[0].id);
+              
+              const { data: updatedKpi, error: updateError } = await supabase
+                .from('kpi')
+                .update({
+                  impressions_plan: impressionsLimit,
+                  clicks_plan: Math.round(impressionsLimit * 0.02),
+                  reach_plan: Math.round(impressionsLimit * 0.7),
+                  budget_plan: 0,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', existingKpi[0].id)
+                .select();
+                
+              if (updateError) {
+                console.error('Error updating existing KPI record:', updateError);
+              } else {
+                console.log('KPI record updated successfully:', updatedKpi);
               }
             } else {
-              console.log('KPI record created successfully:', kpiData_result);
+              // Prepare data for new KPI record
+              const kpiData = {
+                campaign_id: newCampaign[0].id,
+                user_id: profile.id,
+                date: today,
+                impressions_plan: impressionsLimit,
+                clicks_plan: Math.round(impressionsLimit * 0.02), // 2% CTR
+                reach_plan: Math.round(impressionsLimit * 0.7),   // 70% of impressions
+                budget_plan: 0, // Default or calculate from plan if needed
+                // Add required fact values with defaults
+                impressions_fact: 0,
+                clicks_fact: 0,
+                reach_fact: 0,
+                budget_fact: 0,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              };
+              
+              console.log("Preparing to insert KPI data:", kpiData);
+              
+              // Create KPI record with plan values (no fact values yet)
+              const { data: kpiData_result, error: kpiError } = await supabase
+                .from('kpi')
+                .insert(kpiData)
+                .select();
+                
+              if (kpiError) {
+                console.error('Error creating KPI record:', kpiError);
+                // Try to check RLS policy issues
+                if (kpiError.code === '42501') {
+                  console.error('Permission denied - check RLS policies for kpi table');
+                } else if (kpiError.code === '23503') {
+                  console.error('Foreign key violation - check campaign_id relationship');
+                } else if (kpiError.code === '23505') {
+                  console.error('Unique constraint violation - record already exists for this campaign and date');
+                }
+              } else {
+                console.log('KPI record created successfully:', kpiData_result);
+              }
             }
           } catch (kpiError) {
             console.error('Error creating KPI record:', kpiError);
@@ -589,14 +649,21 @@ export function useBriefForm(
       
       // First delete associated KPI records
       try {
-        const { error: kpiDeleteError } = await supabase
+        console.log("Deleting KPI records for campaign:", briefToDelete.id);
+        
+        // Note: This might not be necessary if you have CASCADE set up on the foreign key,
+        // but we're doing it explicitly to be sure
+        const { data: deleteData, error: kpiDeleteError } = await supabase
           .from('kpi')
           .delete()
-          .eq('campaign_id', briefToDelete.id);
+          .eq('campaign_id', briefToDelete.id)
+          .select();
           
         if (kpiDeleteError) {
           console.error('Error deleting KPI records:', kpiDeleteError);
           // Continue with campaign deletion even if KPI deletion fails
+        } else {
+          console.log('KPI records deleted successfully:', deleteData);
         }
       } catch (kpiError) {
         console.error('Error deleting KPI records:', kpiError);
