@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useProfile } from '@/hooks/useProfile';
 import Link from 'next/link';
 import { useKpiData } from './useKpiData';
-import { useMetricsCalculation } from './useMetricsCalculation';
 import KpiSummary from './KpiSummary';
 
 /**
