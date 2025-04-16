@@ -1,25 +1,27 @@
 import { createBrowserClient } from '@/lib/supabase';
 import { ProfilePlan } from './types';
 
+// Define the default impression limit here to avoid circular imports
+const DEFAULT_IMPRESSION_LIMIT = 16500;
+
 /**
  * Hook to get the impression limit from a user profile
  * Extracted from the useBriefForm hook for better modularity
  */
 export async function getImpressionLimit(profile: any): Promise<number> {
-  const defaultLimit = 16500;
   const supabase = createBrowserClient();
   
   try {
     console.log('Fetching impression limit from profile:', profile);
     
     if (!profile) {
-      console.log('No profile data available, using default limit:', defaultLimit);
-      return defaultLimit;
+      console.log('No profile data available, using default limit:', DEFAULT_IMPRESSION_LIMIT);
+      return DEFAULT_IMPRESSION_LIMIT;
     }
     
     if (!profile.plan) {
-      console.log('No plan data in profile, using default limit:', defaultLimit);
-      return defaultLimit;
+      console.log('No plan data in profile, using default limit:', DEFAULT_IMPRESSION_LIMIT);
+      return DEFAULT_IMPRESSION_LIMIT;
     }
     
     // Try to get actual plan limit from profile
@@ -43,7 +45,7 @@ export async function getImpressionLimit(profile: any): Promise<number> {
           
         if (planError) {
           console.error('Error fetching plan from ID:', planError);
-          return defaultLimit;
+          return DEFAULT_IMPRESSION_LIMIT;
         }
           
         if (planData?.impressions_limit) {
@@ -64,7 +66,7 @@ export async function getImpressionLimit(profile: any): Promise<number> {
           
         if (planError) {
           console.error('Error fetching plan from name:', planError);
-          return defaultLimit;
+          return DEFAULT_IMPRESSION_LIMIT;
         }
           
         if (planData?.impressions_limit) {
@@ -85,7 +87,7 @@ export async function getImpressionLimit(profile: any): Promise<number> {
         
       if (planError) {
         console.error('Error fetching plan from string name:', planError);
-        return defaultLimit;
+        return DEFAULT_IMPRESSION_LIMIT;
       }
         
       if (planData?.impressions_limit) {
@@ -94,10 +96,10 @@ export async function getImpressionLimit(profile: any): Promise<number> {
       }
     }
     
-    console.log('No matching plan found, using default limit:', defaultLimit);
-    return defaultLimit;
+    console.log('No matching plan found, using default limit:', DEFAULT_IMPRESSION_LIMIT);
+    return DEFAULT_IMPRESSION_LIMIT;
   } catch (error) {
     console.error('Error getting impression limit:', error);
-    return defaultLimit;
+    return DEFAULT_IMPRESSION_LIMIT;
   }
 }; 

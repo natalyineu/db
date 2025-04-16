@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import { UserProfile } from '@/types';
-import { KpiData, PLAN_LIMITS } from './types';
+import { KpiData, DEFAULT_IMPRESSION_LIMIT, Plan } from './types';
 
 /**
  * Custom hook to load and format KPI data from Supabase
@@ -10,9 +10,33 @@ import { KpiData, PLAN_LIMITS } from './types';
  */
 export function useKpiData(profile: UserProfile | null) {
   const [kpiData, setKpiData] = useState<KpiData[]>([]);
+  const [plans, setPlans] = useState<Plan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const supabase = createBrowserClient();
+
+  // Fetch plans data from Supabase
+  useEffect(() => {
+    async function fetchPlans() {
+      try {
+        const { data, error } = await supabase
+          .from('plans')
+          .select('*')
+          .order('id');
+
+        if (error) {
+          console.error('Error fetching plans:', error);
+          return;
+        }
+
+        setPlans(data as Plan[]);
+      } catch (error) {
+        console.error('Error in plans fetch:', error);
+      }
+    }
+
+    fetchPlans();
+  }, [supabase]);
 
   // Helper function to safely access profile.plan with proper type assertion
   const getProfileWithPlan = () => {
@@ -25,10 +49,17 @@ export function useKpiData(profile: UserProfile | null) {
       } 
     };
     
-    // If plan name exists but no impressions_limit, use predefined limit based on plan name
+    // If plan name exists but no impressions_limit, look up limit from fetched plans
     if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit) {
       const planName = profileWithPlan.plan.name;
-      profileWithPlan.plan.impressions_limit = PLAN_LIMITS[planName as keyof typeof PLAN_LIMITS] || 16500;
+      const planData = plans.find(p => p.name === planName);
+      
+      if (planData) {
+        profileWithPlan.plan.impressions_limit = planData.impressions_limit;
+      } else {
+        // Fallback to default if plan not found
+        profileWithPlan.plan.impressions_limit = DEFAULT_IMPRESSION_LIMIT;
+      }
     }
     
     return profileWithPlan;
@@ -80,7 +111,7 @@ export function useKpiData(profile: UserProfile | null) {
 
         // Get user's plan information
         const profileWithPlan = getProfileWithPlan();
-        const defaultImpressionLimit = profileWithPlan?.plan?.impressions_limit || 16500;
+        const defaultImpressionLimit = profileWithPlan?.plan?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
         
         // Convert the kpi table data to match the expected format
         const formattedKpiData = kpiResults ? kpiResults.map(kpi => {
@@ -134,12 +165,13 @@ export function useKpiData(profile: UserProfile | null) {
     } else {
       setIsLoading(false);
     }
-  }, [profile, supabase]);
+  }, [profile, supabase, plans]);
 
   return {
     kpiData,
     isLoading,
     errorMessage,
-    getProfileWithPlan
+    getProfileWithPlan,
+    plans
   };
 } 

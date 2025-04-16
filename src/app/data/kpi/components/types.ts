@@ -46,20 +46,17 @@ export interface DashboardProps {
   errorMessage: string | null;
 }
 
-// Default impression limits by plan
-export const PLAN_LIMITS = {
-  // Standard plans
-  'Starter': 16500,
-  'Growth': 46500,
-  'Impact': 96500,
-  'Tailored': 200000,
-  
-  // Legacy plans
-  'Free': 10000,
-  'Basic': 50000,
-  'Premium': 250000,
-  'Enterprise': 1000000
-};
+// Plan interface matching the Supabase table structure
+export interface Plan {
+  id: number;
+  name: string;
+  impressions_limit: number;
+  description: string;
+  price: number;
+}
+
+// Default fallback impression limit if plan data can't be loaded
+export const DEFAULT_IMPRESSION_LIMIT = 16500;
 
 export interface ProfileWithPlan {
   plan?: { 
