@@ -8,9 +8,6 @@ import { createBrowserClient } from '@/lib/supabase';
 import { UserProfile } from '@/types';
 import Link from 'next/link';
 import { 
-  MetricsCards, 
-  ChartSection, 
-  SummarySection,
   KpiSummary,
   KpiData,
   LatestMetrics,
@@ -22,7 +19,6 @@ const KpiDashboardContainer = () => {
   const { profile, loading: profileLoading } = useProfile();
   const [kpiData, setKpiData] = useState<KpiData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [summary, setSummary] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createBrowserClient();
@@ -78,7 +74,6 @@ const KpiDashboardContainer = () => {
 
         if (!userCampaigns || userCampaigns.length === 0) {
           setKpiData([]);
-          setSummary('No campaign data available yet.');
           setIsLoading(false);
           return;
         }
@@ -141,21 +136,7 @@ const KpiDashboardContainer = () => {
           };
         }) : [];
 
-        // For summary, we can use the description from the first campaign
-        const { data: campaignData, error: descError } = await supabase
-          .from('campaigns')
-          .select('description')
-          .eq('user_id', profile.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single();
-
-        if (descError && descError.code !== 'PGRST116') { // Not found error is ok
-          console.error('Error fetching campaign description:', descError);
-        }
-
         setKpiData(formattedKpiData);
-        setSummary(campaignData?.description || 'No summary available.');
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -179,9 +160,9 @@ const KpiDashboardContainer = () => {
         impressions: 0,
         impressions_plan: profileWithPlan?.plan?.impressions_limit || defaultImpressionLimit,
         clicks: 0,
-        clicks_plan: 0,
+        clicks_plan: Math.round((profileWithPlan?.plan?.impressions_limit || defaultImpressionLimit) * 0.02),
         reach: 0,
-        reach_plan: 0,
+        reach_plan: Math.round((profileWithPlan?.plan?.impressions_limit || defaultImpressionLimit) * 0.7),
         deltaImpressions: 0,
         deltaClicks: 0,
         deltaReach: 0
@@ -315,22 +296,22 @@ const KpiDashboardContainer = () => {
           </div>
         </div>
 
-        {/* Metrics Cards Section */}
-        <div className="mb-8">
-          <MetricsCards 
-            metrics={latestMetrics}
-            isLoading={isLoading}
-          />
-        </div>
-        
         {/* Campaign Summary Component */}
-        <KpiSummary kpiData={kpiData} />
-        
-        {/* Chart Section */}
-        <ChartSection kpiData={kpiData} />
-        
-        {/* Campaign Summary Section */}
-        <SummarySection summary={summary} />
+        <KpiSummary kpiData={isLoading ? [] : kpiData.length === 0 ? [{ 
+          id: "placeholder",
+          campaign_id: 'placeholder',
+          date: new Date().toISOString(),
+          impressions: 0,
+          impressions_plan: latestMetrics.impressions_plan,
+          clicks: 0,
+          clicks_plan: latestMetrics.clicks_plan,
+          reach: 0,
+          reach_plan: latestMetrics.reach_plan,
+          delta_impressions: 0,
+          delta_clicks: 0,
+          delta_reach: 0,
+          created_at: new Date().toISOString()
+        }] : kpiData} />
         
         {/* Footer */}
         <footer className="mt-12 py-6 border-t border-gray-200">
