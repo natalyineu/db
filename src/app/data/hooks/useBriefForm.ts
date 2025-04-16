@@ -78,28 +78,91 @@ export function useBriefForm(
     const defaultLimit = 16500;
     
     try {
-      if (!profile?.plan) return defaultLimit;
+      console.log('Fetching impression limit from profile:', profile);
+      
+      if (!profile) {
+        console.log('No profile data available, using default limit:', defaultLimit);
+        return defaultLimit;
+      }
+      
+      if (!profile.plan) {
+        console.log('No plan data in profile, using default limit:', defaultLimit);
+        return defaultLimit;
+      }
       
       // Try to get actual plan limit from profile
       if (typeof profile.plan === 'object') {
+        console.log('Plan object found in profile:', profile.plan);
+        
         // If plan has impressions_limit directly
         if (profile.plan.impressions_limit) {
+          console.log('Found direct impressions_limit in plan:', profile.plan.impressions_limit);
           return profile.plan.impressions_limit;
         } 
         // If plan has id that references plans table
         else if (profile.plan.id) {
-          const { data: planData } = await supabase
+          console.log('Found plan ID, fetching from plans table:', profile.plan.id);
+          
+          const { data: planData, error: planError } = await supabase
             .from('plans')
             .select('impressions_limit')
             .eq('id', profile.plan.id)
             .single();
             
+          if (planError) {
+            console.error('Error fetching plan from ID:', planError);
+            return defaultLimit;
+          }
+            
           if (planData?.impressions_limit) {
+            console.log('Found impressions_limit in plans table:', planData.impressions_limit);
+            return planData.impressions_limit;
+          }
+        }
+        
+        // If we have a plan name but no id or direct limit
+        else if (profile.plan.name) {
+          console.log('Found plan name, fetching from plans table by name:', profile.plan.name);
+          
+          const { data: planData, error: planError } = await supabase
+            .from('plans')
+            .select('impressions_limit')
+            .eq('name', profile.plan.name)
+            .single();
+            
+          if (planError) {
+            console.error('Error fetching plan from name:', planError);
+            return defaultLimit;
+          }
+            
+          if (planData?.impressions_limit) {
+            console.log('Found impressions_limit by plan name:', planData.impressions_limit);
             return planData.impressions_limit;
           }
         }
       }
+      // If plan is a string (plan name)
+      else if (typeof profile.plan === 'string') {
+        console.log('Plan is a string, fetching from plans table by name:', profile.plan);
+        
+        const { data: planData, error: planError } = await supabase
+          .from('plans')
+          .select('impressions_limit')
+          .eq('name', profile.plan)
+          .single();
+          
+        if (planError) {
+          console.error('Error fetching plan from string name:', planError);
+          return defaultLimit;
+        }
+          
+        if (planData?.impressions_limit) {
+          console.log('Found impressions_limit by string plan name:', planData.impressions_limit);
+          return planData.impressions_limit;
+        }
+      }
       
+      console.log('No matching plan found, using default limit:', defaultLimit);
       return defaultLimit;
     } catch (error) {
       console.error('Error getting impression limit:', error);
@@ -346,25 +409,42 @@ export function useBriefForm(
             }
           } else {
             // If no KPI record exists, create one
+            console.log("No KPI record found for edited brief, creating one:", brief.id);
+            
             let impressionsLimit = await getImpressionLimit();
+            console.log("Retrieved impression limit for edit:", impressionsLimit);
+            
+            // Prepare data for KPI record
+            const kpiData = {
+              campaign_id: brief.id,
+              user_id: profile.id,
+              date: new Date().toISOString().split('T')[0],
+              impressions_plan: impressionsLimit,
+              clicks_plan: Math.round(impressionsLimit * 0.02),
+              reach_plan: Math.round(impressionsLimit * 0.7),
+              budget_plan: 0,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+            console.log("Preparing to insert KPI data on edit:", kpiData);
             
             // Create KPI record with plan values
-            const { error: kpiError } = await supabase
+            const { data: kpiData_result, error: kpiError } = await supabase
               .from('kpi')
-              .insert({
-                campaign_id: brief.id,
-                user_id: profile.id,
-                date: new Date().toISOString().split('T')[0],
-                impressions_plan: impressionsLimit,
-                clicks_plan: Math.round(impressionsLimit * 0.02),
-                reach_plan: Math.round(impressionsLimit * 0.7),
-                budget_plan: 0,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              });
+              .insert(kpiData)
+              .select();
               
             if (kpiError) {
               console.error('Error creating KPI record for updated brief:', kpiError);
+              // Try to check RLS policy issues
+              if (kpiError.code === '42501') {
+                console.error('Permission denied - check RLS policies for kpi table');
+              } else if (kpiError.code === '23503') {
+                console.error('Foreign key violation - check campaign_id relationship');
+              }
+            } else {
+              console.log('KPI record created successfully on edit:', kpiData_result);
             }
           }
         } catch (kpiError) {
@@ -400,26 +480,44 @@ export function useBriefForm(
           
           // Also create a KPI entry for this new campaign
           try {
+            console.log("Creating KPI record for new campaign:", newCampaign[0].id);
+            console.log("Profile data:", profile);
+            
             // Get the user's plan info to determine impression limits
             let impressionsLimit = await getImpressionLimit();
+            console.log("Retrieved impression limit:", impressionsLimit);
+            
+            // Prepare data for KPI record
+            const kpiData = {
+              campaign_id: newCampaign[0].id,
+              user_id: profile.id,
+              date: new Date().toISOString().split('T')[0],
+              impressions_plan: impressionsLimit,
+              clicks_plan: Math.round(impressionsLimit * 0.02), // 2% CTR
+              reach_plan: Math.round(impressionsLimit * 0.7),   // 70% of impressions
+              budget_plan: 0, // Default or calculate from plan if needed
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+            console.log("Preparing to insert KPI data:", kpiData);
             
             // Create KPI record with plan values (no fact values yet)
-            const { error: kpiError } = await supabase
+            const { data: kpiData_result, error: kpiError } = await supabase
               .from('kpi')
-              .insert({
-                campaign_id: newCampaign[0].id,
-                user_id: profile.id,
-                date: new Date().toISOString().split('T')[0],
-                impressions_plan: impressionsLimit,
-                clicks_plan: Math.round(impressionsLimit * 0.02), // 2% CTR
-                reach_plan: Math.round(impressionsLimit * 0.7),   // 70% of impressions
-                budget_plan: 0, // Default or calculate from plan if needed
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              });
+              .insert(kpiData)
+              .select();
               
             if (kpiError) {
               console.error('Error creating KPI record:', kpiError);
+              // Try to check RLS policy issues
+              if (kpiError.code === '42501') {
+                console.error('Permission denied - check RLS policies for kpi table');
+              } else if (kpiError.code === '23503') {
+                console.error('Foreign key violation - check campaign_id relationship');
+              }
+            } else {
+              console.log('KPI record created successfully:', kpiData_result);
             }
           } catch (kpiError) {
             console.error('Error creating KPI record:', kpiError);
