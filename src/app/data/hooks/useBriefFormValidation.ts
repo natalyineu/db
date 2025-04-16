@@ -33,13 +33,16 @@ export function validateBriefForm(formData: BriefFormData): FormErrors {
     }
   }
 
-  // Creatives link validation (if provided)
-  if (formData.creativesLink?.trim()) {
+  // Creatives link validation (if provided and looks like a URL)
+  // Accept empty values or simple text like "no"
+  if (formData.creativesLink?.trim() && 
+      (formData.creativesLink.startsWith('http://') || 
+       formData.creativesLink.startsWith('https://'))) {
     try {
-      // Simple URL validation
+      // Only validate as URL if it looks like a URL
       new URL(formData.creativesLink);
     } catch (error) {
-      errors.creativesLink = 'Please enter a valid URL';
+      errors.creativesLink = 'Please enter a valid URL or leave blank';
     }
   }
 

@@ -58,13 +58,13 @@ const BriefForm: React.FC<BriefFormProps> = ({
           type="text"
           id="platforms-1"
           name="platforms[1]"
-          className={`w-full px-3 py-2 border rounded-md ${formErrors['platforms[1]'] ? 'border-red-500' : 'border-gray-300'}`}
+          className={`w-full px-3 py-2 border rounded-md ${(formErrors['platforms[1]'] || formErrors.creativesLink) ? 'border-red-500' : 'border-gray-300'}`}
           placeholder="Type 'no' for AI-generated creatives, or add your link"
           value={formData.platforms[1] || ''}
           onChange={handleChange}
         />
-        {formErrors['platforms[1]'] && (
-          <p className="mt-1 text-sm text-red-500">{formErrors['platforms[1]']}</p>
+        {(formErrors['platforms[1]'] || formErrors.creativesLink) && (
+          <p className="mt-1 text-sm text-red-500">{formErrors['platforms[1]'] || formErrors.creativesLink}</p>
         )}
       </div>
 
