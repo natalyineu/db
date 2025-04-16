@@ -8,14 +8,13 @@ import { createBrowserClient } from '@/lib/supabase';
 import { UserProfile } from '@/types';
 import Link from 'next/link';
 import { 
-  AccountInfoSection, 
-  UsageSection, 
   MetricsCards, 
   ChartSection, 
   SummarySection,
   KpiData,
   LatestMetrics,
-  PLAN_LIMITS
+  PLAN_LIMITS,
+  KpiSummary
 } from './';
 
 const KpiDashboardContainer = () => {
@@ -203,12 +202,6 @@ const KpiDashboardContainer = () => {
     };
   }, [kpiData]);
 
-  // Calculate impressions usage percentage
-  const impressionsUsage = Math.min(
-    Math.round((latestMetrics.impressions / (latestMetrics.impressions_plan || 1)) * 100), 
-    100
-  );
-
   // If loading auth or profile, show loading state
   if (authLoading || profileLoading) {
     return (
@@ -262,48 +255,74 @@ const KpiDashboardContainer = () => {
   }
 
   return (
-    <div className="container mx-auto p-6 theme-transition">
-      <div className="flex justify-between items-center mb-8">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
-            {profile.first_name?.[0] || profile.email[0]?.toUpperCase()}
+    <div className="bg-gray-50 min-h-screen theme-transition">
+      <div className="container mx-auto p-6">
+        {/* Header Section */}
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 mb-8 text-white">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
+                {profile.first_name?.[0] || profile.email[0]?.toUpperCase()}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">KPI Dashboard</h1>
+                <p className="text-white/80">
+                  Welcome back, {profile.first_name || profile.email.split("@")[0]}
+                  {getProfileWithPlan().plan?.name && (
+                    <span className="ml-2 px-3 py-1 bg-white/20 backdrop-blur-sm text-white font-medium rounded-full text-sm">
+                      {getProfileWithPlan().plan?.name} Plan
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Link 
+                href="/data" 
+                className="px-4 py-2 bg-white/20 backdrop-blur-sm text-white rounded-md hover:bg-white/30 transition-all flex items-center"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Dashboard
+              </Link>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold">KPI Dashboard</h1>
-            <p className="text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
-          </div>
+        </div>
+
+        {/* Metrics Cards Section */}
+        <div className="mb-8">
+          <MetricsCards 
+            metrics={latestMetrics}
+            isLoading={isLoading}
+          />
         </div>
         
-        <div className="flex items-center gap-2">
-          <Link 
-            href="/data" 
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back
-          </Link>
-        </div>
+        {/* KPI Summary Section */}
+        <KpiSummary kpiData={kpiData} />
+        
+        {/* Chart Section */}
+        <ChartSection kpiData={kpiData} />
+        
+        {/* Campaign Summary Section */}
+        <SummarySection summary={summary} />
+        
+        {/* Footer */}
+        <footer className="mt-12 py-6 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-4 md:mb-0">
+              <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
+            </div>
+            <div className="flex space-x-6">
+              <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600">FAQ</a>
+              <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600">Privacy Policy</a>
+              <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600">Terms of Service</a>
+              <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600">Cookie Policy</a>
+            </div>
+          </div>
+        </footer>
       </div>
-
-      {/* Account Info Section */}
-      <AccountInfoSection profile={profile} />
-      
-      {/* Usage Section */}
-      <UsageSection profile={profile} impressions={latestMetrics.impressions} />
-      
-      {/* Metrics Cards */}
-      <MetricsCards 
-        metrics={latestMetrics}
-        isLoading={isLoading}
-      />
-      
-      {/* Chart Section */}
-      <ChartSection kpiData={kpiData} />
-      
-      {/* Summary Section */}
-      <SummarySection summary={summary} />
     </div>
   );
 };

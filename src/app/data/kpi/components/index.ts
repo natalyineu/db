@@ -4,4 +4,5 @@ export { default as UsageSection } from './UsageSection';
 export { default as MetricsCards } from './MetricsCards';
 export { default as ChartSection } from './ChartSection';
 export { default as SummarySection } from './SummarySection';
-export { default as KpiDashboardContainer } from './KpiDashboardContainer'; 
+export { default as KpiDashboardContainer } from './KpiDashboardContainer';
+export { default as KpiSummary } from './KpiSummary'; 

@@ -165,11 +165,10 @@ export default function AccountOverviewPage() {
           onLogout={handleLogout}
         />
         
-        {/* Main Content Area - New Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Left Column - 2/3 width on large screens */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Brief Section */}
+        {/* Main Content Area - Updated Layout with 50/50 split */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Left Column - Brief Section (50% width) */}
+          <div className="h-full">
             <BriefSection
               brief={brief}
               isEditing={isEditing}
@@ -195,8 +194,8 @@ export default function AccountOverviewPage() {
             />
           </div>
           
-          {/* Right Column - 1/3 width on large screens */}
-          <div className="space-y-6">
+          {/* Right Column - Account Info and Next Steps (50% width) */}
+          <div className="flex flex-col space-y-6">
             {/* Account Information */}
             <AccountInfoCard 
               profileEmail={profile.email} 
@@ -210,10 +209,12 @@ export default function AccountOverviewPage() {
               paymentStatus={paymentStatus}
               campaignStatus={campaignStatus}
             />
-            
-            {/* Campaign Performance - Now in a smaller card */}
-            <CampaignPerformanceCard />
           </div>
+        </div>
+        
+        {/* Campaign Performance - Full width below both columns */}
+        <div className="w-full max-w-3xl mx-auto mb-8">
+          <CampaignPerformanceCard />
         </div>
         
         {/* Footer */}
