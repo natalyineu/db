@@ -20,6 +20,7 @@ export default function AccountOverviewPage() {
   const { profile, loading: profileLoading } = useProfile();
   const [briefStatus, setBriefStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
   const [paymentStatus, setPaymentStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
+  const [campaignStatus, setCampaignStatus] = useState<'offline' | 'in progress' | 'online'>('offline');
   const [brief, setBrief] = useState<any>(null);
   const [impressionsUsed, setImpressionsUsed] = useState(0);
   const [userBusinessType, setUserBusinessType] = useState<string>('Business');
@@ -42,7 +43,7 @@ export default function AccountOverviewPage() {
         // Check if there are any campaigns to determine brief status
         const { data: campaignData, error: campaignError } = await supabase
           .from('campaigns')
-          .select('*')
+          .select('*, status')
           .eq('user_id', profile.id)
           .order('created_at', { ascending: false })
           .limit(1);
@@ -64,6 +65,11 @@ export default function AccountOverviewPage() {
         // If there's an existing brief, store it
         if (hasBrief) {
           setBrief(campaignData[0]);
+          
+          // Set campaign status if available
+          if (campaignData[0].status) {
+            setCampaignStatus(campaignData[0].status);
+          }
         }
         
         // Get KPI data to determine impressions used
@@ -159,50 +165,73 @@ export default function AccountOverviewPage() {
           onLogout={handleLogout}
         />
         
-        {/* Account Information & Next Steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Account Information */}
-          <AccountInfoCard 
-            profileEmail={profile.email} 
-            createdAt={profile.created_at} 
-            plan={profile.plan}
-            impressionsUsed={impressionsUsed}
-          />
+        {/* Main Content Area - New Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* Left Column - 2/3 width on large screens */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Brief Section */}
+            <BriefSection
+              brief={brief}
+              isEditing={isEditing}
+              formData={{
+                platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
+                target_audience: formData.targetAudience || '',
+                location: formData.location || '',
+                start_date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                end_date: new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+                type: (formData.goal || 'Awareness').toLowerCase(),
+                description: formData.additionalNotes || '',
+                consent: formData.consent || false
+              }}
+              formErrors={Object.fromEntries(
+                Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
+              )}
+              isSubmitting={isSubmitting}
+              onEdit={handleEditBrief}
+              onDelete={handleDeleteBrief}
+              handleChange={handleChange}
+              handleCheckboxChange={handleCheckboxChange}
+              handleSubmit={handleSubmit}
+            />
+          </div>
+          
+          {/* Right Column - 1/3 width on large screens */}
+          <div className="space-y-6">
+            {/* Account Information */}
+            <AccountInfoCard 
+              profileEmail={profile.email} 
+              createdAt={profile.created_at} 
+              plan={profile.plan}
+            />
 
-          {/* Next Steps */}
-          <NextStepsCard 
-            briefStatus={briefStatus} 
-            paymentStatus={paymentStatus} 
-          />
+            {/* Next Steps */}
+            <NextStepsCard 
+              briefStatus={briefStatus} 
+              paymentStatus={paymentStatus}
+              campaignStatus={campaignStatus}
+            />
+            
+            {/* Campaign Performance - Now in a smaller card */}
+            <CampaignPerformanceCard />
+          </div>
         </div>
         
-        {/* Brief Section */}
-        <BriefSection
-          brief={brief}
-          isEditing={isEditing}
-          formData={{
-            platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
-            target_audience: formData.targetAudience || '',
-            location: formData.location || '',
-            start_date: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-            end_date: new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
-            type: (formData.goal || 'Awareness').toLowerCase(),
-            description: formData.additionalNotes || '',
-            consent: formData.consent || false
-          }}
-          formErrors={Object.fromEntries(
-            Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
-          )}
-          isSubmitting={isSubmitting}
-          onEdit={handleEditBrief}
-          onDelete={handleDeleteBrief}
-          handleChange={handleChange}
-          handleCheckboxChange={handleCheckboxChange}
-          handleSubmit={handleSubmit}
-        />
-        
-        {/* KPI Section */}
-        <CampaignPerformanceCard />
+        {/* Footer */}
+        <footer className="mt-12 py-6 border-t border-gray-200">
+          <div className="container mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="mb-4 md:mb-0">
+                <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
+              </div>
+              <div className="flex space-x-6">
+                <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600">FAQ</a>
+                <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600">Privacy Policy</a>
+                <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600">Terms of Service</a>
+                <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600">Cookie Policy</a>
+              </div>
+            </div>
+          </div>
+        </footer>
       </div>
     </CleanBackground>
   );

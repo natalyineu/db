@@ -156,7 +156,9 @@ const KpiDashboardContainer = () => {
         impressions: 0,
         impressions_plan: profileWithPlan?.plan?.impressions_limit || defaultImpressionLimit,
         clicks: 0,
+        clicks_plan: 0,
         reach: 0,
+        reach_plan: 0,
         deltaImpressions: 0,
         deltaClicks: 0,
         deltaReach: 0
@@ -192,7 +194,9 @@ const KpiDashboardContainer = () => {
       impressions: latest.impressions,
       impressions_plan: latest.impressions_plan,
       clicks: latest.clicks,
+      clicks_plan: latest.clicks_plan || 0,
       reach: latest.reach,
+      reach_plan: latest.reach_plan || 0,
       deltaImpressions,
       deltaClicks,
       deltaReach
@@ -291,13 +295,8 @@ const KpiDashboardContainer = () => {
       
       {/* Metrics Cards */}
       <MetricsCards 
-        impressions={latestMetrics.impressions}
-        impressions_plan={latestMetrics.impressions_plan}
-        clicks={latestMetrics.clicks}
-        reach={latestMetrics.reach}
-        deltaImpressions={latestMetrics.deltaImpressions}
-        deltaClicks={latestMetrics.deltaClicks}
-        deltaReach={latestMetrics.deltaReach}
+        metrics={latestMetrics}
+        isLoading={isLoading}
       />
       
       {/* Chart Section */}

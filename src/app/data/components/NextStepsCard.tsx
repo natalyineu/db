@@ -3,11 +3,13 @@ import React from 'react';
 interface NextStepsCardProps {
   briefStatus: 'No' | 'In Progress' | 'Yes';
   paymentStatus: 'No' | 'In Progress' | 'Yes';
+  campaignStatus?: 'offline' | 'in progress' | 'online';
 }
 
 const NextStepsCard: React.FC<NextStepsCardProps> = ({ 
   briefStatus, 
-  paymentStatus 
+  paymentStatus,
+  campaignStatus = 'offline'
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -43,6 +45,17 @@ const NextStepsCard: React.FC<NextStepsCardProps> = ({
             briefStatus === 'Yes' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
           }`}>
             {briefStatus === 'Yes' ? 'Submitted' : 'Pending'}
+          </span>
+        </div>
+        
+        <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+          <span className="text-gray-500">Campaign status:</span>
+          <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+            campaignStatus === 'online' ? 'bg-green-100 text-green-800' : 
+            campaignStatus === 'in progress' ? 'bg-blue-100 text-blue-800' : 
+            'bg-gray-100 text-gray-800'
+          }`}>
+            {campaignStatus.charAt(0).toUpperCase() + campaignStatus.slice(1)}
           </span>
         </div>
       </div>

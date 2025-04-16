@@ -15,21 +15,15 @@ interface AccountInfoCardProps {
     name?: string;
     impressions_limit?: number;
   };
-  impressionsUsed?: number;
 }
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ 
   profileEmail, 
   createdAt, 
-  plan,
-  impressionsUsed = 0 
+  plan
 }) => {
-  // Determine plan limit - use from profile or fallback to predefined
+  // Determine plan name - use from profile or fallback to predefined
   const planName = plan?.name || 'Starter';
-  const impressionLimit = plan?.impressions_limit || PLAN_LIMITS[planName as keyof typeof PLAN_LIMITS] || 16500;
-  
-  // Calculate usage percentage
-  const usagePercentage = Math.min(100, Math.round((impressionsUsed / impressionLimit) * 100)) || 0;
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
@@ -55,33 +49,15 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
         
         <div className="flex justify-between border-b border-gray-100 pb-2">
           <span className="text-gray-500">Plan:</span>
-          <span className="font-medium">
-            {planName} 
-            <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 rounded-full">
-              {impressionLimit.toLocaleString()} impressions
-            </span>
+          <span className="font-medium bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">
+            {planName}
           </span>
         </div>
         
-        <div>
-          <div className="flex justify-between items-center text-sm mb-1">
-            <span className="text-gray-500">Impressions Used:</span>
-            <span className="font-medium">
-              {impressionsUsed.toLocaleString()} / {impressionLimit.toLocaleString()}
-            </span>
-          </div>
-          <div className="w-full bg-gray-100 rounded-full h-2.5">
-            <div 
-              className={`h-2.5 rounded-full ${
-                usagePercentage < 70 ? 'bg-green-500' :
-                usagePercentage < 90 ? 'bg-yellow-500' : 'bg-red-500'
-              }`} 
-              style={{ width: `${usagePercentage}%` }}
-            ></div>
-          </div>
-          <div className="flex justify-end mt-1">
-            <span className="text-xs text-gray-500">{usagePercentage}% used</span>
-          </div>
+        <div className="pt-2 text-center">
+          <a href="/data/kpi" className="text-sm text-indigo-600 hover:text-indigo-800">
+            View detailed usage metrics →
+          </a>
         </div>
       </div>
     </div>

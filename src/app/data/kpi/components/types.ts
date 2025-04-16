@@ -18,7 +18,9 @@ export interface LatestMetrics {
   impressions: number;
   impressions_plan: number;
   clicks: number;
+  clicks_plan: number;
   reach: number;
+  reach_plan: number;
   deltaImpressions: number;
   deltaClicks: number;
   deltaReach: number;

@@ -56,30 +56,42 @@ const UsageSection = ({ profile, impressions }: UsageSectionProps) => {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-semibold">Impressions Usage</h2>
-        <span className="text-sm text-gray-500">
-          {impressions.toLocaleString()} / {limit.toLocaleString()} impressions
-        </span>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Your KPI Dashboard</h2>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">Current Plan:</span>
+          <span className="px-3 py-1 bg-indigo-100 text-indigo-800 font-medium rounded-full text-sm">
+            {currentPlanName}
+          </span>
+        </div>
       </div>
       
-      <div className="w-full bg-gray-200 rounded-full h-4">
-        <div 
-          className={`h-4 rounded-full ${
-            impressionsUsage < 70 ? 'bg-green-500' :
-            impressionsUsage < 90 ? 'bg-yellow-500' : 'bg-red-500'
-          }`} 
-          style={{ width: `${impressionsUsage}%` }}
-        ></div>
-      </div>
-      
-      <div className="flex justify-between mt-1">
-        <span className="text-xs text-gray-500">0%</span>
-        <span className="text-xs text-gray-500">100%</span>
+      <div className="border-b border-gray-100 pb-4 mb-4">
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-sm font-medium">Impressions Usage</h3>
+          <span className="text-sm text-gray-500">
+            {impressions.toLocaleString()} / {limit.toLocaleString()} impressions
+          </span>
+        </div>
+        
+        <div className="w-full bg-gray-200 rounded-full h-3">
+          <div 
+            className={`h-3 rounded-full ${
+              impressionsUsage < 70 ? 'bg-green-500' :
+              impressionsUsage < 90 ? 'bg-yellow-500' : 'bg-red-500'
+            }`} 
+            style={{ width: `${impressionsUsage}%` }}
+          ></div>
+        </div>
+        
+        <div className="flex justify-between mt-1">
+          <span className="text-xs text-gray-500">0%</span>
+          <span className="text-xs text-gray-500">100%</span>
+        </div>
       </div>
       
       {showUpgradeRecommendation && (
-        <div className="mt-4 p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+        <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
           <div className="flex items-start">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500 mr-2 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
