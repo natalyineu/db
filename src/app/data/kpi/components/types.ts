@@ -48,6 +48,13 @@ export interface DashboardProps {
 
 // Default impression limits by plan
 export const PLAN_LIMITS = {
+  // Standard plans
+  'Starter': 16500,
+  'Growth': 46500,
+  'Impact': 96500,
+  'Tailored': 200000,
+  
+  // Legacy plans
   'Free': 10000,
   'Basic': 50000,
   'Premium': 250000,
@@ -61,11 +68,4 @@ export interface ProfileWithPlan {
     payment_status?: string;
     renewal_date?: string;
   };
-}
-
-export const PLAN_LIMITS = {
-  'Starter': 16500,
-  'Growth': 46500,
-  'Impact': 96500,
-  'Tailored': 200000
-}; 
+} 
