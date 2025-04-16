@@ -88,6 +88,7 @@ export default function AccountOverviewPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [kpiStats, setKpiStats] = useState<any>(null);
+  const [impressionsUsed, setImpressionsUsed] = useState(0);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [userBusinessType, setUserBusinessType] = useState<string>('Business');
   const [formData, setFormData] = useState<BriefFormData>({
@@ -149,6 +150,18 @@ export default function AccountOverviewPage() {
         // If there's an existing brief, store it
         if (hasBrief) {
           setBrief(campaignData[0]);
+        }
+        
+        // Get KPI data to determine impressions used
+        const { data: kpiData, error: kpiError } = await supabase
+          .from('kpi')
+          .select('impressions_fact')
+          .eq('user_id', profile.id)
+          .order('date', { ascending: false })
+          .limit(1);
+          
+        if (!kpiError && kpiData && kpiData.length > 0) {
+          setImpressionsUsed(kpiData[0].impressions_fact || 0);
         }
         
         // For payment status, we can use a convention like storing it in metadata
@@ -535,6 +548,7 @@ export default function AccountOverviewPage() {
             profileEmail={profile.email} 
             createdAt={profile.created_at} 
             plan={profile.plan}
+            impressionsUsed={impressionsUsed}
           />
 
           {/* Next Steps */}

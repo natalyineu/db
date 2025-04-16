@@ -14,10 +14,10 @@ interface BriefDisplayProps {
 
 const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
       <div>
         <h3 className="text-sm font-medium text-gray-500">Landing Page URL:</h3>
-        <p className="mt-1 break-all">
+        <p className="mt-0.5 break-all">
           <a 
             href={brief.platforms?.[0]} 
             target="_blank" 
@@ -29,10 +29,15 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
         </p>
       </div>
       
+      <div>
+        <h3 className="text-sm font-medium text-gray-500">Target Audience:</h3>
+        <p className="mt-0.5">{brief.target_audience || "Not specified"}</p>
+      </div>
+      
       {brief.platforms?.[1] && (
         <div>
           <h3 className="text-sm font-medium text-gray-500">Creatives Link:</h3>
-          <p className="mt-1 break-all">
+          <p className="mt-0.5 break-all">
             <a 
               href={brief.platforms?.[1]} 
               target="_blank" 
@@ -46,32 +51,27 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
       )}
       
       <div>
-        <h3 className="text-sm font-medium text-gray-500">Target Audience:</h3>
-        <p className="mt-1">{brief.target_audience || "Not specified"}</p>
-      </div>
-      
-      <div>
         <h3 className="text-sm font-medium text-gray-500">Location:</h3>
-        <p className="mt-1">{brief.location || "Not specified"}</p>
+        <p className="mt-0.5">{brief.location || "Not specified"}</p>
       </div>
       
       <div>
         <h3 className="text-sm font-medium text-gray-500">Campaign Period:</h3>
-        <p className="mt-1">
+        <p className="mt-0.5">
           {brief.start_date ? new Date(brief.start_date).toLocaleDateString() : "Not specified"} - {brief.end_date ? new Date(brief.end_date).toLocaleDateString() : "Not specified"} 
-          (30 days)
+          <span className="text-xs text-gray-500 ml-1">(30 days)</span>
         </p>
       </div>
       
       <div>
         <h3 className="text-sm font-medium text-gray-500">Goal:</h3>
-        <p className="mt-1 capitalize">{brief.type || "Awareness"}</p>
+        <p className="mt-0.5 capitalize">{brief.type || "Awareness"}</p>
       </div>
       
       {brief.description && (
-        <div>
+        <div className="md:col-span-2">
           <h3 className="text-sm font-medium text-gray-500">Additional Notes:</h3>
-          <p className="mt-1">{brief.description}</p>
+          <p className="mt-0.5">{brief.description}</p>
         </div>
       )}
     </div>

@@ -46,6 +46,15 @@ interface KpiData {
   created_at: string;
 }
 
+// Define fixed plans with their impression limits
+const PLAN_LIMITS = {
+  'Starter': 16500,
+  'Growth': 46500,
+  'Impact': 96500,
+  'Tailored': 200000,
+  'Free': 1000
+};
+
 export default function KpiDashboardPage() {
   const { isLoading: authLoading, isAuthenticated } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
@@ -58,7 +67,7 @@ export default function KpiDashboardPage() {
 
   // Helper function to safely access profile.plan with proper type assertion
   const getProfileWithPlan = () => {
-    return profile as UserProfile & { 
+    const profileWithPlan = profile as UserProfile & { 
       plan?: { 
         impressions_limit: number;
         name?: string;
@@ -66,6 +75,14 @@ export default function KpiDashboardPage() {
         renewal_date?: string;
       } 
     };
+    
+    // If plan name exists but no impressions_limit, use predefined limit based on plan name
+    if (profileWithPlan?.plan?.name && !profileWithPlan.plan.impressions_limit) {
+      const planName = profileWithPlan.plan.name;
+      profileWithPlan.plan.impressions_limit = PLAN_LIMITS[planName as keyof typeof PLAN_LIMITS] || 16500;
+    }
+    
+    return profileWithPlan;
   };
 
   // Redirect if not authenticated
@@ -342,22 +359,33 @@ export default function KpiDashboardPage() {
 
   return (
     <CleanBackground>
-      <div className="container mx-auto p-6 bg-gray-50">
+      <div className="container mx-auto p-6 theme-transition">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold">KPI Dashboard</h1>
-          <Link
-            href="/data"
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Overview
-          </Link>
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
+              {profile.first_name?.[0] || profile.email[0].toUpperCase()}
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">KPI Dashboard</h1>
+              <p className="text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Link
+              href="/data"
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              Back to Overview
+            </Link>
+          </div>
         </div>
 
         {/* Account Information Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <h2 className="text-xl font-semibold mb-4">Account Information</h2>
           <div className="grid md:grid-cols-3 gap-6">
             <div className="border rounded-lg p-4">
@@ -425,7 +453,7 @@ export default function KpiDashboardPage() {
         </div>
 
         {/* Impressions Usage Meter */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold">Impressions Usage</h2>
             <span className="text-sm text-gray-500">
@@ -476,7 +504,7 @@ export default function KpiDashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           {/* Impressions Card */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-3">IMPRESSIONS</h2>
             <div className="flex items-baseline justify-between">
               <span className="text-3xl font-bold">{latestMetrics.impressions.toLocaleString()}</span>
@@ -498,7 +526,7 @@ export default function KpiDashboardPage() {
           </div>
 
           {/* Clicks Card */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-3">CLICKS</h2>
             <div className="flex items-baseline justify-between">
               <span className="text-3xl font-bold">{latestMetrics.clicks.toLocaleString()}</span>
@@ -515,7 +543,7 @@ export default function KpiDashboardPage() {
           </div>
 
           {/* Reach Card */}
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-semibold text-gray-700 mb-3">REACH</h2>
             <div className="flex items-baseline justify-between">
               <span className="text-3xl font-bold">{latestMetrics.reach.toLocaleString()}</span>
@@ -533,7 +561,7 @@ export default function KpiDashboardPage() {
         </div>
 
         {/* Chart Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <h2 className="text-xl font-semibold mb-6">Performance Trend</h2>
           {kpiData.length > 0 ? (
             <div className="h-64">
@@ -562,7 +590,7 @@ export default function KpiDashboardPage() {
 
         {/* Summary Section */}
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold mb-4">Campaign Summary</h2>
             {summary ? (
               <p className="text-gray-600">{summary}</p>
@@ -571,7 +599,7 @@ export default function KpiDashboardPage() {
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold mb-4">Recommendations</h2>
             <ul className="space-y-3 text-gray-600">
               <li className="flex items-start">
