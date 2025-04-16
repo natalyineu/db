@@ -1,0 +1,151 @@
+/* Robot loader components */
+.loading-spinner {
+  border: 4px solid rgba(99, 102, 241, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid rgba(99, 102, 241, 1);
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+.robot-builder-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 0 auto;
+  background: rgba(99, 102, 241, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.account-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  border: 3px dashed rgba(99, 102, 241, 0.5);
+  border-radius: 8px;
+  animation: pulse-border 2s infinite;
+}
+
+.gear {
+  position: absolute;
+  background: rgba(99, 102, 241, 0.7);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gear::before, .gear::after {
+  content: '';
+  position: absolute;
+  background: rgba(99, 102, 241, 0.7);
+}
+
+.gear-1 {
+  width: 40px;
+  height: 40px;
+  top: 30px;
+  left: 30px;
+  animation: gear-spin 8s linear infinite;
+}
+
+.gear-2 {
+  width: 30px;
+  height: 30px;
+  bottom: 30px;
+  right: 30px;
+  animation: gear-spin 6s linear infinite reverse;
+}
+
+.robot-left, .robot-right {
+  position: absolute;
+  width: 30px;
+  height: 40px;
+  background: rgba(99, 102, 241, 0.8);
+  border-radius: 5px;
+}
+
+.robot-left {
+  top: 60px;
+  left: 30px;
+  animation: robot-move 2.5s ease-in-out infinite;
+}
+
+.robot-right {
+  bottom: 60px;
+  right: 30px;
+  animation: robot-move 2.5s ease-in-out infinite 0.5s;
+}
+
+.spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffcc00;
+  border-radius: 50%;
+}
+
+.spark-1 {
+  top: 70px;
+  left: 100px;
+  animation: spark-flash 0.6s ease-in-out infinite;
+}
+
+.spark-2 {
+  top: 120px;
+  left: 80px;
+  animation: spark-flash 0.6s ease-in-out infinite 0.2s;
+}
+
+.spark-3 {
+  top: 100px;
+  right: 70px;
+  animation: spark-flash 0.6s ease-in-out infinite 0.4s;
+}
+
+/* Enhanced robot components */
+.enhanced-robot-container {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.robot-scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: rgba(99, 102, 241, 0.6);
+  animation: scan-line 2s linear infinite;
+}
+
+.robot-panel {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+}
+
+.robot-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.8);
+  animation: blink 1.5s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.robot-text {
+  font-family: monospace;
+  animation: glitch 0.3s ease-in-out infinite;
+}
+
+.circuit-path {
+  height: 2px;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.3), rgba(99, 102, 241, 0.8));
+  position: relative;
+  overflow: hidden;
+} 

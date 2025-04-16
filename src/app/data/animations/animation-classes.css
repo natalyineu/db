@@ -1,0 +1,166 @@
+/* Basic animation classes */
+.float-animation {
+  animation: float 3s ease-in-out infinite;
+}
+
+.pulse-border-animation {
+  animation: pulse-border 2s infinite;
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+
+.animate-phase-transition {
+  animation: phase-transition 3s ease-in-out infinite;
+}
+
+/* Fade animation classes */
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.4s ease-out forwards;
+}
+
+/* Progress animation classes */
+.animate-expand-width {
+  animation: expand-width 1s ease-out forwards;
+}
+
+.progress-bar {
+  height: 4px;
+  background-color: #ddd;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progress-advance 1.5s ease-in-out infinite;
+}
+
+/* Effect animation classes */
+.animate-bounce-in {
+  animation: bounce-in 0.5s ease-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-ping-slow {
+  animation: ping-slow 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.shimmer-effect {
+  background: linear-gradient(
+    90deg, 
+    rgba(255, 255, 255, 0), 
+    rgba(255, 255, 255, 0.3), 
+    rgba(255, 255, 255, 0)
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Robot animation classes */
+.robot-move-animation {
+  animation: robot-move 3s ease-in-out infinite;
+}
+
+.gear-spin-animation {
+  animation: gear-spin 8s linear infinite;
+}
+
+.spark-flash-animation {
+  animation: spark-flash 0.8s ease-in-out infinite;
+}
+
+/* Advanced visual effect classes */
+.animate-blink {
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.animate-glitch {
+  animation: glitch 0.3s ease-in-out infinite;
+  position: relative;
+}
+
+.animate-scan-line {
+  animation: scan-line 2s linear infinite;
+}
+
+.animate-rotate-3d {
+  animation: rotate-3d 8s linear infinite;
+}
+
+.animate-holo {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-holo::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  transform: skewX(-25deg);
+  animation: holo-shine 3s ease-in-out infinite;
+}
+
+/* Delay and duration utility classes */
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+}
+
+.delay-700 {
+  animation-delay: 0.7s;
+}
+
+.delay-1000 {
+  animation-delay: 1s;
+}
+
+.duration-1500 {
+  animation-duration: 1.5s;
+}
+
+.duration-2000 {
+  animation-duration: 2s;
+}
+
+.duration-2500 {
+  animation-duration: 2.5s;
+} 

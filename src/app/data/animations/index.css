@@ -1,0 +1,13 @@
+/* Animation modules for the application */
+
+/* Base keyframes animations */
+@import './keyframes.css';
+
+/* Animation classes */
+@import './animation-classes.css';
+
+/* Robot-specific components */
+@import './robot-components.css';
+
+/* UI component animations */
+@import './ui-components.css'; 

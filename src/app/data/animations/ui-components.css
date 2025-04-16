@@ -1,0 +1,129 @@
+/* UI Toggle and interaction components */
+.toggle-checkbox {
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  position: absolute;
+}
+
+.toggle-checkbox:checked {
+  right: 0px;
+  background: #fff;
+}
+
+.toggle-label {
+  cursor: pointer;
+  text-indent: -9999px;
+}
+
+/* Hover and interaction utilities */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.hover\:scale-95:hover {
+  transform: scale(0.95);
+}
+
+.active\:scale-95:active {
+  transform: scale(0.95);
+}
+
+/* Transition utilities */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Hover animation for buttons and interactive elements */
+.hover-lift {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Pulse effect for notification indicators */
+.pulse-dot {
+  position: relative;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(99, 102, 241, 0.8);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse-slow 2s infinite;
+}
+
+/* Button hover effects */
+.button-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-glow::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.7s ease-in-out;
+}
+
+.button-glow:hover::before {
+  left: 100%;
+}
+
+/* Loading bars */
+.loading-bar {
+  height: 4px;
+  background-color: #f3f4f6;
+  overflow: hidden;
+  position: relative;
+}
+
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 30%;
+  background-color: rgba(99, 102, 241, 0.8);
+  animation: loading-progress 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-progress {
+  0% {
+    left: -30%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+} 
