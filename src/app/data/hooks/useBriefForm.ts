@@ -73,6 +73,40 @@ export function useBriefForm(
   const [brief, setBrief] = useState<any>(initialBrief);
   const supabase = createBrowserClient();
 
+  // Utility function to get impression limit from profile
+  const getImpressionLimit = async (): Promise<number> => {
+    const defaultLimit = 16500;
+    
+    try {
+      if (!profile?.plan) return defaultLimit;
+      
+      // Try to get actual plan limit from profile
+      if (typeof profile.plan === 'object') {
+        // If plan has impressions_limit directly
+        if (profile.plan.impressions_limit) {
+          return profile.plan.impressions_limit;
+        } 
+        // If plan has id that references plans table
+        else if (profile.plan.id) {
+          const { data: planData } = await supabase
+            .from('plans')
+            .select('impressions_limit')
+            .eq('id', profile.plan.id)
+            .single();
+            
+          if (planData?.impressions_limit) {
+            return planData.impressions_limit;
+          }
+        }
+      }
+      
+      return defaultLimit;
+    } catch (error) {
+      console.error('Error getting impression limit:', error);
+      return defaultLimit;
+    }
+  };
+
   // Sync brief state when initialBrief changes
   useEffect(() => {
     setBrief(initialBrief);
@@ -287,6 +321,56 @@ export function useBriefForm(
         
         setBrief(updatedBrief);
         onBriefChange(updatedBrief);
+        
+        // Also update the KPI record if it exists
+        try {
+          // Check if KPI record exists
+          const { data: existingKpi } = await supabase
+            .from('kpi')
+            .select('id')
+            .eq('campaign_id', brief.id)
+            .order('date', { ascending: false })
+            .limit(1);
+            
+          if (existingKpi && existingKpi.length > 0) {
+            // Update the existing KPI record
+            const { error: kpiUpdateError } = await supabase
+              .from('kpi')
+              .update({
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingKpi[0].id);
+              
+            if (kpiUpdateError) {
+              console.error('Error updating KPI record:', kpiUpdateError);
+            }
+          } else {
+            // If no KPI record exists, create one
+            let impressionsLimit = await getImpressionLimit();
+            
+            // Create KPI record with plan values
+            const { error: kpiError } = await supabase
+              .from('kpi')
+              .insert({
+                campaign_id: brief.id,
+                user_id: profile.id,
+                date: new Date().toISOString().split('T')[0],
+                impressions_plan: impressionsLimit,
+                clicks_plan: Math.round(impressionsLimit * 0.02),
+                reach_plan: Math.round(impressionsLimit * 0.7),
+                budget_plan: 0,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+              
+            if (kpiError) {
+              console.error('Error creating KPI record for updated brief:', kpiError);
+            }
+          }
+        } catch (kpiError) {
+          console.error('Error handling KPI record during brief update:', kpiError);
+        }
+        
         setIsEditing(false);
       } else {
         // Create new campaign
@@ -313,6 +397,34 @@ export function useBriefForm(
         if (newCampaign && newCampaign.length > 0) {
           setBrief(newCampaign[0]);
           onBriefChange(newCampaign[0]);
+          
+          // Also create a KPI entry for this new campaign
+          try {
+            // Get the user's plan info to determine impression limits
+            let impressionsLimit = await getImpressionLimit();
+            
+            // Create KPI record with plan values (no fact values yet)
+            const { error: kpiError } = await supabase
+              .from('kpi')
+              .insert({
+                campaign_id: newCampaign[0].id,
+                user_id: profile.id,
+                date: new Date().toISOString().split('T')[0],
+                impressions_plan: impressionsLimit,
+                clicks_plan: Math.round(impressionsLimit * 0.02), // 2% CTR
+                reach_plan: Math.round(impressionsLimit * 0.7),   // 70% of impressions
+                budget_plan: 0, // Default or calculate from plan if needed
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+              
+            if (kpiError) {
+              console.error('Error creating KPI record:', kpiError);
+            }
+          } catch (kpiError) {
+            console.error('Error creating KPI record:', kpiError);
+            // Continue with brief submission even if KPI creation fails
+          }
         }
 
         // Update brief status
@@ -376,6 +488,22 @@ export function useBriefForm(
     
     try {
       setIsSubmitting(true); // Show loading state during deletion
+      
+      // First delete associated KPI records
+      try {
+        const { error: kpiDeleteError } = await supabase
+          .from('kpi')
+          .delete()
+          .eq('campaign_id', briefToDelete.id);
+          
+        if (kpiDeleteError) {
+          console.error('Error deleting KPI records:', kpiDeleteError);
+          // Continue with campaign deletion even if KPI deletion fails
+        }
+      } catch (kpiError) {
+        console.error('Error deleting KPI records:', kpiError);
+        // Continue with campaign deletion even if KPI deletion fails
+      }
       
       // Delete the campaign from Supabase
       const { error } = await supabase
