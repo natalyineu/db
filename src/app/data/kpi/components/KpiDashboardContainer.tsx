@@ -11,10 +11,10 @@ import {
   MetricsCards, 
   ChartSection, 
   SummarySection,
+  KpiSummary,
   KpiData,
   LatestMetrics,
-  PLAN_LIMITS,
-  KpiSummary
+  PLAN_LIMITS
 } from './';
 
 const KpiDashboardContainer = () => {
@@ -323,7 +323,7 @@ const KpiDashboardContainer = () => {
           />
         </div>
         
-        {/* KPI Summary Section */}
+        {/* Campaign Summary Component */}
         <KpiSummary kpiData={kpiData} />
         
         {/* Chart Section */}
