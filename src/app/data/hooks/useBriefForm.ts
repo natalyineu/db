@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 
 // Define the interface for the form data
@@ -72,6 +72,11 @@ export function useBriefForm(
   const [isEditing, setIsEditing] = useState(false);
   const [brief, setBrief] = useState<any>(initialBrief);
   const supabase = createBrowserClient();
+
+  // Sync brief state when initialBrief changes
+  useEffect(() => {
+    setBrief(initialBrief);
+  }, [initialBrief]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -361,8 +366,11 @@ export function useBriefForm(
   };
 
   const handleDeleteBrief = async () => {
-    if (!brief?.id) {
-      console.error('Cannot delete: No brief ID found');
+    // Use local brief state or initialBrief (in case brief state wasn't synced)
+    const briefToDelete = brief || initialBrief;
+    
+    if (!briefToDelete?.id) {
+      console.error('Cannot delete: No brief ID found', { brief, initialBrief });
       return;
     }
     
@@ -373,7 +381,7 @@ export function useBriefForm(
       const { error } = await supabase
         .from('campaigns')
         .delete()
-        .eq('id', brief.id);
+        .eq('id', briefToDelete.id);
       
       if (error) throw error;
       

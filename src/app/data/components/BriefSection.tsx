@@ -40,8 +40,11 @@ const BriefSection: React.FC<BriefSectionProps> = ({
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   
+  // Validate brief before actions
+  const isBriefValid = brief && typeof brief === 'object' && brief.id;
+  
   const handleConfirmDelete = async () => {
-    if (isDeleting) return; // Prevent multiple clicks
+    if (isDeleting || !isBriefValid) return; // Prevent deletion if invalid brief
     
     setIsDeleting(true);
     try {
@@ -54,16 +57,24 @@ const BriefSection: React.FC<BriefSectionProps> = ({
     }
   };
   
+  const handleEdit = () => {
+    if (!isBriefValid) {
+      console.error("Cannot edit: Invalid brief object");
+      return;
+    }
+    onEdit();
+  };
+  
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
       <div className="mb-6">
         <BriefHeader 
           existingBrief={brief}
           isEditing={isEditing}
-          onEdit={onEdit}
+          onEdit={handleEdit}
           onDelete={() => {
-            if (!brief?.id) {
-              console.error("Cannot delete: No brief exists");
+            if (!isBriefValid) {
+              console.error("Cannot delete: No brief exists or invalid brief", brief);
               return;
             }
             setShowDeleteConfirmation(true);
