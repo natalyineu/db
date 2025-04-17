@@ -34,7 +34,7 @@ export default function MessageDisplay({
   }
   
   const typeClasses = {
-    success: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-300 dark:border-green-800 border-2',
+    success: 'bg-green-100 dark:bg-green-900/30 text-green-900 dark:text-green-100 border-green-300 dark:border-green-800 border-2',
     error: 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800',
     info: 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800',
     warning: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800'
@@ -42,7 +42,7 @@ export default function MessageDisplay({
 
   const iconMap = {
     success: (
-      <svg className="w-5 h-5 text-green-500 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
       </svg>
     ),
@@ -76,7 +76,7 @@ export default function MessageDisplay({
         
         <div className="flex-1">
           {title && <h3 className="text-sm font-medium mb-1">{title}</h3>}
-          <div className="text-sm">{message}</div>
+          <div className="text-sm font-medium">{message}</div>
           {subMessage && <div className="text-xs mt-1 opacity-80">{subMessage}</div>}
           
           {actions.length > 0 && (
