@@ -100,28 +100,59 @@ export function useBriefForm(
    */
   const createInitialKpiData = async (campaignId: string) => {
     try {
-      // Get impression limit from profile for default values
-      const impressionLimit = await getImpressionLimit(profile);
+      // Get plan information from profile
+      const userPlanName = profile?.plan?.name || 'Starter'; // Default to Starter if no plan name is found
+      console.log('User plan name:', userPlanName);
+      
+      // Get impression limit based on plan name from the plans table
+      const { data: planData, error: planError } = await supabase
+        .from('plans')
+        .select('impressions_limit')
+        .eq('name', userPlanName)
+        .single();
+      
+      if (planError) {
+        console.error('Error fetching plan data:', planError);
+        throw planError;
+      }
+      
+      // Use the plan's impression limit or fallback to a default value
+      const impressionLimit = planData?.impressions_limit || 16500; // Starter plan default
+      console.log('Using impression limit from plan:', impressionLimit);
+      
       const defaultImpressions = Math.floor(impressionLimit * 0.8);
       
-      // Create a KPI record with default values
-      await KpiService.createKpi({
+      // Create a KPI record with values based on the plan
+      const kpiData = {
         campaign_id: campaignId,
         date: new Date().toISOString().split('T')[0], // Today's date
         budget_plan: 1000, // Default budget plan
         budget_fact: 0, // Initial actual budget is 0
-        impressions_plan: defaultImpressions, // Dynamic based on user's plan
+        impressions_plan: defaultImpressions, // Based on plan's impression limit
         impressions_fact: 0, // Initial actual impressions is 0
         clicks_plan: Math.floor(defaultImpressions * 0.05), // 5% CTR as default goal
         clicks_fact: 0, // Initial actual clicks is 0
         reach_plan: Math.floor(defaultImpressions * 0.8), // 80% of impressions as reach goal
-        reach_fact: 0 // Initial actual reach is 0
-      });
+        reach_fact: 0, // Initial actual reach is 0
+        user_id: profile?.id // Add user_id for better filtering
+      };
       
-      console.log('Created initial KPI data for campaign:', campaignId);
+      const kpiResult = await KpiService.createKpi(kpiData);
+      
+      console.log('Created initial KPI data for campaign:', campaignId, kpiResult);
+      
+      // Force reload of KPI data for the dashboard
+      if (window && window.localStorage) {
+        // Set a flag to indicate new KPI data was created
+        window.localStorage.setItem('kpi_data_updated', 'true');
+        window.localStorage.setItem('kpi_campaign_id', campaignId);
+      }
+      
+      return kpiResult;
     } catch (error) {
       console.error('Error creating initial KPI data:', error);
       // Don't throw the error to avoid interrupting the main flow
+      return null;
     }
   };
 
