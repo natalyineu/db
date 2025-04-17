@@ -12,6 +12,20 @@ export function transformFormDataForSubmission(
   userId: string,
   businessType: string
 ): SubmissionData {
+  // Maps goal values to CampaignType
+  const getCampaignType = (goal: string) => {
+    // Convert to lowercase for case-insensitive matching
+    const normalizedGoal = goal.toLowerCase();
+    
+    // Map goals to campaign types
+    if (normalizedGoal.includes('awareness')) return 'awareness';
+    if (normalizedGoal.includes('conversion')) return 'conversion';
+    if (normalizedGoal.includes('consideration')) return 'awareness'; // Default to awareness for consideration
+    
+    // Default to display for any other goal
+    return 'display';
+  };
+
   return {
     user_id: userId,
     submitted_at: new Date().toISOString(),
@@ -23,10 +37,11 @@ export function transformFormDataForSubmission(
     ].filter(Boolean),
     target_audience: formData.targetAudience,
     location: formData.location,
-    type: formData.goal,
+    type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
     description: formData.additionalNotes,
     consent: formData.consent,
     status: 'offline',
+    budget: 0, // Add required budget field with default value
   };
 }
 
@@ -54,7 +69,7 @@ export function mapBriefToFormData(brief: any): BriefFormData {
   const platforms = brief.platforms || [];
   
   return {
-    businessName: brief.business_name || '',
+    businessName: brief.name || '', // Changed from business_name to name
     targetAudience: brief.target_audience || '',
     landingPageUrl: platforms[0] || '',
     creativesLink: platforms[1] || '',

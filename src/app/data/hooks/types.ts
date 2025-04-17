@@ -32,6 +32,7 @@ export interface SubmissionData {
   description: string;
   consent: boolean;
   status: string;
+  budget: number;
 }
 
 // Interface for the result of the useBriefForm hook
