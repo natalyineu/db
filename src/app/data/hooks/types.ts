@@ -23,7 +23,6 @@ export interface FormErrors {
 export interface SubmissionData {
   user_id: string;
   submitted_at: string;
-  business_type: string;
   name: string;
   platforms: string[];
   target_audience: string;

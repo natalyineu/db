@@ -29,7 +29,6 @@ export function transformFormDataForSubmission(
   return {
     user_id: userId,
     submitted_at: new Date().toISOString(),
-    business_type: businessType,
     name: formData.businessName,
     platforms: [
       formData.landingPageUrl,
