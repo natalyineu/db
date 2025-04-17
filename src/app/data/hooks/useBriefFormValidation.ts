@@ -11,11 +11,6 @@ export function validateBriefForm(formData: BriefFormData): FormErrors {
   // Business name validation is now optional
   // Target audience validation is now optional
 
-  // Goal validation
-  if (!formData.goal?.trim()) {
-    errors.goal = 'Please select a campaign goal';
-  }
-
   // Landing page URL validation
   if (formData.landingPageUrl?.trim()) {
     // Simplified URL validation that accepts domains without http/https

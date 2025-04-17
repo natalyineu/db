@@ -163,7 +163,6 @@ export default function AccountOverviewPage() {
               location: formData.location || '',
               start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
               end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
-              type: (formData.goal || 'Awareness').toLowerCase(),
               description: formData.additionalNotes || '',
               consent: formData.consent || false,
               business_name: formData.businessName || ''

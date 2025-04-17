@@ -4,7 +4,6 @@
 export interface BriefFormData {
   businessName: string;
   targetAudience: string;
-  goal: string;
   additionalNotes: string;
   landingPageUrl: string;
   creativesLink: string;

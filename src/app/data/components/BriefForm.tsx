@@ -7,7 +7,6 @@ interface BriefFormProps {
     location: string;
     start_date: string;
     end_date: string;
-    type: string;
     description: string;
     consent: boolean;
     business_name?: string;
@@ -17,8 +16,8 @@ interface BriefFormProps {
   handleCheckboxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
-  currentDate: string;
-  defaultEndDate: string;
+  currentDate?: string;
+  defaultEndDate?: string;
 }
 
 const BriefForm: React.FC<BriefFormProps> = ({
@@ -161,27 +160,6 @@ const BriefForm: React.FC<BriefFormProps> = ({
           )}
           <p className="mt-1 text-xs text-gray-500">Default flight duration is 30 days</p>
         </div>
-      </div>
-
-      <div>
-        <label htmlFor="type" className="block mb-1 text-sm font-medium">
-          Campaign Goal <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="type"
-          name="type"
-          className={`w-full px-3 py-2 border rounded-md text-base ${formErrors.type ? 'border-red-500' : 'border-gray-300'}`}
-          value={formData.type}
-          onChange={handleChange}
-        >
-          <option value="">Select a goal</option>
-          <option value="awareness">Awareness</option>
-          <option value="consideration">Consideration</option>
-          <option value="conversions">Conversions</option>
-        </select>
-        {formErrors.type && (
-          <p className="mt-1 text-xs sm:text-sm text-red-500">{formErrors.type}</p>
-        )}
       </div>
 
       <div>

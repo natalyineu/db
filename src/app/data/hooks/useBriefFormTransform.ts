@@ -12,20 +12,6 @@ export function transformFormDataForSubmission(
   userId: string,
   businessType: string
 ): SubmissionData {
-  // Maps goal values to CampaignType
-  const getCampaignType = (goal: string) => {
-    // Convert to lowercase for case-insensitive matching
-    const normalizedGoal = goal.toLowerCase();
-    
-    // Map goals to campaign types
-    if (normalizedGoal.includes('awareness')) return 'awareness';
-    if (normalizedGoal.includes('conversion')) return 'conversion';
-    if (normalizedGoal.includes('consideration')) return 'consideration';
-    
-    // Default to display for any other goal
-    return 'display';
-  };
-
   // Set default dates if not provided
   const today = new Date();
   
@@ -46,7 +32,7 @@ export function transformFormDataForSubmission(
     user_id: userId,
     name: formData.businessName?.trim() || "New Campaign",
     status: 'draft', // Default to draft status
-    type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
+    type: 'awareness', // Default to awareness as the campaign type
     budget: 0, // Default budget value
     // Always set dates, using defaults if not provided
     start_date: formData.start_date || formatDate(defaultStartDate),
@@ -79,7 +65,6 @@ export function mapBriefToFormData(brief: any): BriefFormData {
       targetAudience: '',
       landingPageUrl: '',
       creativesLink: '',
-      goal: 'Awareness',
       additionalNotes: '',
       location: '',
       consent: false,
@@ -95,7 +80,6 @@ export function mapBriefToFormData(brief: any): BriefFormData {
     targetAudience: brief.target_audience || '',
     landingPageUrl: platforms[0] || '',
     creativesLink: platforms[1] || '',
-    goal: brief.type || 'Awareness',
     additionalNotes: brief.description || '',
     location: brief.location || '',
     consent: brief.consent || false,

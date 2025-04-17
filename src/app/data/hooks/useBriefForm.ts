@@ -59,11 +59,6 @@ export function useBriefForm(
         ...prev,
         targetAudience: value
       }));
-    } else if (name === 'type') {
-      setFormData(prev => ({
-        ...prev,
-        goal: value
-      }));
     } else if (name === 'business_name') {
       setFormData(prev => ({
         ...prev,

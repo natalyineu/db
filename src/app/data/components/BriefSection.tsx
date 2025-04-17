@@ -12,7 +12,6 @@ interface BriefSectionProps {
     location: string;
     start_date: string;
     end_date: string;
-    type: string;
     description: string;
     consent: boolean;
     business_name?: string;
