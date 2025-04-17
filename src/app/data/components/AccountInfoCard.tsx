@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { createBrowserClient } from '@/lib/supabase';
 
 interface AccountInfoCardProps {
   profileEmail: string;
@@ -16,6 +18,28 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
 }) => {
   // Determine plan name - use from profile or fallback to predefined
   const planName = plan?.name || 'Starter';
+  const [isAdmin, setIsAdmin] = useState(false);
+  const supabase = createBrowserClient();
+  
+  // Check if the current user is an admin
+  useEffect(() => {
+    async function checkAdminStatus() {
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        
+        if (error || !data.user) {
+          return;
+        }
+        
+        const userRole = data.user?.app_metadata?.role;
+        setIsAdmin(userRole === 'admin');
+      } catch (error) {
+        console.error('Error checking admin status:', error);
+      }
+    }
+    
+    checkAdminStatus();
+  }, [supabase]);
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
@@ -39,12 +63,29 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
           </span>
         </div>
         
-        <div className="flex justify-between pb-2">
+        <div className="flex justify-between pb-2 border-b border-gray-100">
           <span className="text-sm sm:text-base text-gray-500">Plan:</span>
           <span className="text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">
             {planName}
           </span>
         </div>
+        
+        {isAdmin && (
+          <div className="flex justify-end pt-2 space-x-4">
+            <Link
+              href="/admin/users"
+              className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline font-medium"
+            >
+              Manage Users (Admin)
+            </Link>
+            <Link
+              href="/admin/plans"
+              className="text-xs text-indigo-600 hover:text-indigo-800 hover:underline font-medium"
+            >
+              Manage Plans (Admin)
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );

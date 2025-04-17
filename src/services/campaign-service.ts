@@ -11,6 +11,7 @@ type RawAssetData = Record<string, any>;
 interface CreateCampaignData {
   name: string;
   status: CampaignStatus;
+  type?: CampaignType;
   user_id: string;
   start_date?: string;
   end_date?: string;
@@ -43,7 +44,7 @@ export class CampaignService {
         name: campaignData.name,
         status: campaignData.status,
         user_id: campaignData.user_id,
-        type: 'display' as CampaignType, // Default type
+        type: campaignData.type || 'awareness' as CampaignType, // Use provided type or default
         budget: 0, // Default budget
         ...(campaignData.start_date && { start_date: campaignData.start_date }),
         ...(campaignData.end_date && { end_date: campaignData.end_date })

@@ -52,7 +52,7 @@ export interface CampaignAsset {
 
 export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
 
-export type CampaignType = 'display' | 'search' | 'social' | 'video' | 'email' | 'conversion' | 'awareness' | 'consideration';
+export type CampaignType = 'awareness' | 'consideration' | 'conversion';
 
 export interface Campaign {
   id: string;

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CampaignService } from '@/services/campaign-service';
-import { CampaignStatus } from '@/types';
+import { CampaignStatus, CampaignType } from '@/types';
 
 type CreateCampaignProps = {
   userId: string;
@@ -14,6 +14,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
   const [status, setStatus] = useState<CampaignStatus>('draft');
+  const [type, setType] = useState<CampaignType>('awareness');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,12 +32,14 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
       await CampaignService.createCampaign({
         name,
         status,
+        type,
         user_id: userId
       });
       
       // Reset and close form
       setName('');
       setStatus('draft');
+      setType('awareness');
       setShowForm(false);
       onCampaignCreated();
     } catch (err) {
@@ -99,6 +102,22 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
                 <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div className="mb-4">
+              <label htmlFor="campaignType" className="block text-sm font-medium text-gray-700 mb-1">
+                Campaign Type
+              </label>
+              <select
+                id="campaignType"
+                value={type}
+                onChange={(e) => setType(e.target.value as CampaignType)}
+                className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="awareness">Awareness</option>
+                <option value="consideration">Consideration</option>
+                <option value="conversion">Conversion</option>
               </select>
             </div>
             

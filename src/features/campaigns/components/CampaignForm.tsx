@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Campaign, CampaignStatus } from '@/types';
+import { Campaign, CampaignStatus, CampaignType } from '@/types';
 import { Button } from '@/features/shared/ui/Button';
 import { Card } from '@/features/shared/ui/Card';
 
@@ -20,6 +20,7 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
   const [formData, setFormData] = useState<Partial<Campaign>>({
     name: '',
     status: 'draft' as CampaignStatus,
+    type: 'awareness' as CampaignType,
     start_date: '',
     end_date: '',
     ...campaign,
@@ -33,6 +34,7 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
     setFormData({
       name: '',
       status: 'draft' as CampaignStatus,
+      type: 'awareness' as CampaignType,
       start_date: '',
       end_date: '',
       ...campaign,
@@ -179,6 +181,26 @@ export const CampaignForm: React.FC<CampaignFormProps> = ({
                   <option value="active">Active</option>
                   <option value="paused">Paused</option>
                   <option value="completed">Completed</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Campaign Type */}
+            <div>
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700">
+                Campaign Type
+              </label>
+              <div className="mt-1">
+                <select
+                  id="type"
+                  name="type"
+                  value={formData.type || 'awareness'}
+                  onChange={handleChange}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                >
+                  <option value="awareness">Awareness</option>
+                  <option value="consideration">Consideration</option>
+                  <option value="conversion">Conversion</option>
                 </select>
               </div>
             </div>
