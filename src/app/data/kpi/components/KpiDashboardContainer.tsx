@@ -64,21 +64,20 @@ const KpiDashboardContainer = () => {
       
       console.log('Found campaigns for KPI creation:', campaigns);
       
-      // Get user's plan for impression limit
-      const { data: userPlans, error: planError } = await supabase
+      // Get user's plan directly (plan is a field, not a relation)
+      const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
-        .select('plan_id, plan:plans(*)')
+        .select('plan')
         .eq('id', profile.id)
         .single();
         
-      if (planError) {
-        console.error('Error getting plan info:', planError);
+      if (profileError) {
+        console.error('Error getting profile info:', profileError);
       }
       
-      // Default to Starter if plan is not found or doesn't have a name
-      const userPlanName = userPlans?.plan && typeof userPlans.plan === 'object' && 'name' in userPlans.plan 
-        ? String(userPlans.plan.name) 
-        : 'Starter';
+      // Default to Starter if plan is not found
+      const userPlanName = userProfile?.plan || 'Starter';
+      console.log('User plan:', userPlanName);
       
       // Get impression limit based on plan name
       const { data: planData } = await supabase
@@ -109,41 +108,38 @@ const KpiDashboardContainer = () => {
         return;
       }
       
-      // Create KPI data for each campaign
+      // Create KPI data for each campaign - simplified to match actual db schema
       const today = new Date().toISOString().split('T')[0];
-      const kpiDataToInsert = campaignsNeedingKpi.map(campaign => ({
-        campaign_id: campaign.id,
-        date: today,
-        user_id: profile.id,
-        budget_plan: 1000,
-        budget_fact: 0,
-        budget_percentage: 0,
-        impressions_plan: defaultImpressions,
-        impressions_fact: 0,
-        impressions_percentage: 0,
-        clicks_plan: clicksTarget,
-        clicks_fact: 0,
-        clicks_percentage: 0,
-        reach_plan: reachTarget,
-        reach_fact: 0,
-        reach_percentage: 0
-      }));
-      
-      // Insert KPI data one by one to avoid potential 400 errors with bulk insertion
       let successCount = 0;
       let errorCount = 0;
       
-      for (const kpiEntry of kpiDataToInsert) {
+      for (const campaign of campaignsNeedingKpi) {
         try {
+          // Log exactly what we're trying to insert
+          const kpiEntry = {
+            campaign_id: campaign.id,
+            date: today,
+            user_id: profile.id,
+            impressions_plan: defaultImpressions,
+            impressions_fact: 0,
+            clicks_plan: clicksTarget,
+            clicks_fact: 0,
+            reach_plan: reachTarget,
+            reach_fact: 0
+          };
+          
+          console.log('Attempting to insert KPI entry:', kpiEntry);
+          
           const { data, error } = await supabase
             .from('kpi')
-            .insert([kpiEntry]) // Wrapped in array, insert one record at a time
+            .insert([kpiEntry])
             .select();
             
           if (error) {
             console.error('Error creating individual KPI entry:', error);
             errorCount++;
           } else {
+            console.log('Successfully created KPI entry:', data);
             successCount++;
           }
         } catch (innerError) {
@@ -225,7 +221,7 @@ const KpiDashboardContainer = () => {
               <pre className="whitespace-pre-wrap overflow-auto max-h-40">
                 User ID: {profile.id}
                 {'\n'}
-                Plan Name: {profile?.plan?.name || 'Not set'}
+                Plan Name: {typeof profile.plan === 'string' ? profile.plan : 'Not set'}
               </pre>
             </div>
           )}

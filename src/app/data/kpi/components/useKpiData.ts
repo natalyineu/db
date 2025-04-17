@@ -43,74 +43,40 @@ export function useKpiData(profile: UserProfile | null) {
 
   // Helper function to safely access profile.plan with proper type assertion
   const getProfileWithPlan = useCallback(() => {
-    // Define the expected plan structure
-    type PlanType = {
-      impressions_limit: number;
-      name?: string;
-      payment_status?: string;
-      renewal_date?: string;
-    };
-    
+    // The plan is a direct string field in the profiles table
     const profileWithPlan = profile as UserProfile & { 
-      plan_id?: string;
-      plan?: Partial<PlanType>;
-    };
-    
-    // Create a copy to safely modify
-    const result = {
-      ...profileWithPlan,
-      plan: {
-        impressions_limit: DEFAULT_IMPRESSION_LIMIT, // Default value
-        ...(profileWithPlan?.plan || {})
-      } as PlanType
+      plan?: string;
     };
     
     // Log available plan info for debugging
     if (process.env.NODE_ENV !== 'production') {
       console.log('Profile plan info:', {
-        plan: result.plan,
-        planId: result.plan_id,
+        plan: profileWithPlan?.plan,
         availablePlans: plans.map(p => p.name)
       });
     }
     
-    // Handle case where plan data is missing or incomplete
-    if (!result.plan.impressions_limit) {
-      // Try to find plan by name
-      if (result.plan.name) {
-        const planName = result.plan.name;
-        const planData = plans.find(p => p.name === planName);
-        
-        if (planData) {
-          result.plan.impressions_limit = planData.impressions_limit;
-          console.log(`Set impression limit to ${planData.impressions_limit} from plan ${planName}`);
-        } else {
-          // Fallback to default if plan not found by name
-          result.plan.impressions_limit = DEFAULT_IMPRESSION_LIMIT;
-          console.log(`Using default impression limit ${DEFAULT_IMPRESSION_LIMIT}`);
-        }
-      } 
-      // Try to find plan by plan_id
-      else if (result.plan_id) {
-        const planId = result.plan_id;
-        const planData = plans.find(p => p.id.toString() === planId.toString());
-        
-        if (planData) {
-          result.plan.name = planData.name;
-          result.plan.impressions_limit = planData.impressions_limit;
-          console.log(`Set impression limit to ${planData.impressions_limit} from plan ID ${planId}`);
-        } else {
-          // Fallback to default if plan not found by ID
-          result.plan.impressions_limit = DEFAULT_IMPRESSION_LIMIT;
-          console.log(`Using default impression limit ${DEFAULT_IMPRESSION_LIMIT}`);
-        }
-      }
-      // No plan info at all, use default
-      else {
-        result.plan.impressions_limit = DEFAULT_IMPRESSION_LIMIT;
-        console.log(`No plan info found, using default impression limit ${DEFAULT_IMPRESSION_LIMIT}`);
+    // Find the appropriate plan data from the plans table
+    let planData: Plan | undefined;
+    
+    if (profileWithPlan?.plan) {
+      // Try to find the plan by name
+      planData = plans.find(p => p.name === profileWithPlan.plan);
+      if (planData) {
+        console.log(`Found plan data for ${profileWithPlan.plan} with impressions limit ${planData.impressions_limit}`);
+      } else {
+        console.log(`Plan ${profileWithPlan.plan} not found in available plans`);
       }
     }
+    
+    // Create a result object with plan information
+    const result = {
+      ...profileWithPlan,
+      planData: planData || {
+        name: 'Starter',
+        impressions_limit: DEFAULT_IMPRESSION_LIMIT
+      }
+    };
     
     return result;
   }, [profile, plans]);
@@ -289,7 +255,7 @@ export function useKpiData(profile: UserProfile | null) {
   const transformKpiResults = (kpiResults: any[], userId: string) => {
     // Get user's plan information
     const profileWithPlan = getProfileWithPlan();
-    const defaultImpressionLimit = profileWithPlan?.plan?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
+    const defaultImpressionLimit = profileWithPlan?.planData?.impressions_limit || DEFAULT_IMPRESSION_LIMIT;
     
     // Convert the kpi table data to match the expected format
     return kpiResults.map(kpi => {
