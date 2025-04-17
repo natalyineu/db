@@ -67,7 +67,7 @@ const KpiDashboardContainer = () => {
       // Get user's plan for impression limit
       const { data: userPlans, error: planError } = await supabase
         .from('profiles')
-        .select('plan:plan(*)')
+        .select('plan_id, plan:plans(*)')
         .eq('id', profile.id)
         .single();
         
@@ -129,20 +129,36 @@ const KpiDashboardContainer = () => {
         reach_percentage: 0
       }));
       
-      // Insert KPI data
-      const { data: newKpiData, error: insertError } = await supabase
-        .from('kpi')
-        .insert(kpiDataToInsert)
-        .select();
-        
-      if (insertError) {
-        console.error('Error creating KPI data:', insertError);
-        alert('Failed to create KPI data');
-        return;
+      // Insert KPI data one by one to avoid potential 400 errors with bulk insertion
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const kpiEntry of kpiDataToInsert) {
+        try {
+          const { data, error } = await supabase
+            .from('kpi')
+            .insert([kpiEntry]) // Wrapped in array, insert one record at a time
+            .select();
+            
+          if (error) {
+            console.error('Error creating individual KPI entry:', error);
+            errorCount++;
+          } else {
+            successCount++;
+          }
+        } catch (innerError) {
+          console.error('Exception creating KPI entry:', innerError);
+          errorCount++;
+        }
       }
       
-      console.log('Successfully created KPI data:', newKpiData);
-      alert(`Successfully created KPI data for ${newKpiData?.length || 0} campaigns`);
+      if (errorCount > 0) {
+        console.warn(`Created ${successCount} KPI entries, but failed to create ${errorCount} entries`);
+        alert(`Created ${successCount} KPI entries, but failed to create ${errorCount} entries`);
+      } else {
+        console.log(`Successfully created ${successCount} KPI entries`);
+        alert(`Successfully created KPI data for ${successCount} campaigns`);
+      }
       
       // Refresh the dashboard
       refreshData();
@@ -202,6 +218,18 @@ const KpiDashboardContainer = () => {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             You don&apos;t have any campaign data yet. Create a campaign to get started.
           </p>
+          
+          {profile && (
+            <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
+              <h3 className="font-semibold mb-2">Diagnostic Information:</h3>
+              <pre className="whitespace-pre-wrap overflow-auto max-h-40">
+                User ID: {profile.id}
+                {'\n'}
+                Plan Name: {profile?.plan?.name || 'Not set'}
+              </pre>
+            </div>
+          )}
+          
           <div className="flex space-x-4">
             <Link 
               href="/data" 
