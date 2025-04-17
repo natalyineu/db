@@ -26,21 +26,29 @@ export function transformFormDataForSubmission(
     return 'display';
   };
 
-  return {
+  // Prepare submission data that matches the campaigns table structure
+  const submissionData: SubmissionData = {
     user_id: userId,
-    submitted_at: new Date().toISOString(),
     name: formData.businessName,
-    platforms: [
-      formData.landingPageUrl,
-      formData.creativesLink
-    ].filter(Boolean),
-    target_audience: formData.targetAudience,
-    location: formData.location,
+    status: 'draft', // Default to draft status
     type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
-    description: formData.additionalNotes,
-    status: 'offline',
-    budget: 0, // Add required budget field with default value
+    budget: 0, // Default budget value
   };
+
+  // Add optional fields only if they have values
+  if (formData.additionalNotes) submissionData.description = formData.additionalNotes;
+  if (formData.targetAudience) submissionData.target_audience = formData.targetAudience;
+  if (formData.location) submissionData.location = formData.location;
+  if (formData.start_date) submissionData.start_date = formData.start_date;
+  if (formData.end_date) submissionData.end_date = formData.end_date;
+  
+  // Add platforms only if at least one URL is provided
+  const platformUrls = [formData.landingPageUrl, formData.creativesLink].filter(Boolean);
+  if (platformUrls.length > 0) {
+    submissionData.platforms = platformUrls;
+  }
+
+  return submissionData;
 }
 
 /**

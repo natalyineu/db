@@ -126,17 +126,8 @@ export function useBriefForm(
       
       // Add start and end dates
       const dataToSubmit = {
-        ...submissionData,
-        start_date: formData.start_date,
-        end_date: formData.end_date
+        ...submissionData
       };
-      
-      // Get impression limit from profile
-      const impressionLimit = await getImpressionLimit(profile);
-      console.log('Using impression limit:', impressionLimit);
-      
-      // Default impression values
-      const defaultImpressions = Math.floor(impressionLimit * 0.8);
       
       let result;
       
@@ -156,17 +147,9 @@ export function useBriefForm(
       // Create new brief
       else {
         console.log('Creating new brief');
-        // Add default impression values
-        const briefWithImpressions = {
-          ...dataToSubmit,
-          impressions_total: defaultImpressions,
-          impressions_requested: defaultImpressions,
-          impressions_remaining: defaultImpressions,
-        };
-        
         const { data, error } = await supabase
           .from('campaigns')
-          .insert(briefWithImpressions)
+          .insert(dataToSubmit)
           .select()
           .single();
         

@@ -20,17 +20,21 @@ export interface FormErrors {
 }
 
 // Add a separate interface for the submission data structure
+// Updated to match exactly what the campaigns table accepts
 export interface SubmissionData {
   user_id: string;
-  submitted_at: string;
   name: string;
-  platforms: string[];
-  target_audience: string;
-  location: string;
-  type: string;
-  description: string;
   status: string;
+  type: string;
   budget: number;
+  start_date?: string;
+  end_date?: string;
+  
+  // Optional fields that might be accepted
+  description?: string;
+  target_audience?: string;
+  platforms?: string[];
+  location?: string;
 }
 
 // Interface for the result of the useBriefForm hook
