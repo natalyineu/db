@@ -126,7 +126,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label htmlFor="start_date" className="block mb-1 text-sm font-medium">
-            Start Date <span className="text-red-500">*</span>
+            Start Date
           </label>
           <input
             type="date"
@@ -145,7 +145,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
 
         <div>
           <label htmlFor="end_date" className="block mb-1 text-sm font-medium">
-            End Date <span className="text-red-500">*</span>
+            End Date
           </label>
           <input
             type="date"
@@ -220,7 +220,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`px-4 py-2.5 text-white text-sm font-medium ai-vertise-gradient-bg rounded-md hover:opacity-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-4 py-2.5 text-white text-sm font-medium ai-vertise-login-gradient rounded-md hover:opacity-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Brief'}
         </button>

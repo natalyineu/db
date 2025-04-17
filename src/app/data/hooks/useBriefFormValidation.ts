@@ -44,16 +44,8 @@ export function validateBriefForm(formData: BriefFormData): FormErrors {
     errors.location = 'Please specify your target location';
   }
 
-  // Date validations
-  if (!formData.start_date) {
-    errors.start_date = 'Please specify a start date';
-  }
-
-  if (!formData.end_date) {
-    errors.end_date = 'Please specify an end date';
-  }
-
-  // Compare dates if both exist
+  // Date validations are now optional
+  // Only validate date range if both dates are provided
   if (formData.start_date && formData.end_date) {
     const startDate = new Date(formData.start_date);
     const endDate = new Date(formData.end_date);

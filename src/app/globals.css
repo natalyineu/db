@@ -120,6 +120,10 @@ body {
   background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
 }
 
+.ai-vertise-login-gradient {
+  background-image: linear-gradient(to right, #9333ea, #ec4899);
+}
+
 .ai-vertise-gradient-hover:hover {
   background-image: linear-gradient(to right, var(--ai-vertise-purple-dark), var(--ai-vertise-pink-dark));
 }
