@@ -10,6 +10,7 @@ interface BriefFormProps {
     type: string;
     description: string;
     consent: boolean;
+    business_name?: string;
   };
   formErrors: Record<string, string>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -32,6 +33,24 @@ const BriefForm: React.FC<BriefFormProps> = ({
 }) => {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="business_name" className="block mb-1 text-sm font-medium">
+          Business Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          id="business_name"
+          name="business_name"
+          className={`w-full px-3 py-2 border rounded-md ${formErrors.businessName ? 'border-red-500' : 'border-gray-300'}`}
+          placeholder="Your business name"
+          value={formData.business_name || ''}
+          onChange={handleChange}
+        />
+        {formErrors.businessName && (
+          <p className="mt-1 text-sm text-red-500">{formErrors.businessName}</p>
+        )}
+      </div>
+
       <div>
         <label htmlFor="platforms-0" className="block mb-1 text-sm font-medium">
           Landing Page URL <span className="text-red-500">*</span>
