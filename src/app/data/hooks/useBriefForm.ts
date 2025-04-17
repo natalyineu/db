@@ -4,6 +4,7 @@ import { BriefFormData, FormErrors, UseBriefFormResult, BriefStatus } from './ty
 import { validateBriefForm, hasFormErrors } from './useBriefFormValidation';
 import { transformFormDataForSubmission, mapBriefToFormData } from './useBriefFormTransform';
 import { getImpressionLimit } from './useImpressionLimit';
+import { KpiService } from '@/services';
 
 /**
  * Main hook for brief form functionality
@@ -95,6 +96,36 @@ export function useBriefForm(
   };
 
   /**
+   * Creates initial KPI data for a campaign
+   */
+  const createInitialKpiData = async (campaignId: string) => {
+    try {
+      // Get impression limit from profile for default values
+      const impressionLimit = await getImpressionLimit(profile);
+      const defaultImpressions = Math.floor(impressionLimit * 0.8);
+      
+      // Create a KPI record with default values
+      await KpiService.createKpi({
+        campaign_id: campaignId,
+        date: new Date().toISOString().split('T')[0], // Today's date
+        budget_plan: 1000, // Default budget plan
+        budget_fact: 0, // Initial actual budget is 0
+        impressions_plan: defaultImpressions, // Dynamic based on user's plan
+        impressions_fact: 0, // Initial actual impressions is 0
+        clicks_plan: Math.floor(defaultImpressions * 0.05), // 5% CTR as default goal
+        clicks_fact: 0, // Initial actual clicks is 0
+        reach_plan: Math.floor(defaultImpressions * 0.8), // 80% of impressions as reach goal
+        reach_fact: 0 // Initial actual reach is 0
+      });
+      
+      console.log('Created initial KPI data for campaign:', campaignId);
+    } catch (error) {
+      console.error('Error creating initial KPI data:', error);
+      // Don't throw the error to avoid interrupting the main flow
+    }
+  };
+
+  /**
    * Handles form submission
    */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -155,6 +186,9 @@ export function useBriefForm(
         
         if (error) throw error;
         result = data;
+        
+        // Create initial KPI data for new campaign
+        await createInitialKpiData(result.id);
       }
       
       console.log('Brief submission successful:', result);
