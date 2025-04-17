@@ -179,55 +179,6 @@ body {
   );
 }
 
-/* Floating animations for decorative elements */
-@keyframes float-slow {
-  0%, 100% {
-    transform: translateY(0) translateX(0);
-  }
-  25% {
-    transform: translateY(-10px) translateX(5px);
-  }
-  50% {
-    transform: translateY(0) translateX(10px);
-  }
-  75% {
-    transform: translateY(10px) translateX(5px);
-  }
-}
-
-@keyframes float-medium {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-15px) rotate(5deg);
-  }
-  66% {
-    transform: translateY(5px) rotate(-5deg);
-  }
-}
-
-@keyframes float-fast {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-20px) scale(1.1);
-  }
-}
-
-.animate-float-slow {
-  animation: float-slow 18s ease-in-out infinite;
-}
-
-.animate-float-medium {
-  animation: float-medium 12s ease-in-out infinite;
-}
-
-.animate-float-fast {
-  animation: float-fast 8s ease-in-out infinite;
-}
-
 /* Modern CSS for buttons */
 .btn-3d {
   transform: translateY(0);
