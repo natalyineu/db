@@ -24,13 +24,14 @@ export interface SubmissionData {
   user_id: string;
   submitted_at: string;
   business_type: string;
-  business_name: string;
+  name: string;
   platforms: string[];
   target_audience: string;
   location: string;
   type: string;
   description: string;
   consent: boolean;
+  status: string;
 }
 
 // Interface for the result of the useBriefForm hook

@@ -16,7 +16,7 @@ export function transformFormDataForSubmission(
     user_id: userId,
     submitted_at: new Date().toISOString(),
     business_type: businessType,
-    business_name: formData.businessName,
+    name: formData.businessName,
     platforms: [
       formData.landingPageUrl,
       formData.creativesLink
@@ -25,7 +25,8 @@ export function transformFormDataForSubmission(
     location: formData.location,
     type: formData.goal,
     description: formData.additionalNotes,
-    consent: formData.consent
+    consent: formData.consent,
+    status: 'offline',
   };
 }
 
