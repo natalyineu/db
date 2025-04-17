@@ -20,7 +20,7 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
         </svg>
         <h2 className="text-base sm:text-lg font-semibold">Account Information</h2>

@@ -20,7 +20,7 @@ const AccountHeader: React.FC<AccountHeaderProps> = ({ profile, userBusinessType
       </div>
       
       <div className="flex items-center gap-2">
-        <div className={`px-3 py-1 rounded-full text-xs sm:text-sm ${userBusinessType === 'Business' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+        <div className="px-3 py-1 rounded-full text-xs sm:text-sm bg-indigo-100 text-indigo-800">
           {userBusinessType}
         </div>
         <button 
