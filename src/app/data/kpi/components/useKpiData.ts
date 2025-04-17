@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import { UserProfile } from '@/types';
 import { KpiData, DEFAULT_IMPRESSION_LIMIT, Plan } from './types';
@@ -14,6 +14,8 @@ export function useKpiData(profile: UserProfile | null) {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const refreshCountRef = useRef(0);
+  const lastRefreshTimeRef = useRef(0);
   const supabase = createBrowserClient();
 
   // Fetch plans data from Supabase
@@ -69,6 +71,21 @@ export function useKpiData(profile: UserProfile | null) {
   // Create a reusable function to load KPI data
   const loadKpiData = useCallback(async () => {
     if (!profile?.id) return;
+
+    // Throttle refreshes to prevent excessive requests
+    const now = Date.now();
+    if (now - lastRefreshTimeRef.current < 5000) { // 5 second throttle
+      console.log('Throttling KPI data refresh');
+      return;
+    }
+    lastRefreshTimeRef.current = now;
+    
+    // Track number of refresh attempts to prevent infinite loops
+    refreshCountRef.current += 1;
+    if (refreshCountRef.current > 3) {
+      console.log('Maximum refresh attempts reached, stopping automatic refreshes');
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -171,7 +188,7 @@ export function useKpiData(profile: UserProfile | null) {
       setIsLoading(false);
     }
   }, [profile, supabase, getProfileWithPlan]);
-
+  
   // Load KPI data from Supabase when profile changes
   useEffect(() => {
     if (profile) {
@@ -183,6 +200,7 @@ export function useKpiData(profile: UserProfile | null) {
   
   // Check for localStorage flag indicating new KPI data
   useEffect(() => {
+    // This function will be called once immediately, and then on an interval
     const checkForNewKpiData = () => {
       if (typeof window !== 'undefined' && window.localStorage) {
         const newKpiDataFlag = window.localStorage.getItem('kpi_data_updated');
@@ -191,6 +209,10 @@ export function useKpiData(profile: UserProfile | null) {
           // Clear the flag
           window.localStorage.removeItem('kpi_data_updated');
           window.localStorage.removeItem('kpi_campaign_id');
+          
+          // Reset refresh counter on manual refresh
+          refreshCountRef.current = 0;
+          
           // Trigger a refresh
           setRefreshTrigger(prev => prev + 1);
         }
@@ -200,8 +222,8 @@ export function useKpiData(profile: UserProfile | null) {
     // Check immediately
     checkForNewKpiData();
     
-    // Set up an interval to check periodically (every 5 seconds)
-    const intervalId = setInterval(checkForNewKpiData, 5000);
+    // Set up an interval to check periodically (every 10 seconds)
+    const intervalId = setInterval(checkForNewKpiData, 10000);
     
     return () => {
       clearInterval(intervalId);
@@ -210,6 +232,9 @@ export function useKpiData(profile: UserProfile | null) {
 
   // Add a function to manually refresh the data
   const refreshData = () => {
+    // Reset refresh counter on manual refresh
+    refreshCountRef.current = 0;
+    // Trigger refresh
     setRefreshTrigger(prev => prev + 1);
   };
 
@@ -226,29 +251,34 @@ export function useKpiData(profile: UserProfile | null) {
       const clicks_plan = kpi.clicks_plan || Math.round(impressions_plan * 0.02); // Default 2% CTR
       const reach_plan = kpi.reach_plan || Math.round(impressions_plan * 0.7); // Default 70% of impressions
       
-      // Calculate deltas from plan (actual vs plan)
+      // Calculate deltas from plan (actual vs plan) with proper zero handling
+      const impressions_fact = kpi.impressions_fact || 0;
+      const clicks_fact = kpi.clicks_fact || 0;
+      const reach_fact = kpi.reach_fact || 0;
+      
+      // Calculate percentages safely (avoid division by zero)
       const delta_impressions = impressions_plan > 0 
-        ? ((kpi.impressions_fact || 0) / impressions_plan) * 100
-        : 0;
+        ? (impressions_fact / impressions_plan) * 100
+        : impressions_fact > 0 ? 100 : 0;
         
       const delta_clicks = clicks_plan > 0 
-        ? ((kpi.clicks_fact || 0) / clicks_plan) * 100 
-        : 0;
+        ? (clicks_fact / clicks_plan) * 100 
+        : clicks_fact > 0 ? 100 : 0;
         
       const delta_reach = reach_plan > 0 
-        ? ((kpi.reach_fact || 0) / reach_plan) * 100
-        : 0;
+        ? (reach_fact / reach_plan) * 100
+        : reach_fact > 0 ? 100 : 0;
       
       return {
         id: kpi.id,
         user_id: userId,
         campaign_id: kpi.campaign_id,
         date: kpi.date,
-        impressions: kpi.impressions_fact || 0,
+        impressions: impressions_fact,
         impressions_plan: impressions_plan,
-        clicks: kpi.clicks_fact || 0,
+        clicks: clicks_fact,
         clicks_plan: clicks_plan,
-        reach: kpi.reach_fact || 0,
+        reach: reach_fact,
         reach_plan: reach_plan,
         delta_impressions,
         delta_clicks,
