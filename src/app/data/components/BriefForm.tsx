@@ -60,7 +60,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
           id="platforms-0"
           name="platforms[0]"
           className={`w-full px-3 py-2 border rounded-md text-base ${formErrors['platforms[0]'] ? 'border-red-500' : 'border-gray-300'}`}
-          placeholder="https://your-landing-page.com"
+          placeholder="e.g., google.com or https://your-site.com"
           value={formData.platforms[0] || ''}
           onChange={handleChange}
         />
@@ -220,7 +220,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`px-4 py-2.5 text-white text-sm font-medium ai-vertise-login-gradient rounded-md hover:opacity-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-4 py-2.5 text-white text-sm font-medium ai-vertise-gradient-bg rounded-md hover:opacity-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Brief'}
         </button>

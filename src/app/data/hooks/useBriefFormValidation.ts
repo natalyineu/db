@@ -18,24 +18,47 @@ export function validateBriefForm(formData: BriefFormData): FormErrors {
 
   // Landing page URL validation
   if (formData.landingPageUrl?.trim()) {
+    // Simplified URL validation that accepts domains without http/https
+    // First check if it's a valid URL as is
+    let isValid = false;
     try {
-      // Simple URL validation
       new URL(formData.landingPageUrl);
+      isValid = true;
     } catch (error) {
-      errors.landingPageUrl = 'Please enter a valid URL';
+      // If not valid, try with https:// prefix
+      try {
+        new URL(`https://${formData.landingPageUrl}`);
+        isValid = true;
+      } catch (innerError) {
+        isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      errors.landingPageUrl = 'Please enter a valid URL or domain';
     }
   }
 
-  // Creatives link validation (if provided and looks like a URL)
-  // Accept empty values or simple text like "no"
+  // Creatives link validation (if provided)
+  // Accept empty values, simple text like "no", or URLs/domains
   if (formData.creativesLink?.trim() && 
-      (formData.creativesLink.startsWith('http://') || 
-       formData.creativesLink.startsWith('https://'))) {
+      formData.creativesLink.toLowerCase() !== 'no') {
+    let isValid = false;
     try {
-      // Only validate as URL if it looks like a URL
       new URL(formData.creativesLink);
+      isValid = true;
     } catch (error) {
-      errors.creativesLink = 'Please enter a valid URL or leave blank';
+      // Try with https:// prefix
+      try {
+        new URL(`https://${formData.creativesLink}`);
+        isValid = true;
+      } catch (innerError) {
+        isValid = false;
+      }
+    }
+
+    if (!isValid) {
+      errors.creativesLink = 'Please enter a valid URL, domain, or "no"';
     }
   }
 
