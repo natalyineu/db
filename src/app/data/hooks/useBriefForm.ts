@@ -121,34 +121,61 @@ export function useBriefForm(
       console.log('Using impression limit from plan:', impressionLimit);
       
       const defaultImpressions = Math.floor(impressionLimit * 0.8);
+      const clicksTarget = Math.floor(defaultImpressions * 0.05);
+      const reachTarget = Math.floor(defaultImpressions * 0.8);
       
-      // Create a KPI record with values based on the plan
+      // Calculate default percentages (all zero since fact values are zero)
+      const budgetPercentage = 0;
+      const impressionsPercentage = 0;
+      const clicksPercentage = 0;
+      const reachPercentage = 0;
+      
+      // Direct Supabase insert instead of using KpiService
+      const today = new Date().toISOString().split('T')[0]; // Today's date
+      
+      // Log the KPI data before inserting
       const kpiData = {
         campaign_id: campaignId,
-        date: new Date().toISOString().split('T')[0], // Today's date
-        budget_plan: 1000, // Default budget plan
-        budget_fact: 0, // Initial actual budget is 0
-        impressions_plan: defaultImpressions, // Based on plan's impression limit
-        impressions_fact: 0, // Initial actual impressions is 0
-        clicks_plan: Math.floor(defaultImpressions * 0.05), // 5% CTR as default goal
-        clicks_fact: 0, // Initial actual clicks is 0
-        reach_plan: Math.floor(defaultImpressions * 0.8), // 80% of impressions as reach goal
-        reach_fact: 0, // Initial actual reach is 0
-        user_id: profile?.id // Add user_id for better filtering
+        date: today,
+        user_id: profile?.id,
+        budget_plan: 1000,
+        budget_fact: 0,
+        budget_percentage: budgetPercentage,
+        impressions_plan: defaultImpressions,
+        impressions_fact: 0,
+        impressions_percentage: impressionsPercentage,
+        clicks_plan: clicksTarget,
+        clicks_fact: 0,
+        clicks_percentage: clicksPercentage,
+        reach_plan: reachTarget,
+        reach_fact: 0,
+        reach_percentage: reachPercentage
       };
       
-      const kpiResult = await KpiService.createKpi(kpiData);
+      console.log('Inserting KPI data:', kpiData);
       
-      console.log('Created initial KPI data for campaign:', campaignId, kpiResult);
+      // Direct Supabase insert
+      const { data: insertResult, error: insertError } = await supabase
+        .from('kpi')
+        .insert(kpiData)
+        .select() // Return the inserted record
+        .single();
+      
+      if (insertError) {
+        console.error('Error inserting KPI data:', insertError);
+        throw insertError;
+      }
+      
+      console.log('Successfully created KPI data with ID:', insertResult?.id);
       
       // Force reload of KPI data for the dashboard
-      if (window && window.localStorage) {
+      if (typeof window !== 'undefined' && window.localStorage) {
         // Set a flag to indicate new KPI data was created
         window.localStorage.setItem('kpi_data_updated', 'true');
         window.localStorage.setItem('kpi_campaign_id', campaignId);
       }
       
-      return kpiResult;
+      return insertResult;
     } catch (error) {
       console.error('Error creating initial KPI data:', error);
       // Don't throw the error to avoid interrupting the main flow
