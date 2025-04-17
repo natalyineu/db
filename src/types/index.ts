@@ -78,22 +78,4 @@ export interface Campaign {
   target_audience?: string;
   platforms?: string[];
   performance_score?: number;
-}
-
-export interface MetricData {
-  plan: number;
-  fact: number;
-  percentage: number; // Calculated field (fact/plan * 100)
-}
-
-export interface CampaignKPI {
-  id: string;
-  campaign_id: string;
-  date: string; // ISO date string
-  budget: MetricData;
-  impressions: MetricData;
-  clicks: MetricData;
-  reach: MetricData;
-  created_at: string;
-  updated_at?: string;
 } 

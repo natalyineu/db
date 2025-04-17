@@ -4,7 +4,6 @@ import { BriefFormData, FormErrors, UseBriefFormResult, BriefStatus } from './ty
 import { validateBriefForm, hasFormErrors } from './useBriefFormValidation';
 import { transformFormDataForSubmission, mapBriefToFormData } from './useBriefFormTransform';
 import { getImpressionLimit } from './useImpressionLimit';
-import { KpiService } from '@/services';
 
 /**
  * Main hook for brief form functionality
@@ -96,94 +95,6 @@ export function useBriefForm(
   };
 
   /**
-   * Creates initial KPI data for a campaign
-   */
-  const createInitialKpiData = async (campaignId: string) => {
-    try {
-      // Get plan information from profile
-      const userPlanName = profile?.plan?.name || 'Starter'; // Default to Starter if no plan name is found
-      console.log('User plan name:', userPlanName);
-      
-      // Get impression limit based on plan name from the plans table
-      const { data: planData, error: planError } = await supabase
-        .from('plans')
-        .select('impressions_limit')
-        .eq('name', userPlanName)
-        .single();
-      
-      if (planError) {
-        console.error('Error fetching plan data:', planError);
-        throw planError;
-      }
-      
-      // Use the plan's impression limit or fallback to a default value
-      const impressionLimit = planData?.impressions_limit || 16500; // Starter plan default
-      console.log('Using impression limit from plan:', impressionLimit);
-      
-      const defaultImpressions = Math.floor(impressionLimit * 0.8);
-      const clicksTarget = Math.floor(defaultImpressions * 0.05);
-      const reachTarget = Math.floor(defaultImpressions * 0.8);
-      
-      // Calculate default percentages (all zero since fact values are zero)
-      const budgetPercentage = 0;
-      const impressionsPercentage = 0;
-      const clicksPercentage = 0;
-      const reachPercentage = 0;
-      
-      // Direct Supabase insert instead of using KpiService
-      const today = new Date().toISOString().split('T')[0]; // Today's date
-      
-      // Log the KPI data before inserting
-      const kpiData = {
-        campaign_id: campaignId,
-        date: today,
-        user_id: profile?.id,
-        budget_plan: 1000,
-        budget_fact: 0,
-        budget_percentage: budgetPercentage,
-        impressions_plan: defaultImpressions,
-        impressions_fact: 0,
-        impressions_percentage: impressionsPercentage,
-        clicks_plan: clicksTarget,
-        clicks_fact: 0,
-        clicks_percentage: clicksPercentage,
-        reach_plan: reachTarget,
-        reach_fact: 0,
-        reach_percentage: reachPercentage
-      };
-      
-      console.log('Inserting KPI data:', kpiData);
-      
-      // Direct Supabase insert
-      const { data: insertResult, error: insertError } = await supabase
-        .from('kpi')
-        .insert(kpiData)
-        .select() // Return the inserted record
-        .single();
-      
-      if (insertError) {
-        console.error('Error inserting KPI data:', insertError);
-        throw insertError;
-      }
-      
-      console.log('Successfully created KPI data with ID:', insertResult?.id);
-      
-      // Force reload of KPI data for the dashboard
-      if (typeof window !== 'undefined' && window.localStorage) {
-        // Set a flag to indicate new KPI data was created
-        window.localStorage.setItem('kpi_data_updated', 'true');
-        window.localStorage.setItem('kpi_campaign_id', campaignId);
-      }
-      
-      return insertResult;
-    } catch (error) {
-      console.error('Error creating initial KPI data:', error);
-      // Don't throw the error to avoid interrupting the main flow
-      return null;
-    }
-  };
-
-  /**
    * Handles form submission
    */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -244,9 +155,6 @@ export function useBriefForm(
         
         if (error) throw error;
         result = data;
-        
-        // Create initial KPI data for new campaign
-        await createInitialKpiData(result.id);
       }
       
       console.log('Brief submission successful:', result);

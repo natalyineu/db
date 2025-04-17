@@ -22,7 +22,6 @@ export default function AccountOverviewPage() {
   const [paymentStatus, setPaymentStatus] = useState<'No' | 'In Progress' | 'Yes'>('No');
   const [campaignStatus, setCampaignStatus] = useState<'offline' | 'in progress' | 'online'>('offline');
   const [brief, setBrief] = useState<any>(null);
-  const [impressionsUsed, setImpressionsUsed] = useState(0);
   const [userBusinessType, setUserBusinessType] = useState<string>('Business');
   const router = useRouter();
   const supabase = createBrowserClient();
@@ -72,18 +71,6 @@ export default function AccountOverviewPage() {
           }
         }
         
-        // Get KPI data to determine impressions used
-        const { data: kpiData, error: kpiError } = await supabase
-          .from('kpi')
-          .select('impressions_fact')
-          .eq('user_id', profile.id)
-          .order('date', { ascending: false })
-          .limit(1);
-          
-        if (!kpiError && kpiData && kpiData.length > 0) {
-          setImpressionsUsed(kpiData[0].impressions_fact || 0);
-        }
-        
         // For payment status, we can use a convention like storing it in metadata
         // This is a placeholder - in a real app you'd have a payment system
         setPaymentStatus('No');
@@ -130,11 +117,11 @@ export default function AccountOverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 flex justify-center items-center min-h-screen">
+      <div className="container mx-auto p-4 flex justify-center items-center min-h-screen">
         <div className="animate-pulse text-center">
-          <div className="h-24 w-24 bg-blue-100 rounded-full mx-auto mb-4"></div>
-          <div className="h-6 w-48 bg-blue-100 rounded mx-auto mb-2"></div>
-          <div className="h-4 w-36 bg-blue-100 rounded mx-auto"></div>
+          <div className="h-12 w-12 bg-blue-100 rounded-full mx-auto mb-4"></div>
+          <div className="h-4 w-40 bg-blue-100 rounded mx-auto mb-2"></div>
+          <div className="h-3 w-32 bg-blue-100 rounded mx-auto"></div>
         </div>
       </div>
     );
@@ -142,9 +129,9 @@ export default function AccountOverviewPage() {
 
   if (!profile) {
     return (
-      <div className="container mx-auto p-6 text-center">
-        <h2 className="text-xl font-semibold mb-4">Profile Not Found</h2>
-        <p className="mb-4">We couldn&apos;t find your profile information.</p>
+      <div className="container mx-auto p-4 text-center">
+        <h2 className="text-xl font-semibold mb-3">Profile Not Found</h2>
+        <p className="mb-3">We couldn&apos;t find your profile information.</p>
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           onClick={() => router.push('/')}
@@ -157,7 +144,7 @@ export default function AccountOverviewPage() {
 
   return (
     <CleanBackground>
-      <div className="container mx-auto p-6 theme-transition">
+      <div className="max-w-6xl mx-auto p-4 theme-transition">
         {/* Account Header */}
         <AccountHeader 
           profile={profile}
@@ -165,11 +152,10 @@ export default function AccountOverviewPage() {
           onLogout={handleLogout}
         />
         
-        {/* Main Content Area - Fixed Layout with consistent spacing */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-8">
-          {/* Left Column - Brief Section (spans 7 columns on medium+ screens) */}
-          <div className="md:col-span-7 flex flex-col space-y-6">
-            {/* Brief Section */}
+        {/* Main Content Area */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
+          {/* Left Column - Brief Section */}
+          <div className="md:col-span-7 space-y-4">
             <BriefSection
               brief={brief}
               isEditing={isEditing}
@@ -196,8 +182,8 @@ export default function AccountOverviewPage() {
             />
           </div>
           
-          {/* Right Column - Account Info and Next Steps (spans 5 columns on medium+ screens) */}
-          <div className="md:col-span-5 flex flex-col space-y-6">
+          {/* Right Column */}
+          <div className="md:col-span-5 space-y-4">
             {/* Account Information */}
             <AccountInfoCard 
               profileEmail={profile.email} 
@@ -213,25 +199,23 @@ export default function AccountOverviewPage() {
             />
           </div>
 
-          {/* Campaign Performance - Full Width (spans 12 columns for better alignment) */}
-          <div className="md:col-span-12">
+          {/* Campaign Performance - Full Width */}
+          <div className="md:col-span-12 mt-2">
             <CampaignPerformanceCard />
           </div>
         </div>
         
         {/* Footer */}
-        <footer className="mt-6 py-6 border-t border-gray-200">
-          <div className="container mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="mb-4 md:mb-0">
-                <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
-              </div>
-              <div className="flex space-x-6">
-                <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600">FAQ</a>
-                <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600">Privacy Policy</a>
-                <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600">Terms of Service</a>
-                <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600">Cookie Policy</a>
-              </div>
+        <footer className="mt-6 pt-4 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="mb-2 md:mb-0">
+              <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
+            </div>
+            <div className="flex space-x-4">
+              <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600">FAQ</a>
+              <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600">Privacy</a>
+              <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600">Terms</a>
+              <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600">Cookies</a>
             </div>
           </div>
         </footer>
