@@ -26,6 +26,21 @@ export function transformFormDataForSubmission(
     return 'display';
   };
 
+  // Set default dates if not provided
+  const today = new Date();
+  
+  // Default start date: 2 days from today
+  const defaultStartDate = new Date(today);
+  defaultStartDate.setDate(today.getDate() + 2);
+  
+  // Default end date: 30 days after start date
+  const startDate = formData.start_date ? new Date(formData.start_date) : defaultStartDate;
+  const defaultEndDate = new Date(startDate);
+  defaultEndDate.setDate(startDate.getDate() + 30);
+  
+  // Format dates as YYYY-MM-DD
+  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+
   // Prepare submission data that matches the campaigns table structure
   const submissionData: SubmissionData = {
     user_id: userId,
@@ -33,14 +48,15 @@ export function transformFormDataForSubmission(
     status: 'draft', // Default to draft status
     type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
     budget: 0, // Default budget value
+    // Always set dates, using defaults if not provided
+    start_date: formData.start_date || formatDate(defaultStartDate),
+    end_date: formData.end_date || formatDate(defaultEndDate)
   };
 
   // Add optional fields only if they have values
   if (formData.additionalNotes) submissionData.description = formData.additionalNotes;
   if (formData.targetAudience) submissionData.target_audience = formData.targetAudience;
   if (formData.location) submissionData.location = formData.location;
-  if (formData.start_date) submissionData.start_date = formData.start_date;
-  if (formData.end_date) submissionData.end_date = formData.end_date;
   
   // Add platforms only if at least one URL is provided
   const platformUrls = [formData.landingPageUrl, formData.creativesLink].filter(Boolean);

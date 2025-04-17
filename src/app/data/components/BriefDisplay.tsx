@@ -13,6 +13,18 @@ interface BriefDisplayProps {
 }
 
 const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
+  // Calculate campaign duration in days if both dates are available
+  const calculateDuration = () => {
+    if (brief.start_date && brief.end_date) {
+      const startDate = new Date(brief.start_date);
+      const endDate = new Date(brief.end_date);
+      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return `(${diffDays} days)`;
+    }
+    return "(30 days)"; // Default
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
       <div>
@@ -22,7 +34,7 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
             href={brief.platforms?.[0]} 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-indigo-600 hover:underline"
+            className="text-[#9333ea] hover:opacity-80"
           >
             {brief.platforms?.[0]}
           </a>
@@ -42,7 +54,7 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
               href={brief.platforms?.[1]} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-indigo-600 hover:underline"
+              className="text-[#9333ea] hover:opacity-80"
             >
               {brief.platforms?.[1]}
             </a>
@@ -59,7 +71,7 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
         <h3 className="text-sm font-medium text-gray-500">Campaign Period:</h3>
         <p className="mt-0.5">
           {brief.start_date ? new Date(brief.start_date).toLocaleDateString() : "Not specified"} - {brief.end_date ? new Date(brief.end_date).toLocaleDateString() : "Not specified"} 
-          <span className="text-xs text-gray-500 ml-1">(30 days)</span>
+          <span className="text-xs text-gray-500 ml-1">{calculateDuration()}</span>
         </p>
       </div>
       
