@@ -117,10 +117,6 @@ body {
 }
 
 .ai-vertise-gradient-bg {
-  background-image: linear-gradient(to right, var(--ai-vertise-purple), var(--ai-vertise-pink));
-}
-
-.ai-vertise-login-gradient {
   background-image: linear-gradient(to right, #9333ea, #ec4899);
 }
 
@@ -255,4 +251,10 @@ body {
 .bg-clean-light {
   background-image: none !important;
   background-color: #f9fafb !important;
+}
+
+/* Ensure all form inputs have light backgrounds */
+input, textarea, select {
+  background-color: white !important;
+  color: var(--color-text-primary) !important;
 }
