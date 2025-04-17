@@ -8,24 +8,24 @@ interface AccountHeaderProps {
 
 const AccountHeader: React.FC<AccountHeaderProps> = ({ profile, userBusinessType, onLogout }) => {
   return (
-    <div className="flex justify-between items-center mb-8">
-      <div className="flex items-center gap-4">
-        <div className="h-16 w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
+    <div className="flex flex-col sm:flex-row justify-between items-center mb-5 sm:mb-8 gap-4">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="h-14 w-14 sm:h-16 sm:w-16 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-sm">
           {profile.first_name?.[0] || profile.email[0].toUpperCase()}
         </div>
         <div>
-          <h1 className="text-2xl font-bold">AI-Vertise Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
+          <h1 className="text-xl sm:text-2xl font-bold">AI-Vertise Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600">Welcome back, {profile.first_name || profile.email.split("@")[0]}</p>
         </div>
       </div>
       
       <div className="flex items-center gap-2">
-        <div className={`px-3 py-1 rounded-full text-sm ${userBusinessType === 'Business' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
+        <div className={`px-3 py-1 rounded-full text-xs sm:text-sm ${userBusinessType === 'Business' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'}`}>
           {userBusinessType}
         </div>
         <button 
           onClick={onLogout}
-          className="px-3 py-1 text-gray-700 hover:bg-gray-100 rounded-md"
+          className="px-3 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded-md"
         >
           Sign Out
         </button>

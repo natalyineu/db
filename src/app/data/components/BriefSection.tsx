@@ -67,8 +67,8 @@ const BriefSection: React.FC<BriefSectionProps> = ({
   };
   
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-      <div className="mb-6">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-5 sm:mb-8">
+      <div className="mb-4 sm:mb-6">
         <BriefHeader 
           existingBrief={brief}
           isEditing={isEditing}

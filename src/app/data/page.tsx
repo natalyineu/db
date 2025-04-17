@@ -116,9 +116,9 @@ export default function AccountOverviewPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 flex justify-center items-center min-h-screen">
+      <div className="container mx-auto p-3 flex justify-center items-center min-h-screen">
         <div className="animate-pulse text-center">
-          <div className="h-12 w-12 bg-blue-100 rounded-full mx-auto mb-4"></div>
+          <div className="h-12 w-12 bg-blue-100 rounded-full mx-auto mb-3"></div>
           <div className="h-4 w-40 bg-blue-100 rounded mx-auto mb-2"></div>
           <div className="h-3 w-32 bg-blue-100 rounded mx-auto"></div>
         </div>
@@ -128,7 +128,7 @@ export default function AccountOverviewPage() {
 
   if (!profile) {
     return (
-      <div className="container mx-auto p-4 text-center">
+      <div className="container mx-auto p-3 text-center">
         <h2 className="text-xl font-semibold mb-3">Profile Not Found</h2>
         <p className="mb-3">We couldn&apos;t find your profile information.</p>
         <button
@@ -143,7 +143,7 @@ export default function AccountOverviewPage() {
 
   return (
     <CleanBackground>
-      <div className="max-w-3xl mx-auto p-4 theme-transition">
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-4 theme-transition">
         {/* Account Header */}
         <AccountHeader 
           profile={profile}
@@ -152,7 +152,7 @@ export default function AccountOverviewPage() {
         />
         
         {/* Main Content Area - Single Column Layout */}
-        <div className="flex flex-col space-y-6 mt-6">
+        <div className="flex flex-col space-y-5 sm:space-y-6 mt-4 sm:mt-6">
           {/* Brief Section */}
           <BriefSection
             brief={brief}
@@ -195,9 +195,9 @@ export default function AccountOverviewPage() {
         </div>
         
         {/* Footer */}
-        <footer className="mt-10 pt-4 border-t border-gray-200">
+        <footer className="mt-8 sm:mt-10 pt-4 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-2 md:mb-0">
+            <div className="mb-3 md:mb-0 text-center md:text-left">
               <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
             </div>
             <div className="flex space-x-4">
