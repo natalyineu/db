@@ -20,7 +20,7 @@ export function transformFormDataForSubmission(
     // Map goals to campaign types
     if (normalizedGoal.includes('awareness')) return 'awareness';
     if (normalizedGoal.includes('conversion')) return 'conversion';
-    if (normalizedGoal.includes('consideration')) return 'awareness'; // Default to awareness for consideration
+    if (normalizedGoal.includes('consideration')) return 'consideration';
     
     // Default to display for any other goal
     return 'display';
