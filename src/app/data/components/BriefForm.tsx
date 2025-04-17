@@ -35,7 +35,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="business_name" className="block mb-1 text-sm font-medium">
-          Business Name <span className="text-red-500">*</span>
+          Business Name
         </label>
         <input
           type="text"
@@ -89,7 +89,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
 
       <div>
         <label htmlFor="target_audience" className="block mb-1 text-sm font-medium">
-          Target Audience <span className="text-red-500">*</span>
+          Target Audience
         </label>
         <input
           type="text"
@@ -209,7 +209,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
           onChange={handleCheckboxChange}
         />
         <label htmlFor="consent" className="text-xs sm:text-sm">
-          I agree to AI-Vertise&apos;s <a href="/terms" className="text-indigo-600 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-indigo-600 hover:underline">Privacy Policy</a> <span className="text-red-500">*</span>
+          I agree to AI-Vertise&apos;s <a href="/terms" className="text-indigo-600 hover:text-indigo-700 hover:underline">Terms of Service</a> and <a href="/privacy" className="text-indigo-600 hover:text-indigo-700 hover:underline">Privacy Policy</a> <span className="text-red-500">*</span>
         </label>
       </div>
       {formErrors.consent && (
@@ -220,7 +220,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className={`px-4 py-2.5 text-white text-sm font-medium bg-indigo-600 rounded-md hover:bg-indigo-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+          className={`px-4 py-2.5 text-white text-sm font-medium ai-vertise-gradient-bg rounded-md hover:opacity-95 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {isSubmitting ? 'Submitting...' : 'Submit Brief'}
         </button>

@@ -8,15 +8,8 @@ import { BriefFormData, FormErrors } from './types';
 export function validateBriefForm(formData: BriefFormData): FormErrors {
   const errors: FormErrors = {};
 
-  // Business name validation
-  if (!formData.businessName?.trim()) {
-    errors.businessName = 'Please enter your business name';
-  }
-
-  // Target audience validation
-  if (!formData.targetAudience?.trim()) {
-    errors.targetAudience = 'Please describe your target audience';
-  }
+  // Business name validation is now optional
+  // Target audience validation is now optional
 
   // Goal validation
   if (!formData.goal?.trim()) {

@@ -29,7 +29,7 @@ export function transformFormDataForSubmission(
   // Prepare submission data that matches the campaigns table structure
   const submissionData: SubmissionData = {
     user_id: userId,
-    name: formData.businessName,
+    name: formData.businessName?.trim() || "New Campaign",
     status: 'draft', // Default to draft status
     type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
     budget: 0, // Default budget value
