@@ -144,7 +144,7 @@ export function useBriefForm(
       if (isEditing && brief?.id) {
         console.log('Updating existing brief:', brief.id);
         const { data, error } = await supabase
-          .from('briefs')
+          .from('campaigns')
           .update(dataToSubmit)
           .eq('id', brief.id)
           .select()
@@ -165,7 +165,7 @@ export function useBriefForm(
         };
         
         const { data, error } = await supabase
-          .from('briefs')
+          .from('campaigns')
           .insert(briefWithImpressions)
           .select()
           .single();
@@ -225,7 +225,7 @@ export function useBriefForm(
       console.log('Deleting brief:', brief.id);
       
       const { error } = await supabase
-        .from('briefs')
+        .from('campaigns')
         .delete()
         .eq('id', brief.id);
       
