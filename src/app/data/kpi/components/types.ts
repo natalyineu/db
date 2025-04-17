@@ -56,7 +56,7 @@ export interface Plan {
 }
 
 // Default fallback impression limit if plan data can't be loaded
-export const DEFAULT_IMPRESSION_LIMIT = 16500;
+export const DEFAULT_IMPRESSION_LIMIT = 16500; // Starter plan
 
 export interface ProfileWithPlan {
   plan?: { 

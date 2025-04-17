@@ -77,19 +77,39 @@ const KpiDashboardContainer = () => {
       
       // Default to Starter if plan is not found
       const userPlanName = userProfile?.plan || 'Starter';
-      console.log('User plan:', userPlanName);
+      console.log('User plan from profile:', userPlanName);
       
-      // Get impression limit based on plan name
-      const { data: planData } = await supabase
+      // Get impression limit based on plan name (case-insensitive)
+      const { data: allPlans } = await supabase
         .from('plans')
-        .select('impressions_limit')
-        .eq('name', userPlanName)
-        .single();
+        .select('*');
+      
+      let planData = null;
+      if (allPlans) {
+        // Find the matching plan (case-insensitive)
+        planData = allPlans.find(p => p.name.toLowerCase() === userPlanName.toLowerCase());
         
+        // If no match, fallback to Starter plan
+        if (!planData) {
+          console.log(`Plan "${userPlanName}" not found in plans table. Looking for Starter plan.`);
+          planData = allPlans.find(p => p.name === 'Starter');
+        }
+      }
+      
+      console.log('Found plan data:', planData);
+      
       const impressionLimit = planData?.impressions_limit || 16500; // Starter plan default
+      console.log(`Using impression limit of ${impressionLimit} for plan ${planData?.name || 'Starter'}`);
+      
       const defaultImpressions = Math.floor(impressionLimit * 0.8);
       const clicksTarget = Math.floor(defaultImpressions * 0.05);
       const reachTarget = Math.floor(defaultImpressions * 0.8);
+      
+      console.log('KPI targets:',
+        `Impressions: ${defaultImpressions}`,
+        `Clicks: ${clicksTarget}`,
+        `Reach: ${reachTarget}`
+      );
       
       // Check which campaigns already have KPI data
       const { data: existingKpi } = await supabase
@@ -223,6 +243,12 @@ const KpiDashboardContainer = () => {
                 {'\n'}
                 Plan Name: {typeof profile.plan === 'string' ? profile.plan : 'Not set'}
               </pre>
+              <div className="mt-3 border-t border-gray-300 pt-3">
+                <p className="text-xs text-gray-500">
+                  Note: The impression goal is calculated as 80% of your plan's impression limit. 
+                  Available plans: {['Starter (16,500)', 'Growth (46,500)', 'Impact (96,500)', 'Tailored (100,000)'].join(', ')}
+                </p>
+              </div>
             </div>
           )}
           

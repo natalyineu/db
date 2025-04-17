@@ -60,13 +60,22 @@ export function useKpiData(profile: UserProfile | null) {
     let planData: Plan | undefined;
     
     if (profileWithPlan?.plan) {
-      // Try to find the plan by name
-      planData = plans.find(p => p.name === profileWithPlan.plan);
+      // Try to find the plan by name (case-insensitive)
+      const planName = profileWithPlan.plan;
+      console.log(`Looking for plan with name "${planName}" among available plans:`, plans.map(p => p.name));
+      
+      planData = plans.find(p => p.name.toLowerCase() === planName.toLowerCase());
       if (planData) {
-        console.log(`Found plan data for ${profileWithPlan.plan} with impressions limit ${planData.impressions_limit}`);
+        console.log(`Found plan data for ${planName} with impressions limit ${planData.impressions_limit}`);
       } else {
-        console.log(`Plan ${profileWithPlan.plan} not found in available plans`);
+        console.log(`Plan "${planName}" not found in available plans. Using default Starter plan.`);
+        // Try to find the Starter plan
+        planData = plans.find(p => p.name === "Starter");
       }
+    } else {
+      console.log(`No plan set for user. Using default Starter plan.`);
+      // Try to find the Starter plan
+      planData = plans.find(p => p.name === "Starter");
     }
     
     // Create a result object with plan information
