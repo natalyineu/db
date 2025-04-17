@@ -9,7 +9,6 @@ import { CleanBackground } from '@/components/ui';
 import { 
   AccountInfoCard, 
   NextStepsCard, 
-  CampaignPerformanceCard,
   AccountHeader,
   BriefSection
 } from './components';
@@ -144,7 +143,7 @@ export default function AccountOverviewPage() {
 
   return (
     <CleanBackground>
-      <div className="max-w-6xl mx-auto p-4 theme-transition">
+      <div className="max-w-3xl mx-auto p-4 theme-transition">
         {/* Account Header */}
         <AccountHeader 
           profile={profile}
@@ -152,61 +151,51 @@ export default function AccountOverviewPage() {
           onLogout={handleLogout}
         />
         
-        {/* Main Content Area */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 mt-4">
-          {/* Left Column - Brief Section */}
-          <div className="md:col-span-7 space-y-4">
-            <BriefSection
-              brief={brief}
-              isEditing={isEditing}
-              formData={{
-                platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
-                target_audience: formData.targetAudience || '',
-                location: formData.location || '',
-                start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-                end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
-                type: (formData.goal || 'Awareness').toLowerCase(),
-                description: formData.additionalNotes || '',
-                consent: formData.consent || false,
-                business_name: formData.businessName || ''
-              }}
-              formErrors={Object.fromEntries(
-                Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
-              )}
-              isSubmitting={isSubmitting}
-              onEdit={handleEditBrief}
-              onDelete={handleDeleteBrief}
-              handleChange={handleChange}
-              handleCheckboxChange={handleCheckboxChange}
-              handleSubmit={handleSubmit}
-            />
-          </div>
+        {/* Main Content Area - Single Column Layout */}
+        <div className="flex flex-col space-y-6 mt-6">
+          {/* Brief Section */}
+          <BriefSection
+            brief={brief}
+            isEditing={isEditing}
+            formData={{
+              platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
+              target_audience: formData.targetAudience || '',
+              location: formData.location || '',
+              start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+              end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+              type: (formData.goal || 'Awareness').toLowerCase(),
+              description: formData.additionalNotes || '',
+              consent: formData.consent || false,
+              business_name: formData.businessName || ''
+            }}
+            formErrors={Object.fromEntries(
+              Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
+            )}
+            isSubmitting={isSubmitting}
+            onEdit={handleEditBrief}
+            onDelete={handleDeleteBrief}
+            handleChange={handleChange}
+            handleCheckboxChange={handleCheckboxChange}
+            handleSubmit={handleSubmit}
+          />
           
-          {/* Right Column */}
-          <div className="md:col-span-5 space-y-4">
-            {/* Account Information */}
-            <AccountInfoCard 
-              profileEmail={profile.email} 
-              createdAt={profile.created_at} 
-              plan={profile.plan}
-            />
+          {/* Account Information */}
+          <AccountInfoCard 
+            profileEmail={profile.email} 
+            createdAt={profile.created_at} 
+            plan={profile.plan}
+          />
 
-            {/* Next Steps */}
-            <NextStepsCard 
-              briefStatus={briefStatus} 
-              paymentStatus={paymentStatus}
-              campaignStatus={campaignStatus}
-            />
-          </div>
-
-          {/* Campaign Performance - Full Width */}
-          <div className="md:col-span-12 mt-2">
-            <CampaignPerformanceCard />
-          </div>
+          {/* Next Steps */}
+          <NextStepsCard 
+            briefStatus={briefStatus} 
+            paymentStatus={paymentStatus}
+            campaignStatus={campaignStatus}
+          />
         </div>
         
         {/* Footer */}
-        <footer className="mt-6 pt-4 border-t border-gray-200">
+        <footer className="mt-10 pt-4 border-t border-gray-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-2 md:mb-0">
               <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>

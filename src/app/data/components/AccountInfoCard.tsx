@@ -39,17 +39,11 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
           </span>
         </div>
         
-        <div className="flex justify-between border-b border-gray-100 pb-2">
+        <div className="flex justify-between pb-2">
           <span className="text-gray-500">Plan:</span>
           <span className="font-medium bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">
             {planName}
           </span>
-        </div>
-        
-        <div className="pt-2 text-center">
-          <a href="/data/kpi" className="text-sm text-indigo-600 hover:text-indigo-800">
-            View detailed usage metrics →
-          </a>
         </div>
       </div>
     </div>
