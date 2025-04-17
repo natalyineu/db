@@ -142,8 +142,19 @@ export default function AccountOverviewPage() {
   }
 
   return (
-    <CleanBackground>
-      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-4 theme-transition">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-tr from-gray-50 to-indigo-50/30 bg-animated">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-full h-full bg-grid-pattern opacity-40 pointer-events-none"></div>
+      <div className="absolute -top-20 -left-20 w-64 h-64 bg-purple-200/30 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute top-1/4 right-0 w-40 h-40 bg-indigo-200/20 rounded-full filter blur-3xl opacity-20"></div>
+      <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-pink-200/20 rounded-full filter blur-3xl opacity-20"></div>
+      
+      {/* Floating accent elements */}
+      <div className="absolute top-[10%] right-[5%] w-6 h-6 bg-indigo-400 rounded-full opacity-20 animate-float-slow"></div>
+      <div className="absolute top-[30%] left-[8%] w-4 h-4 bg-purple-500 rounded-full opacity-15 animate-float-medium"></div>
+      <div className="absolute bottom-[15%] right-[12%] w-8 h-8 bg-pink-400 rounded-full opacity-15 animate-float-fast"></div>
+      
+      <div className="max-w-3xl mx-auto px-3 sm:px-4 py-4 relative z-10">
         {/* Account Header */}
         <AccountHeader 
           profile={profile}
@@ -154,61 +165,74 @@ export default function AccountOverviewPage() {
         {/* Main Content Area - Single Column Layout */}
         <div className="flex flex-col space-y-5 sm:space-y-6 mt-4 sm:mt-6">
           {/* Brief Section */}
-          <BriefSection
-            brief={brief}
-            isEditing={isEditing}
-            formData={{
-              platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
-              target_audience: formData.targetAudience || '',
-              location: formData.location || '',
-              start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-              end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
-              type: (formData.goal || 'Awareness').toLowerCase(),
-              description: formData.additionalNotes || '',
-              consent: formData.consent || false,
-              business_name: formData.businessName || ''
-            }}
-            formErrors={Object.fromEntries(
-              Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
-            )}
-            isSubmitting={isSubmitting}
-            onEdit={handleEditBrief}
-            onDelete={handleDeleteBrief}
-            handleChange={handleChange}
-            handleCheckboxChange={handleCheckboxChange}
-            handleSubmit={handleSubmit}
-          />
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+            <BriefSection
+              brief={brief}
+              isEditing={isEditing}
+              formData={{
+                platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
+                target_audience: formData.targetAudience || '',
+                location: formData.location || '',
+                start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+                type: (formData.goal || 'Awareness').toLowerCase(),
+                description: formData.additionalNotes || '',
+                consent: formData.consent || false,
+                business_name: formData.businessName || ''
+              }}
+              formErrors={Object.fromEntries(
+                Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
+              )}
+              isSubmitting={isSubmitting}
+              onEdit={handleEditBrief}
+              onDelete={handleDeleteBrief}
+              handleChange={handleChange}
+              handleCheckboxChange={handleCheckboxChange}
+              handleSubmit={handleSubmit}
+            />
+          </div>
           
           {/* Account Information */}
-          <AccountInfoCard 
-            profileEmail={profile.email} 
-            createdAt={profile.created_at} 
-            plan={profile.plan}
-          />
+          <div className="relative">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl blur opacity-10 hover:opacity-20 transition duration-300"></div>
+            <AccountInfoCard 
+              profileEmail={profile.email} 
+              createdAt={profile.created_at} 
+              plan={profile.plan}
+            />
+          </div>
 
           {/* Next Steps */}
-          <NextStepsCard 
-            briefStatus={briefStatus} 
-            paymentStatus={paymentStatus}
-            campaignStatus={campaignStatus}
-          />
+          <div className="relative overflow-hidden">
+            <div className="absolute -inset-1 bg-grid-pattern opacity-5"></div>
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-xl blur opacity-10 hover:opacity-20 transition duration-300"></div>
+            <NextStepsCard 
+              briefStatus={briefStatus} 
+              paymentStatus={paymentStatus}
+              campaignStatus={campaignStatus}
+            />
+          </div>
         </div>
         
         {/* Footer */}
-        <footer className="mt-8 sm:mt-10 pt-4 border-t border-gray-200">
+        <footer className="mt-8 sm:mt-10 pt-4 border-t border-gray-200 relative">
+          <div className="absolute inset-0 bg-dots-pattern opacity-5 pointer-events-none"></div>
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-3 md:mb-0 text-center md:text-left">
-              <p className="text-sm text-gray-500">© {new Date().getFullYear()} AI-Vertise. All rights reserved.</p>
+              <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} <span className="ai-vertise-gradient-text font-medium">AI-Vertise</span>. All rights reserved.
+              </p>
             </div>
             <div className="flex space-x-4">
-              <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600">FAQ</a>
-              <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600">Privacy</a>
-              <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600">Terms</a>
-              <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600">Cookies</a>
+              <a href="/faq" className="text-sm text-gray-500 hover:text-indigo-600 hover:underline underline-offset-4 transition">FAQ</a>
+              <a href="/privacy-policy" className="text-sm text-gray-500 hover:text-indigo-600 hover:underline underline-offset-4 transition">Privacy</a>
+              <a href="/terms-of-service" className="text-sm text-gray-500 hover:text-indigo-600 hover:underline underline-offset-4 transition">Terms</a>
+              <a href="/cookie-policy" className="text-sm text-gray-500 hover:text-indigo-600 hover:underline underline-offset-4 transition">Cookies</a>
             </div>
           </div>
         </footer>
       </div>
-    </CleanBackground>
+    </div>
   );
 } 
