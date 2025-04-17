@@ -38,7 +38,6 @@ export function transformFormDataForSubmission(
     location: formData.location,
     type: getCampaignType(formData.goal), // Convert goal to valid CampaignType
     description: formData.additionalNotes,
-    consent: formData.consent,
     status: 'offline',
     budget: 0, // Add required budget field with default value
   };

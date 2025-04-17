@@ -29,7 +29,6 @@ export interface SubmissionData {
   location: string;
   type: string;
   description: string;
-  consent: boolean;
   status: string;
   budget: number;
 }
