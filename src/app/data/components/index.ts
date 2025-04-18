@@ -5,4 +5,6 @@ export { default as BriefDisplay } from './BriefDisplay';
 export { default as BriefHeader } from './BriefHeader';
 export { default as AccountHeader } from './AccountHeader';
 export { default as BriefSection } from './BriefSection';
-export { Icons } from './icons'; 
+export { Icons } from './icons';
+export { default as RefreshPlanButton } from './RefreshPlanButton';
+export { default as CheckProfileButton } from './CheckProfileButton'; 

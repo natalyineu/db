@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import RefreshPlanButton from './RefreshPlanButton';
+import CheckProfileButton from './CheckProfileButton';
 
 interface AccountInfoCardProps {
   profileEmail: string;
@@ -14,6 +16,16 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
   createdAt, 
   plan
 }) => {
+  // Debug logging
+  useEffect(() => {
+    console.log('AccountInfoCard plan data:', plan);
+    console.log('Plan type:', typeof plan);
+    if (plan) {
+      console.log('Plan keys:', Object.keys(plan));
+      console.log('Plan name:', plan.name);
+    }
+  }, [plan]);
+  
   // Determine plan name - use from profile or fallback to predefined
   const planName = plan?.name || 'Starter';
   
@@ -45,6 +57,16 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
             {planName}
           </span>
         </div>
+        
+        {/* Debug section - will only show in development */}
+        {process.env.NODE_ENV !== 'production' && (
+          <div className="mt-3 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+            <h3 className="font-semibold mb-1">Debug Info:</h3>
+            <div>Raw plan data: {JSON.stringify(plan, null, 2)}</div>
+            <RefreshPlanButton />
+            <CheckProfileButton />
+          </div>
+        )}
       </div>
     </div>
   );
