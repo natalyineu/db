@@ -6,10 +6,10 @@
 
 -- Update profiles where plan is a JSON object
 UPDATE profiles
-SET plan = plan->>'name'
+SET plan = to_jsonb(plan->>'name')
 WHERE 
   plan IS NOT NULL 
-  AND (jsonb_typeof(plan::jsonb) = 'object' OR jsonb_typeof(plan::text::jsonb) = 'object')
+  AND (jsonb_typeof(plan) = 'object')
   AND plan->>'name' IS NOT NULL;
 
 -- Check the results after the update

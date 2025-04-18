@@ -37,10 +37,10 @@ async function directPlanUpdate() {
     const { data, error } = await supabase.rpc('execute_sql', {
       sql_string: `
         UPDATE profiles
-        SET plan = plan->>'name'
+        SET plan = to_jsonb(plan->>'name')
         WHERE 
           plan IS NOT NULL 
-          AND (jsonb_typeof(plan::jsonb) = 'object' OR jsonb_typeof(plan::text::jsonb) = 'object')
+          AND (jsonb_typeof(plan) = 'object')
           AND plan->>'name' IS NOT NULL;
       `
     });
@@ -50,10 +50,10 @@ async function directPlanUpdate() {
       console.log("\nAlternative: Please run the SQL directly in your Supabase SQL editor:");
       console.log(`
         UPDATE profiles
-        SET plan = plan->>'name'
+        SET plan = to_jsonb(plan->>'name')
         WHERE 
           plan IS NOT NULL 
-          AND (jsonb_typeof(plan::jsonb) = 'object' OR jsonb_typeof(plan::text::jsonb) = 'object')
+          AND (jsonb_typeof(plan) = 'object')
           AND plan->>'name' IS NOT NULL;
       `);
       return;
@@ -67,10 +67,10 @@ async function directPlanUpdate() {
     console.log("\nPlease run the SQL directly in your Supabase SQL editor:");
     console.log(`
       UPDATE profiles
-      SET plan = plan->>'name'
+      SET plan = to_jsonb(plan->>'name')
       WHERE 
         plan IS NOT NULL 
-        AND (jsonb_typeof(plan::jsonb) = 'object' OR jsonb_typeof(plan::text::jsonb) = 'object')
+        AND (jsonb_typeof(plan) = 'object')
         AND plan->>'name' IS NOT NULL;
     `);
   }
