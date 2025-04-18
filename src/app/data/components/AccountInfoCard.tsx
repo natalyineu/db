@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import PlanSelector from './PlanSelector';
+import React from 'react';
 
 interface AccountInfoCardProps {
   profileEmail: string;
@@ -12,18 +11,8 @@ interface AccountInfoCardProps {
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ 
   profileEmail, 
-  createdAt, 
-  plan
+  createdAt
 }) => {
-  const [currentPlan, setCurrentPlan] = useState<string>(
-    typeof plan === 'string' ? plan : (plan?.name || 'Starter')
-  );
-  
-  // Handle plan updates
-  const handlePlanUpdate = (newPlan: string) => {
-    setCurrentPlan(newPlan);
-  };
-  
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
       <div className="flex items-center gap-2 mb-3 sm:mb-4">
@@ -45,19 +34,6 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
             {new Date(createdAt).toLocaleDateString()}
           </span>
         </div>
-        
-        <div className="flex justify-between pb-2 border-b border-gray-100">
-          <span className="text-sm sm:text-base text-gray-500">Plan:</span>
-          <span className="text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">
-            {currentPlan}
-          </span>
-        </div>
-        
-        {/* Plan selector for updating plans */}
-        <PlanSelector 
-          currentPlan={currentPlan} 
-          onPlanUpdate={handlePlanUpdate} 
-        />
       </div>
     </div>
   );
