@@ -152,13 +152,13 @@ export default function AdminUsersPage() {
         <div className="space-x-4">
           <Link
             href="/admin/plans"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
           >
             Manage Plans
           </Link>
           <button
             onClick={() => router.push('/data')}
-            className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
           >
             Back to Dashboard
           </button>
@@ -253,7 +253,7 @@ export default function AdminUsersPage() {
                         </select>
                         <button
                           onClick={() => handleUpdateUserPlan(user.id)}
-                          className="bg-green-600 text-white text-xs px-2 py-1 rounded-md hover:bg-green-700"
+                          className="ai-vertise-gradient-bg text-white text-xs px-2 py-1 rounded-md hover:opacity-95"
                         >
                           Save
                         </button>

@@ -218,7 +218,7 @@ export default function AdminPlansPage() {
         <h1 className="text-2xl font-bold">Subscription Plans Management</h1>
         <button
           onClick={() => router.push('/data')}
-          className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+          className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
         >
           Back to Dashboard
         </button>
@@ -299,7 +299,7 @@ export default function AdminPlansPage() {
         
         <button
           onClick={handleCreatePlan}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
         >
           Create Plan
         </button>
@@ -380,14 +380,14 @@ export default function AdminPlansPage() {
                   <div className="flex space-x-3">
                     <button
                       onClick={handleSavePlan}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                      className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
                     >
                       Save Changes
                     </button>
                     
                     <button
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                      className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
                     >
                       Cancel
                     </button>
@@ -411,14 +411,14 @@ export default function AdminPlansPage() {
                   <div className="flex space-x-2">
                     <button
                       onClick={() => handleEditPlan(plan)}
-                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                      className="px-3 py-1 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95 text-sm"
                     >
                       Edit
                     </button>
                     
                     <button
                       onClick={() => handleDeletePlan(plan.id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm"
+                      className="px-3 py-1 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95 text-sm"
                     >
                       Delete
                     </button>

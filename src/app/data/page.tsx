@@ -132,7 +132,7 @@ export default function AccountOverviewPage() {
         <h2 className="text-xl font-semibold mb-3">Profile Not Found</h2>
         <p className="mb-3">We couldn&apos;t find your profile information.</p>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
           onClick={() => router.push('/')}
         >
           Back to Home

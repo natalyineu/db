@@ -71,7 +71,7 @@ const DashboardHeader = memo(({
           {onSignOut && (
             <button 
               onClick={onSignOut}
-              className="px-4 py-2 bg-[#1967D2] text-white rounded-md hover:bg-[#185ABC] transition-colors text-sm font-medium"
+              className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95 transition-colors text-sm font-medium"
               aria-label="Sign out"
             >
               Sign Out
