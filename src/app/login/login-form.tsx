@@ -84,8 +84,8 @@ export default function LoginForm() {
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Login</h1>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="mt-2 text-gray-600">Access your ad campaign dashboard</p>
         </div>
 
         <MessageDisplay 
@@ -144,6 +144,9 @@ export default function LoginForm() {
             <Link href="/register" className="font-medium text-[#9333ea] hover:opacity-80">
               Sign up
             </Link>
+          </p>
+          <p className="mt-2 text-gray-500 text-xs">
+            Sign in to manage your campaigns, view analytics, and optimize your advertising performance.
           </p>
         </div>
 

@@ -31,8 +31,7 @@ export const createAuthMethods = (supabase: SupabaseClient) => {
       
       if (DEBUG) console.log("Signing in with:", email);
       
-      // Clear any existing session
-      await supabase.auth.signOut();
+      // Don't clear existing session before sign-in, this can cause token issues
       
       // Sign in
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -41,6 +40,9 @@ export const createAuthMethods = (supabase: SupabaseClient) => {
       });
 
       if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          throw new Error('Invalid email or password');
+        }
         throw error;
       }
 
@@ -91,10 +93,19 @@ export const createAuthMethods = (supabase: SupabaseClient) => {
       
       if (DEBUG) console.log("Signing up with:", email);
       
-      // Sign up
+      // Get current origin for redirectTo
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      
+      // Sign up with redirectTo option for email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${origin}/auth/callback`,
+          data: {
+            email: email,
+          }
+        }
       });
 
       if (error) {

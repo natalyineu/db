@@ -39,16 +39,15 @@ export default function RegisterForm() {
       // Use auth context to sign up
       const result = await signUp(email, password);
       
-      setMessageState({ 
-        type: 'success', 
-        text: 'Registration successful! Please check your email to confirm your account.' 
-      });
-      
       // Clear form
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      setIsSubmitting(false);
+      
+      setMessageState({ 
+        type: 'success', 
+        text: 'Registration successful! Please check your email to confirm your account.' 
+      });
       
     } catch (error) {
       console.error('Registration error:', error);
@@ -57,7 +56,6 @@ export default function RegisterForm() {
       let errorMessage = 'An unexpected error occurred';
       
       if (error instanceof Error) {
-        // Handle specific error messages
         if (error.message.includes('already registered')) {
           errorMessage = 'This email is already registered';
         } else if (error.message.includes('password')) {
@@ -73,6 +71,7 @@ export default function RegisterForm() {
         type: 'error', 
         text: errorMessage
       });
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -85,8 +84,8 @@ export default function RegisterForm() {
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
-          <p className="mt-2 text-gray-600">Sign up with your email and password</p>
+          <h1 className="text-3xl font-bold text-gray-900">Create Your Account</h1>
+          <p className="mt-2 text-gray-600">Join us to create and manage effective ad campaigns</p>
         </div>
         
         {messageForDisplay && (
@@ -164,6 +163,9 @@ export default function RegisterForm() {
             <Link href="/login" className="font-medium text-[#9333ea] hover:opacity-80">
               Log in
             </Link>
+          </p>
+          <p className="mt-2 text-gray-500 text-xs">
+            By signing up, you'll get access to our campaign management tools, detailed reports, and expert ad optimization services.
           </p>
         </div>
       </div>
