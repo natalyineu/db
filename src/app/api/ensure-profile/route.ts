@@ -28,13 +28,15 @@ async function ensureUserProfile(userId: string, email: string) {
   }
   
   // Create new profile if it doesn't exist
+  // Explicitly set plan to 'Starter' as a simple string value
   const { data, error: insertError } = await supabaseAdmin
     .from('profiles')
     .insert({
       id: userId,
       email: email,
       created_at: new Date().toISOString(),
-      status: 1  // Using numeric value 1 for active status
+      status: 1,  // Using numeric value 1 for active status
+      plan: 'Starter' // Set plan directly to ensure it's stored as a simple string
     })
     .select();
     
