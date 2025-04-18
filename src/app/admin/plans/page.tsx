@@ -65,7 +65,11 @@ export default function AdminPlansPage() {
           .select('*')
           .order('price', { ascending: true });
         
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching plans:', error);
+          setError(`Failed to load plans: ${error.message}`);
+          return;
+        }
         
         setPlans(data || []);
       } catch (error) {

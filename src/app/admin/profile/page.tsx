@@ -5,6 +5,7 @@ import { createBrowserClient } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { UserProfile } from '@/types';
+import Link from 'next/link';
 
 export default function AdminProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -140,12 +141,32 @@ export default function AdminProfilePage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Admin Profile</h1>
-        <button
-          onClick={() => router.push('/admin/campaigns')}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Back to Campaigns
-        </button>
+        <div className="flex space-x-3">
+          <Link
+            href="/admin/campaigns"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Manage Campaigns
+          </Link>
+          <Link
+            href="/admin/users"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Manage Users
+          </Link>
+          <Link
+            href="/admin/plans"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Manage Plans
+          </Link>
+          <button
+            onClick={() => router.push('/data')}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
       
       {error && (

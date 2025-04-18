@@ -120,12 +120,20 @@ export default function AdminCampaignsPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Campaign Management</h1>
-        <button
-          onClick={() => router.push('/data')}
-          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Back to Dashboard
-        </button>
+        <div className="flex space-x-3">
+          <Link
+            href="/admin/profile"
+            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          >
+            Admin Profile
+          </Link>
+          <button
+            onClick={() => router.push('/data')}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
       
       {error && (
@@ -229,11 +237,11 @@ export default function AdminCampaignsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      ${campaign.budget.toLocaleString()}
+                      ${(campaign.budget || 0).toLocaleString()}
                     </div>
                     {campaign.spent && (
                       <div className="text-xs text-gray-500">
-                        Spent: ${campaign.spent.toLocaleString()} ({Math.round((campaign.spent / campaign.budget) * 100)}%)
+                        Spent: ${campaign.spent.toLocaleString()} ({Math.round(((campaign.spent || 0) / (campaign.budget || 1)) * 100)}%)
                       </div>
                     )}
                   </td>
@@ -243,7 +251,7 @@ export default function AdminCampaignsPage() {
                         <div>{campaign.impressions.toLocaleString()} impressions</div>
                         {campaign.clicks && (
                           <div className="text-xs text-gray-500">
-                            CTR: {((campaign.clicks / campaign.impressions) * 100).toFixed(2)}%
+                            CTR: {(((campaign.clicks || 0) / (campaign.impressions || 1)) * 100).toFixed(2)}%
                           </div>
                         )}
                       </div>
