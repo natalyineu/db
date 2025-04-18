@@ -10,6 +10,7 @@ const CheckProfileButton: React.FC = () => {
   const [planValidation, setPlanValidation] = useState<string>('');
   const { user } = useAuth();
   const supabase = createBrowserClient();
+  const [schemaInfo, setSchemaInfo] = useState<any>(null);
   
   useEffect(() => {
     // Fetch available plans
@@ -17,8 +18,7 @@ const CheckProfileButton: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('plans')
-          .select('*')
-          .order('impressions_limit', { ascending: true });
+          .select('*');
         
         if (error) throw error;
         setAvailablePlans(data || []);
@@ -70,22 +70,15 @@ const CheckProfileButton: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Update the plan field with a properly formatted object
+      // Update with just the plan name as a string
       const { error } = await supabase
         .from('profiles')
         .update({
-          plan: {
-            name: 'Growth',
-            impressions_limit: 50000,
-            payment_status: 'active',
-            renewal_date: new Date().toISOString()
-          }
+          plan: "Growth"
         })
         .eq('id', user.id);
       
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
       
       // Refresh the check
       await handleCheck();
@@ -103,13 +96,66 @@ const CheckProfileButton: React.FC = () => {
     }
   };
   
+  // Update the "Set to Starter" button
+  const setToStarter = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          plan: "Starter"
+        })
+        .eq('id', user?.id || '');
+      
+      if (error) throw error;
+      
+      await handleCheck();
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (error) {
+      console.error('Error setting Starter plan:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Add this function to check schema
+  const checkSchema = async () => {
+    setIsLoading(true);
+    try {
+      // This query will get column information for the plans table
+      const { data, error } = await supabase.rpc(
+        'get_table_columns',
+        { table_name: 'plans' }
+      );
+      
+      if (error) {
+        // If the stored procedure doesn't exist, try a direct query
+        const { data: columns, error: columnsError } = await supabase
+          .from('information_schema.columns')
+          .select('column_name, data_type')
+          .eq('table_name', 'plans')
+          .eq('table_schema', 'public');
+          
+        if (columnsError) throw columnsError;
+        setSchemaInfo(columns);
+      } else {
+        setSchemaInfo(data);
+      }
+    } catch (error) {
+      console.error('Error checking schema:', error);
+      setSchemaInfo({ error: 'Failed to check schema' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="mt-2">
-      <div className="flex space-x-2">
+      <div className="flex space-x-2 flex-wrap">
         <button
           onClick={handleCheck}
           disabled={isLoading}
-          className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50"
+          className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50 mb-1"
         >
           {isLoading ? 'Loading...' : 'Check Raw Profile'}
         </button>
@@ -117,41 +163,25 @@ const CheckProfileButton: React.FC = () => {
         <button
           onClick={handleUpdatePlan}
           disabled={isLoading}
-          className="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50"
+          className="bg-green-500 hover:bg-green-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50 mb-1"
         >
           {isLoading ? 'Updating...' : 'Fix Plan (Growth)'}
         </button>
         
         <button
-          onClick={async () => {
-            setIsLoading(true);
-            try {
-              const { error } = await supabase
-                .from('profiles')
-                .update({
-                  plan: {
-                    name: 'Starter',
-                    impressions_limit: 10000,
-                    payment_status: 'active',
-                    renewal_date: new Date().toISOString()
-                  }
-                })
-                .eq('id', user?.id || '');
-              
-              if (error) throw error;
-              
-              await handleCheck();
-              setTimeout(() => window.location.reload(), 1000);
-            } catch (error) {
-              console.error('Error setting Starter plan:', error);
-            } finally {
-              setIsLoading(false);
-            }
-          }}
+          onClick={setToStarter}
           disabled={isLoading}
-          className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50"
+          className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50 mb-1"
         >
           Set to Starter
+        </button>
+        
+        <button
+          onClick={checkSchema}
+          disabled={isLoading}
+          className="bg-purple-500 hover:bg-purple-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50 mb-1"
+        >
+          Check DB Schema
         </button>
       </div>
       
@@ -167,7 +197,7 @@ const CheckProfileButton: React.FC = () => {
           <ul className="text-xs">
             {availablePlans.map(plan => (
               <li key={plan.id}>
-                {plan.name} - {plan.impressions_limit.toLocaleString()} impressions (${plan.price})
+                {plan.name} {plan.price !== undefined ? `($${plan.price})` : ''}
               </li>
             ))}
           </ul>
@@ -178,12 +208,21 @@ const CheckProfileButton: React.FC = () => {
         <div className="mt-4 border-t border-gray-300 pt-2">
           <h4 className="font-semibold mb-1">Plan Validation:</h4>
           <div className="text-xs">
-            {typeof rawProfile.plan === 'object' && rawProfile.plan.name ? (
-              <span className="text-green-600">✓ Plan format looks valid</span>
+            {typeof rawProfile.plan === 'string' ? (
+              <span className="text-green-600">✓ Plan is string: "{rawProfile.plan}"</span>
+            ) : typeof rawProfile.plan === 'object' && rawProfile.plan.name ? (
+              <span className="text-green-600">✓ Plan is object with name: "{rawProfile.plan.name}"</span>
             ) : (
-              <span className="text-red-600">✗ Plan format appears invalid</span>
+              <span className="text-red-600">✗ Plan format appears invalid: {JSON.stringify(rawProfile.plan)}</span>
             )}
           </div>
+        </div>
+      )}
+      
+      {schemaInfo && (
+        <div className="mt-2 bg-gray-200 p-2 rounded text-xs overflow-auto max-h-40">
+          <h4 className="font-semibold mb-1">Plans Table Schema:</h4>
+          <pre>{JSON.stringify(schemaInfo, null, 2)}</pre>
         </div>
       )}
     </div>

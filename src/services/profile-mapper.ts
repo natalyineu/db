@@ -13,6 +13,16 @@ export class ProfileMapper {
     if (!data) {
       throw new Error('Cannot map null or undefined profile data');
     }
+    
+    // Handle plan - convert object to string if needed
+    let plan: string | undefined = undefined;
+    if (data.plan) {
+      if (typeof data.plan === 'string') {
+        plan = data.plan;
+      } else if (typeof data.plan === 'object' && data.plan.name) {
+        plan = data.plan.name;
+      }
+    }
 
     return {
       id: data.id,
@@ -20,6 +30,7 @@ export class ProfileMapper {
       created_at: data.created_at || new Date().toISOString(),
       updated_at: data.updated_at,
       status: data.status !== null ? String(data.status) : undefined,
+      plan: plan,
       
       // Additional profile information
       first_name: data.first_name || undefined,

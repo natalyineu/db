@@ -6,12 +6,7 @@ export interface UserProfile {
   status?: string; // User account status
   
   // Plan information
-  plan?: {
-    name: string;        // e.g., 'Free', 'Basic', 'Premium', 'Enterprise'
-    impressions_limit: number;  // Monthly impressions limit
-    payment_status?: string;  // e.g., 'active', 'past_due', 'canceled'
-    renewal_date?: string;   // Next billing date
-  };
+  plan?: string; // e.g., 'Starter', 'Growth', 'Enterprise'
   
   // Additional profile information
   first_name?: string;
