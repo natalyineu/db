@@ -58,15 +58,13 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
           </span>
         </div>
         
-        {/* Debug section - will only show in development */}
-        {process.env.NODE_ENV !== 'production' && (
-          <div className="mt-3 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
-            <h3 className="font-semibold mb-1">Debug Info:</h3>
-            <div>Raw plan data: {JSON.stringify(plan, null, 2)}</div>
-            <RefreshPlanButton />
-            <CheckProfileButton />
-          </div>
-        )}
+        {/* Debug section - always visible */}
+        <div className="mt-3 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
+          <h3 className="font-semibold mb-1">Plan Tools:</h3>
+          <div>Current plan data: {JSON.stringify(plan, null, 2)}</div>
+          <RefreshPlanButton />
+          <CheckProfileButton />
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 
@@ -6,9 +6,30 @@ const CheckProfileButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [rawProfile, setRawProfile] = useState<any>(null);
+  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
+  const [planValidation, setPlanValidation] = useState<string>('');
   const { user } = useAuth();
   const supabase = createBrowserClient();
   
+  useEffect(() => {
+    // Fetch available plans
+    const fetchPlans = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('plans')
+          .select('*')
+          .order('impressions_limit', { ascending: true });
+        
+        if (error) throw error;
+        setAvailablePlans(data || []);
+      } catch (error) {
+        console.error('Error fetching plans:', error);
+      }
+    };
+    
+    fetchPlans();
+  }, [supabase]);
+
   const handleCheck = async () => {
     if (!user) {
       console.error('User not logged in');
@@ -100,11 +121,69 @@ const CheckProfileButton: React.FC = () => {
         >
           {isLoading ? 'Updating...' : 'Fix Plan (Growth)'}
         </button>
+        
+        <button
+          onClick={async () => {
+            setIsLoading(true);
+            try {
+              const { error } = await supabase
+                .from('profiles')
+                .update({
+                  plan: {
+                    name: 'Starter',
+                    impressions_limit: 10000,
+                    payment_status: 'active',
+                    renewal_date: new Date().toISOString()
+                  }
+                })
+                .eq('id', user?.id || '');
+              
+              if (error) throw error;
+              
+              await handleCheck();
+              setTimeout(() => window.location.reload(), 1000);
+            } catch (error) {
+              console.error('Error setting Starter plan:', error);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          disabled={isLoading}
+          className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-2 rounded text-xs transition-colors disabled:opacity-50"
+        >
+          Set to Starter
+        </button>
       </div>
       
       {showResults && rawProfile && (
         <div className="mt-2 bg-gray-200 p-2 rounded text-xs overflow-auto max-h-40">
           <pre>{JSON.stringify(rawProfile, null, 2)}</pre>
+        </div>
+      )}
+      
+      {availablePlans.length > 0 && (
+        <div className="mt-4 border-t border-gray-300 pt-2">
+          <h4 className="font-semibold mb-1">Available Plans:</h4>
+          <ul className="text-xs">
+            {availablePlans.map(plan => (
+              <li key={plan.id}>
+                {plan.name} - {plan.impressions_limit.toLocaleString()} impressions (${plan.price})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      {rawProfile?.plan && (
+        <div className="mt-4 border-t border-gray-300 pt-2">
+          <h4 className="font-semibold mb-1">Plan Validation:</h4>
+          <div className="text-xs">
+            {typeof rawProfile.plan === 'object' && rawProfile.plan.name ? (
+              <span className="text-green-600">✓ Plan format looks valid</span>
+            ) : (
+              <span className="text-red-600">✗ Plan format appears invalid</span>
+            )}
+          </div>
         </div>
       )}
     </div>
