@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
-import RefreshPlanButton from './RefreshPlanButton';
-import CheckProfileButton from './CheckProfileButton';
+import React, { useState } from 'react';
+import PlanSelector from './PlanSelector';
 
 interface AccountInfoCardProps {
   profileEmail: string;
@@ -16,20 +15,14 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
   createdAt, 
   plan
 }) => {
-  // Debug logging
-  useEffect(() => {
-    console.log('AccountInfoCard plan data:', plan);
-    console.log('Plan type:', typeof plan);
-    if (typeof plan === 'object' && plan) {
-      console.log('Plan keys:', Object.keys(plan));
-      console.log('Plan name:', plan.name);
-    }
-  }, [plan]);
+  const [currentPlan, setCurrentPlan] = useState<string>(
+    typeof plan === 'string' ? plan : (plan?.name || 'Starter')
+  );
   
-  // Determine plan name - use from profile or fallback to predefined
-  const planName = typeof plan === 'string' 
-    ? plan 
-    : (plan?.name || 'Starter');
+  // Handle plan updates
+  const handlePlanUpdate = (newPlan: string) => {
+    setCurrentPlan(newPlan);
+  };
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
@@ -56,17 +49,15 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
         <div className="flex justify-between pb-2 border-b border-gray-100">
           <span className="text-sm sm:text-base text-gray-500">Plan:</span>
           <span className="text-xs sm:text-sm font-medium bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full">
-            {planName}
+            {currentPlan}
           </span>
         </div>
         
-        {/* Debug section - always visible */}
-        <div className="mt-3 p-3 bg-gray-100 rounded text-xs overflow-auto max-h-40">
-          <h3 className="font-semibold mb-1">Plan Tools:</h3>
-          <div>Current plan data: {JSON.stringify(plan, null, 2)}</div>
-          <RefreshPlanButton />
-          <CheckProfileButton />
-        </div>
+        {/* Plan selector for updating plans */}
+        <PlanSelector 
+          currentPlan={currentPlan} 
+          onPlanUpdate={handlePlanUpdate} 
+        />
       </div>
     </div>
   );
