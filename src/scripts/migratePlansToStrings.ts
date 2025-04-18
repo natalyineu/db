@@ -45,22 +45,68 @@ async function migratePlansToStrings() {
   
   // Process each profile
   for (const profile of profiles) {
-    if (typeof profile.plan === 'object' && profile.plan !== null) {
-      // Extract plan name from object
-      const planName = profile.plan.name || 'Starter';
-      
-      // Update profile with string plan
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ plan: planName })
-        .eq('id', profile.id);
+    console.log(`Checking profile ${profile.id}, current plan:`, profile.plan);
+    
+    try {
+      // Handle different types of plan data
+      if (typeof profile.plan === 'object' && profile.plan !== null) {
+        // For JSON objects like {"name": "Starter", "renewal_date": "2025-05-18 00:00:00", ...}
+        let planName;
         
-      if (updateError) {
-        console.error(`Error updating profile ${profile.id}:`, updateError);
-      } else {
-        updateCount++;
-        console.log(`Updated profile ${profile.id} plan from object to string: "${planName}"`);
+        if (typeof profile.plan === 'string') {
+          // If the plan is already a JSON string, parse it first
+          try {
+            const planObj = JSON.parse(profile.plan);
+            planName = planObj.name || 'Starter';
+          } catch (e) {
+            // If it's not valid JSON but already a string, use it directly
+            planName = profile.plan;
+          }
+        } else {
+          // If the plan is already an object
+          planName = profile.plan.name || 'Starter';
+        }
+        
+        // Update profile with string plan
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ plan: planName })
+          .eq('id', profile.id);
+          
+        if (updateError) {
+          console.error(`Error updating profile ${profile.id}:`, updateError);
+        } else {
+          updateCount++;
+          console.log(`Updated profile ${profile.id} plan from object to string: "${planName}"`);
+        }
+      } else if (typeof profile.plan === 'string') {
+        // Check if the string is actually a stringified JSON
+        try {
+          const planObj = JSON.parse(profile.plan);
+          if (typeof planObj === 'object' && planObj !== null && planObj.name) {
+            // Extract plan name
+            const planName = planObj.name;
+            
+            // Update profile with string plan
+            const { error: updateError } = await supabase
+              .from('profiles')
+              .update({ plan: planName })
+              .eq('id', profile.id);
+              
+            if (updateError) {
+              console.error(`Error updating profile ${profile.id}:`, updateError);
+            } else {
+              updateCount++;
+              console.log(`Updated profile ${profile.id} plan from JSON string to plain string: "${planName}"`);
+            }
+          }
+        } catch (e) {
+          // If it's not valid JSON, it's probably already a plan name string
+          console.log(`Profile ${profile.id} plan is already a string and not JSON: "${profile.plan}"`);
+        }
       }
+    } catch (err) {
+      console.error(`Error processing profile ${profile.id}:`, err);
     }
   }
   

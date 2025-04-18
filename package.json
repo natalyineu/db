@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate-plans": "ts-node src/scripts/migratePlansToStrings.ts"
+    "migrate-plans": "ts-node src/scripts/migratePlansToStrings.ts",
+    "update-plans": "ts-node src/scripts/directPlanUpdate.ts"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
