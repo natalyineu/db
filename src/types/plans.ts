@@ -4,13 +4,13 @@
 
 export interface Plan {
   id: number;
-  name: string;
-  impressions_limit: number;
-  description?: string;
-  price?: number;
-  features?: Record<string, any>;
-  created_at?: string;
+  created_at: string;
   updated_at?: string;
+  name: string;
+  description?: string;
+  price: number;
+  impressions_limit: number;
+  features: Record<string, any>;
 }
 
 export interface UserPlan {

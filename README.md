@@ -123,3 +123,20 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 - **Code Reusability**: Reduced code duplication in profile mapping with utility functions
 - **Environment Variables**: Added environment variable control for auth bypass in development mode with `NEXT_PUBLIC_BYPASS_AUTH`
 - **Consistent Error Handling**: Standardized error handling across API client and services
+
+# AI-Vertise Platform
+
+## Admin Panel Removed
+
+The admin panel functionality has been removed. Instead, please use the Supabase UI directly to manage plans, users, and campaigns. See the [Supabase Management Guide](./SUPABASE_MANAGEMENT.md) for detailed instructions.
+
+## Database Management
+
+All database management is now done directly through the Supabase UI:
+
+1. Log in to Supabase dashboard
+2. Navigate to Table Editor
+3. Select the table you want to manage (plans, profiles, campaigns)
+4. Use the UI to add, edit, or delete records
+
+This approach provides more direct control over your data without requiring additional admin interfaces.
