@@ -3,8 +3,15 @@
  * without requiring a real Supabase connection
  */
 
+// Define a type for the mock profiles that allows both string and object for plan
+type MockProfile = {
+  id: string;
+  email: string;
+  plan: { name: string; impressions_limit: number } | string | null;
+};
+
 // Sample profiles data (simulating what we'd get from the database)
-const mockProfiles = [
+const mockProfiles: MockProfile[] = [
   {
     id: 'user-123',
     email: 'user1@example.com',
