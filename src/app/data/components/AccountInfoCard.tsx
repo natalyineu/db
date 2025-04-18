@@ -8,7 +8,7 @@ interface AccountInfoCardProps {
   plan?: {
     name?: string;
     impressions_limit?: number;
-  };
+  } | string;
 }
 
 const AccountInfoCard: React.FC<AccountInfoCardProps> = ({ 
@@ -20,14 +20,16 @@ const AccountInfoCard: React.FC<AccountInfoCardProps> = ({
   useEffect(() => {
     console.log('AccountInfoCard plan data:', plan);
     console.log('Plan type:', typeof plan);
-    if (plan) {
+    if (typeof plan === 'object' && plan) {
       console.log('Plan keys:', Object.keys(plan));
       console.log('Plan name:', plan.name);
     }
   }, [plan]);
   
   // Determine plan name - use from profile or fallback to predefined
-  const planName = plan?.name || 'Starter';
+  const planName = typeof plan === 'string' 
+    ? plan 
+    : (plan?.name || 'Starter');
   
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
