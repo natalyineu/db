@@ -402,13 +402,13 @@ export default function AdminPlansPage() {
                 <>
                   <div className="flex justify-between mb-4">
                     <h3 className="text-lg font-semibold">{plan.name}</h3>
-                    <div>${plan.price?.toFixed(2) || '0.00'}</div>
+                    <div>${(plan.price || 0).toFixed(2)}</div>
                   </div>
                   
                   <div className="mb-4">
                     <p className="text-gray-700">{plan.description || 'No description available'}</p>
                     <p className="mt-2">
-                      <span className="font-medium">Impressions:</span> {plan.impressions_limit.toLocaleString()}
+                      <span className="font-medium">Impressions:</span> {(plan.impressions_limit || 0).toLocaleString()}
                     </p>
                   </div>
                   
