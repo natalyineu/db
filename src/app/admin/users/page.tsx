@@ -156,6 +156,24 @@ export default function AdminUsersPage() {
           >
             Manage Plans
           </Link>
+          <Link
+            href="/admin/campaigns"
+            className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
+          >
+            Manage Campaigns
+          </Link>
+          <Link
+            href="/admin/profile"
+            className="px-4 py-2 ai-vertise-gradient-bg text-white rounded-md hover:opacity-95"
+          >
+            Admin Profile
+          </Link>
+          <Link
+            href="/admin/debug"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Debug Tools
+          </Link>
           <button
             onClick={() => router.push('/data')}
             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
@@ -224,7 +242,7 @@ export default function AdminUsersPage() {
                       {user.plan?.name || 'No Plan'}
                     </span>
                     <div className="text-sm text-gray-500 mt-1">
-                      {user.plan?.impressions_limit?.toLocaleString() || 0} impressions
+                      {(user.plan?.impressions_limit || 0).toLocaleString()} impressions
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
