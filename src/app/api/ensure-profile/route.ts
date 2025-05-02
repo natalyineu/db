@@ -1,122 +1,68 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 
-// Initialize Supabase client with admin privileges
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { NextRequest } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/client';
+import { ProfileService } from '@/services/profile-service';
+import { ApiErrorHandler } from '@/utils/api-error-handler';
 
-// Helper function to ensure a user profile exists
-async function ensureUserProfile(userId: string, email: string) {
-  // First check if profile already exists
-  const { data: existingProfile, error: fetchError } = await supabaseAdmin
-    .from('profiles')
-    .select('id')
-    .eq('id', userId)
-    .single();
-  
-  if (fetchError && fetchError.code !== 'PGRST116') {
-    // Real error (not just "no rows returned")
-    console.error('Error checking for existing profile:', fetchError);
-    return { success: false, error: fetchError.message };
-  }
-  
-  // If profile already exists, no need to create it
-  if (existingProfile) {
-    return { success: true, created: false };
-  }
-  
-  // Create new profile if it doesn't exist
-  // Explicitly set plan to 'Starter' as a simple string value
-  const { data, error: insertError } = await supabaseAdmin
-    .from('profiles')
-    .insert({
-      id: userId,
-      email: email,
-      created_at: new Date().toISOString(),
-      status: 1,  // Using numeric value 1 for active status
-      plan: 'Starter' // Set plan directly to ensure it's stored as a simple string
-    })
-    .select();
-    
-  if (insertError) {
-    console.error('Error creating profile:', insertError);
-    return { success: false, error: insertError.message };
-  }
-  
-  return { success: true, created: true, profile: data[0] };
-}
+// Only log in development
+const DEBUG = process.env.NODE_ENV !== 'production';
 
 export async function POST(request: NextRequest) {
   try {
     // Get the authorization header
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid authorization header' },
-        { status: 401 }
-      );
+      return ApiErrorHandler.unauthorized('Missing or invalid authorization header');
     }
     
     // Extract the token
     const token = authHeader.split(' ')[1];
     
-    // Verify the token and get user data using the same supabaseAdmin client
-    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+    // Initialize admin client
+    const supabase = createAdminClient();
+    
+    // Verify the token and get user data
+    const { data: { user }, error } = await supabase.auth.getUser(token);
     
     if (error || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized. Invalid token.' },
-        { status: 401 }
-      );
+      return ApiErrorHandler.unauthorized('Invalid token');
     }
     
-    // Ensure the user profile exists
-    const result = await ensureUserProfile(user.id, user.email!);
-    
-    if (!result.success) {
-      return NextResponse.json(
-        { error: result.error },
-        { status: 500 }
-      );
+    if (!user.email) {
+      return ApiErrorHandler.badRequest('User has no email address');
     }
     
-    return NextResponse.json(result);
+    // Use ProfileService to ensure profile exists
+    try {
+      const profile = await ProfileService.ensureProfile(user.id, user.email);
+      
+      return ApiErrorHandler.success({
+        success: true,
+        profile
+      });
+    } catch (profileError) {
+      if (DEBUG) console.error('[ensure-profile] Error ensuring profile:', profileError);
+      return ApiErrorHandler.serverError(profileError, 'ensure-profile');
+    }
   } catch (error) {
-    console.error('Error ensuring user profile:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return ApiErrorHandler.serverError(error, 'ensure-profile');
   }
 }
 
 // Handle all other HTTP methods
-export async function GET() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
+export function GET() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function PUT() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
+export function PUT() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function DELETE() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
+export function DELETE() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function PATCH() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
+export function PATCH() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 } 

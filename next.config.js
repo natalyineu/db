@@ -2,7 +2,8 @@
 const nextConfig = {
   poweredByHeader: false,
   skipTrailingSlashRedirect: true,
-  output: 'export',  // Static export to bypass dynamic rendering issues
+  // Static export won't work with API routes
+  // output: 'export',
   
   async headers() {
     return [

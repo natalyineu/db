@@ -1,10 +1,16 @@
-import { createClient } from '@supabase/supabase-js';
-import { NextRequest, NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 
-// Initialize Supabase client with admin privileges
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+import { NextRequest } from 'next/server';
+import { ProfileService } from '@/services/profile-service';
+import { ApiErrorHandler } from '@/utils/api-error-handler';
 
+// Only log in development
+const DEBUG = process.env.NODE_ENV !== 'production';
+
+/**
+ * Webhook endpoint for Supabase user.confirmed event
+ * Creates a user profile automatically when a user confirms their email
+ */
 export async function POST(request: NextRequest) {
   try {
     // Parse the webhook payload
@@ -12,83 +18,51 @@ export async function POST(request: NextRequest) {
     
     // Validate the event type
     if (payload.type !== 'user.confirmed') {
-      return NextResponse.json(
-        { error: 'Invalid event type. Expected "user.confirmed".' },
-        { status: 400 }
-      );
+      return ApiErrorHandler.badRequest('Invalid event type. Expected "user.confirmed".');
     }
 
     // Extract user data from the payload
     const user = payload.user || payload.record;
     
     if (!user || !user.id || !user.email) {
-      return NextResponse.json(
-        { error: 'Invalid payload. Missing user data.' },
-        { status: 400 }
-      );
+      return ApiErrorHandler.badRequest('Invalid payload. Missing user data.');
     }
 
-    // Create Supabase admin client with service role key
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
-    // Create user profile in the profiles table with numeric status
-    const { data, error } = await supabase
-      .from('profiles')
-      .insert({
-        id: user.id,
-        email: user.email,
-        created_at: new Date().toISOString(),
-        status: 1  // Using numeric value 1 for active status
-      })
-      .select();
-
-    if (error) {
-      console.error('Error creating user profile:', error);
-      return NextResponse.json(
-        { error: 'Failed to create user profile: ' + error.message },
-        { status: 500 }
-      );
-    }
-
-    // Return success response
-    return NextResponse.json(
-      { 
+    if (DEBUG) console.log('[user-confirmed] Creating profile for:', user.email);
+    
+    try {
+      // Use ProfileService to create the user profile
+      const profile = await ProfileService.createProfile(user.id, user.email);
+      
+      // Return success response
+      return ApiErrorHandler.success({ 
         success: true, 
         message: 'Profile created successfully', 
-        profile: data[0] 
-      },
-      { status: 200 }
-    );
-
+        profile 
+      });
+    } catch (profileError) {
+      console.error('[user-confirmed] Error creating profile:', profileError);
+      return ApiErrorHandler.serverError(profileError, 'user-confirmed');
+    }
   } catch (error) {
-    console.error('Error processing webhook:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('[user-confirmed] Error processing webhook:', error);
+    return ApiErrorHandler.serverError(error, 'user-confirmed.top');
   }
 }
 
 // Handle all other HTTP methods
-export async function GET() {
-  return methodNotAllowed();
+export function GET() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function PUT() {
-  return methodNotAllowed();
+export function PUT() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function DELETE() {
-  return methodNotAllowed();
+export function DELETE() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 }
 
-export async function PATCH() {
-  return methodNotAllowed();
-}
-
-function methodNotAllowed() {
-  return NextResponse.json(
-    { error: 'Method not allowed. Use POST.' },
-    { status: 405 }
-  );
+export function PATCH() {
+  return ApiErrorHandler.methodNotAllowed('POST');
 } 

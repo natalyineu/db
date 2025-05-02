@@ -1,12 +1,13 @@
 import Link from 'next/link';
+import { NextPage } from 'next';
 
-export default function NotFoundSpecial() {
+const Custom404: NextPage = () => {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">404 - Page Not Found</h1>
-          <p className="mt-2 text-gray-600">We couldn't find the page you were looking for.</p>
+          <p className="mt-2 text-gray-600">The page you are looking for doesn't exist or has been moved.</p>
         </div>
         
         <div className="mt-8">
@@ -20,4 +21,6 @@ export default function NotFoundSpecial() {
       </div>
     </main>
   );
-} 
+};
+
+export default Custom404; 
