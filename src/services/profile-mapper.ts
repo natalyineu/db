@@ -1,4 +1,4 @@
-import { UserProfile } from '@/types';
+import { UserProfile } from '@/types/profile';
 
 /**
  * Service for mapping database profile data to application model
@@ -14,15 +14,13 @@ export class ProfileMapper {
       throw new Error('Cannot map null or undefined profile data');
     }
     
-    // Handle plan - convert object to string if needed
-    let plan: string | undefined = undefined;
-    if (data.plan) {
-      if (typeof data.plan === 'string') {
-        plan = data.plan;
-      } else if (typeof data.plan === 'object' && data.plan.name) {
-        plan = data.plan.name;
-      }
-    }
+    // Simple debug logging to view incoming data
+    console.log('ProfileMapper received data:', data);
+    console.log('ProfileMapper plan value:', data.plan);
+    console.log('ProfileMapper plan type:', typeof data.plan);
+    
+    // Don't try to parse or transform - just use the plan value directly
+    const plan = data.plan || undefined;
 
     return {
       id: data.id,

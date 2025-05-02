@@ -1,4 +1,4 @@
-import { UserProfile } from '@/types';
+import { UserProfile } from '@/types/profile';
 import { ApiClient, fetchWithRetry } from './api-client';
 import { captureError } from './error-handler';
 import { ProfileMapper } from './profile-mapper';
