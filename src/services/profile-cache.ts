@@ -1,4 +1,4 @@
-import { UserProfile } from '@/types';
+import { UserProfile } from '@/types/profile';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
