@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 export default function AuthLinks() {
   const { isAuthenticated } = useAuth();

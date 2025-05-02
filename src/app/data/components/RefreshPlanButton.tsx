@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createBrowserClient } from '@/lib/supabase';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 const RefreshPlanButton: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,10 +15,10 @@ const RefreshPlanButton: React.FC = () => {
     }
     
     setIsLoading(true);
-    setMessage('Refreshing profile data...');
+    setMessage('Refreshing data from Supabase...');
     
     try {
-      // First, get the current profile data directly from the database
+      // Get the current profile data directly from the database
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -29,37 +29,57 @@ const RefreshPlanButton: React.FC = () => {
         throw error;
       }
       
-      console.log('Fetched profile from database:', data);
-      
-      // Force a refresh of the profile in the auth context
-      await refreshProfile();
-      
-      setMessage('Profile refreshed successfully');
-      
-      // Reload the page to ensure all components re-render
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      if (data && data.plan) {
+        // Try direct update of localStorage to fix potential caching issues
+        try {
+          const storedAuth = localStorage.getItem('supabase.auth.token');
+          if (storedAuth) {
+            const authData = JSON.parse(storedAuth);
+            if (authData.currentSession?.user) {
+              // Force reload with a hard refresh
+              setMessage('Plan data refreshed, reloading page completely...');
+              setTimeout(() => {
+                window.location.href = window.location.href;
+              }, 1000);
+              return;
+            }
+          }
+        } catch (e) {
+          console.error('Error updating localStorage:', e);
+        }
+        
+        setMessage('Plan data refreshed successfully. Reloading...');
+        
+        // Force a context refresh 
+        await refreshProfile();
+        
+        // Hard reload the page to clear any cached data
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        setMessage('No plan data found in your Supabase profile');
+      }
     } catch (error) {
-      console.error('Error refreshing profile:', error);
-      setMessage('Error refreshing profile data');
+      console.error('Error refreshing profile data:', error);
+      setMessage('Error refreshing profile data from Supabase');
     } finally {
       setIsLoading(false);
     }
   };
   
   return (
-    <div className="mt-4">
+    <div>
       <button
         onClick={handleRefresh}
         disabled={isLoading}
-        className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded text-sm transition-colors disabled:opacity-50"
+        className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded transition-colors disabled:opacity-50"
       >
-        {isLoading ? 'Refreshing...' : 'Refresh Plan Data'}
+        {isLoading ? 'Refreshing Data...' : 'Refresh Subscription Data'}
       </button>
       
       {message && (
-        <p className="text-sm mt-2 text-gray-700">{message}</p>
+        <p className="text-sm mt-2 text-center text-gray-700">{message}</p>
       )}
     </div>
   );

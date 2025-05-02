@@ -9,7 +9,7 @@ interface BriefFormProps {
     end_date: string;
     description: string;
     consent: boolean;
-    business_name?: string;
+    name?: string;
   };
   formErrors: Record<string, string>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -73,7 +73,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="relative">
-            <label htmlFor="business_name" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
+            <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
               Business Name
               <button 
                 type="button"
@@ -93,14 +93,14 @@ const BriefForm: React.FC<BriefFormProps> = ({
             </label>
             <input
               type="text"
-              id="business_name"
-              name="business_name"
+              id="name"
+              name="name"
               className={`w-full px-4 py-3 border rounded-lg text-base transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none ${
                 focusedField === 'business_name' ? 'border-indigo-500' : 
                 formErrors.businessName ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="Your business name"
-              value={formData.business_name || ''}
+              value={formData.name || ''}
               onChange={handleChange}
               onFocus={() => setFocusedField('business_name')}
               onBlur={() => setFocusedField(null)}

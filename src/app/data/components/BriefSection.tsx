@@ -14,7 +14,7 @@ interface BriefSectionProps {
     end_date: string;
     description: string;
     consent: boolean;
-    business_name?: string;
+    name?: string;
   };
   formErrors: Record<string, string>;
   isSubmitting: boolean;

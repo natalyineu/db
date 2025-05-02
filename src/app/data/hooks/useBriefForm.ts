@@ -59,7 +59,7 @@ export function useBriefForm(
         ...prev,
         targetAudience: value
       }));
-    } else if (name === 'business_name') {
+    } else if (name === 'name') {
       setFormData(prev => ({
         ...prev,
         businessName: value
@@ -130,7 +130,7 @@ export function useBriefForm(
       if (isEditing && brief?.id) {
         console.log('Updating existing brief:', brief.id);
         const { data, error } = await supabase
-          .from('campaigns')
+          .from('briefs')
           .update(dataToSubmit)
           .eq('id', brief.id)
           .select()
@@ -143,7 +143,7 @@ export function useBriefForm(
       else {
         console.log('Creating new brief');
         const { data, error } = await supabase
-          .from('campaigns')
+          .from('briefs')
           .insert(dataToSubmit)
           .select()
           .single();
@@ -203,7 +203,7 @@ export function useBriefForm(
       console.log('Deleting brief:', brief.id);
       
       const { error } = await supabase
-        .from('campaigns')
+        .from('briefs')
         .delete()
         .eq('id', brief.id);
       
