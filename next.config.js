@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  skipTrailingSlashRedirect: true,
+  output: 'export',  // Static export to bypass dynamic rendering issues
   
   async headers() {
     return [
