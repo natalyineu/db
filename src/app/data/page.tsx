@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import { useProfile } from '@/features/profile';
+import { useProfile } from '@/features/profile/hooks/useProfile';
 import { createBrowserClient } from '@/lib/supabase';
 import { CleanBackground } from '@/components/ui';
 import { 
