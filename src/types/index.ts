@@ -1,43 +1,15 @@
-export interface UserProfile {
-  id: string;
-  email: string;
-  created_at: string;
-  updated_at?: string;
-  status?: string; // User account status
-  
-  // Plan information
-  plan?: string; // e.g., 'Starter', 'Growth', 'Enterprise'
-  
-  // Additional profile information
-  first_name?: string;
-  last_name?: string;
-  phone?: string;
-  address?: string;
-  city?: string;
-  country?: string;
-  postal_code?: string;
-  
-  // Preferences and settings
-  notification_preferences?: {
-    email?: boolean;
-    sms?: boolean;
-    push?: boolean;
-  };
-  theme_preference?: 'light' | 'dark' | 'system';
-  
-  // Activity data
-  last_login?: string;
-  login_count?: number;
-}
+// Export all type definitions from the profile module
+export * from './profile';
 
-export type ErrorResponse = {
+export interface ErrorResponse {
   code: string;
   message: string;
 } 
 
-export interface CampaignAsset {
+// Brief-related types - explicitly export these
+export interface BriefAsset {
   id: string;
-  campaign_id: string;
+  brief_id: string;
   url: string;  // Required, default to google.com
   drive_link?: string;  // Optional Google Drive link
   notes?: string;  // Optional comments/notes
@@ -45,21 +17,21 @@ export interface CampaignAsset {
   updated_at?: string;
 }
 
-export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
+export type BriefStatus = 'draft' | 'active' | 'paused' | 'completed';
 
-export type CampaignType = 'awareness' | 'consideration' | 'conversion' | 'social' | 'email' | 'display' | 'search' | 'video';
+export type BriefType = 'awareness' | 'consideration' | 'conversion' | 'social' | 'email' | 'display' | 'search' | 'video';
 
-export interface Campaign {
+export interface Brief {
   id: string;
   name: string;
-  status: CampaignStatus;
-  type: CampaignType;
+  status: BriefStatus;
+  type: BriefType;
   created_at: string;
   updated_at?: string;
   start_date?: string;
   end_date?: string;
   user_id: string;
-  assets?: CampaignAsset[];
+  assets?: BriefAsset[];
   
   // Additional properties for modern design
   budget: number;
@@ -74,3 +46,9 @@ export interface Campaign {
   platforms?: string[];
   performance_score?: number;
 } 
+
+// Legacy type aliases for backward compatibility
+export type CampaignAsset = BriefAsset;
+export type CampaignStatus = BriefStatus;
+export type CampaignType = BriefType;
+export type Campaign = Brief; 

@@ -1,4 +1,4 @@
-import { Brief, BriefAsset, BriefStatus, BriefType } from '@/types';
+import type { Brief, BriefAsset, BriefStatus, BriefType } from '@/types';
 import { createBrowserClient } from '@/lib/supabase';
 
 // Only log in development

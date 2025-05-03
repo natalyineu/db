@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { CampaignService } from '@/services/campaign-service';
-import { CampaignStatus, CampaignType } from '@/types';
+import { BriefService } from '@/services/brief-service';
+import type { BriefStatus, BriefType } from '@/types';
 
 type CreateCampaignProps = {
   userId: string;
@@ -13,8 +13,8 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
-  const [status, setStatus] = useState<CampaignStatus>('draft');
-  const [type, setType] = useState<CampaignType>('awareness');
+  const [status, setStatus] = useState<BriefStatus>('draft');
+  const [type, setType] = useState<BriefType>('awareness');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +29,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
     setIsSubmitting(true);
     
     try {
-      await CampaignService.createCampaign({
+      await BriefService.createBrief({
         name,
         status,
         type,
@@ -95,7 +95,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
               <select
                 id="campaignStatus"
                 value={status}
-                onChange={(e) => setStatus(e.target.value as CampaignStatus)}
+                onChange={(e) => setStatus(e.target.value as BriefStatus)}
                 className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="draft">Draft</option>
@@ -112,7 +112,7 @@ export default function CreateCampaignButton({ userId, onCampaignCreated }: Crea
               <select
                 id="campaignType"
                 value={type}
-                onChange={(e) => setType(e.target.value as CampaignType)}
+                onChange={(e) => setType(e.target.value as BriefType)}
                 className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="awareness">Awareness</option>
