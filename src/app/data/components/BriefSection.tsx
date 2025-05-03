@@ -66,8 +66,8 @@ const BriefSection: React.FC<BriefSectionProps> = ({
   };
   
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6 mb-5 sm:mb-8">
-      <div className="mb-4 sm:mb-6">
+    <div className="p-0 sm:p-0">
+      <div className="px-6 sm:px-8 pb-6">
         <BriefHeader 
           existingBrief={brief}
           isEditing={isEditing}
@@ -94,16 +94,18 @@ const BriefSection: React.FC<BriefSectionProps> = ({
 
       {/* Show BriefForm if no brief exists or if editing */}
       {(brief === null || isEditing) && (
-        <BriefForm 
-          formData={formData}
-          formErrors={formErrors}
-          handleChange={handleChange}
-          handleCheckboxChange={handleCheckboxChange}
-          handleSubmit={handleSubmit}
-          isSubmitting={isSubmitting || isDeleting}
-          currentDate={new Date().toISOString().split('T')[0]}
-          defaultEndDate={new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]}
-        />
+        <div className="px-6 sm:px-8 pb-6">
+          <BriefForm 
+            formData={formData}
+            formErrors={formErrors}
+            handleChange={handleChange}
+            handleCheckboxChange={handleCheckboxChange}
+            handleSubmit={handleSubmit}
+            isSubmitting={isSubmitting || isDeleting}
+            currentDate={new Date().toISOString().split('T')[0]}
+            defaultEndDate={new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0]}
+          />
+        </div>
       )}
     </div>
   );
