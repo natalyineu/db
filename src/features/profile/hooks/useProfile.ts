@@ -19,6 +19,66 @@ export function useProfile() {
   const supabase = createBrowserClient();
   
   /**
+   * Ensure the user profile exists via API
+   */
+  const ensureProfile = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      if (DEBUG) console.log('[useProfile] Ensuring profile existence via API');
+      
+      const response = await fetch('/api/ensure-profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await supabase.auth.getSession().then(({ data }) => data.session?.access_token)}`
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to ensure profile: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.profile) {
+        setProfile(data.profile);
+        setError(null);
+      }
+    } catch (err) {
+      if (DEBUG) console.error('[useProfile] Error ensuring profile:', err);
+      setError('Failed to create profile');
+    }
+  }, [user, supabase]);
+  
+  /**
+   * Get profile directly from API as fallback
+   */
+  const getProfileFromApi = useCallback(async () => {
+    if (!user?.id) return;
+    
+    try {
+      if (DEBUG) console.log('[useProfile] Getting profile directly from API');
+      
+      const response = await fetch(`/api/get-profile-direct?userId=${user.id}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get profile: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.profile) {
+        setProfile(data.profile);
+        setError(null);
+      }
+    } catch (err) {
+      if (DEBUG) console.error('[useProfile] Error getting profile from API:', err);
+      // Keep the original error message
+    }
+  }, [user]);
+  
+  /**
    * Fetch user profile from the database
    */
   const fetchProfile = useCallback(async () => {
@@ -79,67 +139,7 @@ export function useProfile() {
     } finally {
       setIsLoading(false);
     }
-  }, [user, supabase]);
-  
-  /**
-   * Ensure the user profile exists via API
-   */
-  const ensureProfile = useCallback(async () => {
-    if (!user?.id) return;
-    
-    try {
-      if (DEBUG) console.log('[useProfile] Ensuring profile existence via API');
-      
-      const response = await fetch('/api/ensure-profile', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await supabase.auth.getSession().then(({ data }) => data.session?.access_token)}`
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to ensure profile: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.profile) {
-        setProfile(data.profile);
-        setError(null);
-      }
-    } catch (err) {
-      if (DEBUG) console.error('[useProfile] Error ensuring profile:', err);
-      setError('Failed to create profile');
-    }
-  }, [user, supabase]);
-  
-  /**
-   * Get profile directly from API as fallback
-   */
-  const getProfileFromApi = useCallback(async () => {
-    if (!user?.id) return;
-    
-    try {
-      if (DEBUG) console.log('[useProfile] Getting profile directly from API');
-      
-      const response = await fetch(`/api/get-profile-direct?userId=${user.id}`);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to get profile: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.profile) {
-        setProfile(data.profile);
-        setError(null);
-      }
-    } catch (err) {
-      if (DEBUG) console.error('[useProfile] Error getting profile from API:', err);
-      // Keep the original error message
-    }
-  }, [user]);
+  }, [user, supabase, ensureProfile, getProfileFromApi]);
   
   /**
    * Update user profile
