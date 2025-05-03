@@ -1,12 +1,12 @@
-import React from 'react';
 import { BriefType } from '@/types';
+import React from 'react';
 
-interface CampaignIconProps {
+interface BriefIconProps {
   type: BriefType;
   className?: string;
 }
 
-const CampaignIcon = ({ type, className = "w-10 h-10" }: CampaignIconProps) => {
+const BriefIcon = ({ type, className = "w-10 h-10" }: BriefIconProps) => {
   // Determine the appropriate icon based on type
   const getIcon = () => {
     switch (type) {
@@ -55,4 +55,4 @@ const CampaignIcon = ({ type, className = "w-10 h-10" }: CampaignIconProps) => {
   return getIcon();
 };
 
-export default CampaignIcon; 
+export default BriefIcon; 

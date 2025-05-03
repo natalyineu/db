@@ -1,129 +1,140 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Campaign } from '@/types';
+import { Brief } from '@/types';
 import CampaignItem from './CampaignItem';
-import { useCampaignList } from '@/hooks/useCampaignList';
+import { useBriefList } from '@/hooks/useBriefList';
 import Pagination from './Pagination';
-import SortControls from './SortControls';
 
+/**
+ * @deprecated Use BriefList component instead
+ */
 interface CampaignListProps {
-  campaigns: Campaign[] | null;
-  isLoading: boolean;
-  onRefreshNeeded?: () => void;
+  campaigns: Brief[] | null;
+  isLoading?: boolean;
   showEditButton?: boolean;
+  onSelect?: (campaign: Brief) => void;
+  onDelete?: (campaignId: string) => Promise<void>;
+  onView?: (campaignId: string) => void;
 }
 
-const CampaignList = ({ 
-  campaigns, 
-  isLoading, 
-  onRefreshNeeded, 
-  showEditButton = false 
+/**
+ * @deprecated Use BriefList component instead
+ */
+const CampaignList = ({
+  campaigns,
+  isLoading = false,
+  showEditButton = false,
+  onSelect,
+  onDelete,
+  onView
 }: CampaignListProps) => {
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Use the useBriefList hook to handle pagination, sorting, etc.
   const {
     page,
-    totalPages,
-    paginatedCampaigns,
+    itemsPerPage,
     sortField,
     sortDirection,
+    totalPages,
+    paginatedBriefs,
+    setPage,
+    setItemsPerPage,
     handleSortChange,
-    handlePageChange
-  } = useCampaignList({
-    campaigns,
+    handlePageChange,
+  } = useBriefList({
+    briefs: campaigns,
     defaultSortField: 'created_at',
-    defaultSortDirection: 'desc'
+    defaultSortDirection: 'desc',
+    defaultItemsPerPage: 5,
   });
 
-  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-  
-  // Handle campaign update (used by child components)
   const handleCampaignUpdate = useCallback(() => {
-    if (onRefreshNeeded) {
-      onRefreshNeeded();
+    // Any update logic if needed
+  }, []);
+
+  const handleDeleteClick = useCallback((campaignId: string) => {
+    setDeleteConfirmId(campaignId);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(async (campaignId: string) => {
+    if (onDelete) {
+      await onDelete(campaignId);
     }
-  }, [onRefreshNeeded]);
+    setDeleteConfirmId(null);
+  }, [onDelete]);
+
+  const handleDeleteCancel = useCallback(() => {
+    setDeleteConfirmId(null);
+  }, []);
 
   // Loading state
   if (isLoading) {
     return (
-      <div className="space-y-4 theme-transition">
-        {[...Array(3)].map((_, index) => (
-          <div key={`skeleton-${index}`} className="bg-card shadow-app-sm border-app rounded-lg p-5 animate-pulse">
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-hover dark:bg-dark-hover rounded-full"></div>
-              <div className="flex-1">
-                <div className="w-1/3 h-5 bg-hover dark:bg-dark-hover rounded mb-2"></div>
-                <div className="w-1/4 h-4 bg-hover dark:bg-dark-hover rounded mb-4"></div>
-                <div className="w-1/2 h-4 bg-hover dark:bg-dark-hover rounded"></div>
-              </div>
-              <div className="w-20 h-6 bg-hover dark:bg-dark-hover rounded-full"></div>
+      <div className="p-8 flex justify-center">
+        <div className="animate-pulse flex space-x-4">
+          <div className="flex-1 space-y-4 py-1">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="space-y-2">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
     );
   }
-  
+
   // Empty state
   if (!campaigns || campaigns.length === 0) {
     return (
-      <div className="bg-card shadow-app-sm border-app rounded-lg p-8 text-center theme-transition">
-        <svg 
-          className="mx-auto h-12 w-12 text-secondary" 
-          fill="none" 
-          viewBox="0 0 24 24" 
-          stroke="currentColor" 
-          aria-hidden="true"
-        >
-          <path 
-            vectorEffect="non-scaling-stroke" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={1} 
-            d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" 
-          />
-        </svg>
-        <h3 className="mt-2 text-sm font-medium text-primary">No campaigns</h3>
-        <p className="mt-1 text-sm text-secondary">
-          Get started by creating your first campaign.
-        </p>
+      <div className="text-center p-8">
+        <p className="text-gray-500">No campaigns yet.</p>
+        {onSelect && (
+          <button 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            onClick={() => onSelect({} as Brief)}
+          >
+            Create Your First Campaign
+          </button>
+        )}
       </div>
     );
   }
-  
-  // Filter campaigns by status if a filter is selected
-  const filteredCampaigns = selectedStatus 
-    ? paginatedCampaigns.filter(campaign => campaign.status === selectedStatus)
-    : paginatedCampaigns;
+
+  // Filter by status if needed
+  const filteredCampaigns = paginatedBriefs;
   
   return (
-    <div className="space-y-4 theme-transition">
-      <SortControls 
-        totalItems={campaigns.length}
-        selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        handleSortChange={handleSortChange}
-      />
-      
+    <div className="w-full">
       <div className="space-y-4">
         {filteredCampaigns.map(campaign => (
-          <CampaignItem 
-            key={campaign.id} 
-            campaign={campaign} 
+          <CampaignItem
+            key={campaign.id}
+            campaign={campaign}
             onUpdate={handleCampaignUpdate}
             showEditButton={showEditButton}
+            onEdit={onSelect}
+            onDelete={handleDeleteClick}
+            onView={onView}
+            isDeleting={deleteConfirmId === campaign.id}
+            onDeleteConfirm={handleDeleteConfirm}
+            onDeleteCancel={handleDeleteCancel}
           />
         ))}
       </div>
       
-      <Pagination
-        page={page}
-        totalPages={totalPages}
-        totalItems={campaigns.length}
-        handlePageChange={handlePageChange}
-      />
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-4">
+          <Pagination 
+            page={page}
+            totalPages={totalPages}
+            handlePageChange={handlePageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

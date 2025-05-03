@@ -7,4 +7,4 @@ export { default as AccountHeader } from './AccountHeader';
 export { default as BriefSection } from './BriefSection';
 export { Icons } from './icons';
 export { default as RefreshPlanButton } from './RefreshPlanButton';
-export { default as CheckProfileButton } from './CheckProfileButton'; 
+export { default as BriefForm } from './BriefForm'; 

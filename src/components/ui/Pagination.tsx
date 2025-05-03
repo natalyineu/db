@@ -3,12 +3,61 @@ import React from 'react';
 interface PaginationProps {
   page: number;
   totalPages: number;
-  totalItems: number;
+  totalItems?: number;
   handlePageChange: (page: number) => void;
 }
 
 const Pagination = ({ page, totalPages, totalItems, handlePageChange }: PaginationProps) => {
   if (totalPages <= 1) return null;
+  
+  // Create array of page numbers to display - uses more adaptive approach from PaginationControls
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxPagesToShow = 5;
+    
+    if (totalPages <= maxPagesToShow) {
+      // Show all pages if we have less than or equal to maxPagesToShow
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Always show first page
+      pages.push(1);
+      
+      // Calculate start and end of middle pages to show
+      let startPage = Math.max(2, page - 1);
+      let endPage = Math.min(totalPages - 1, page + 1);
+      
+      // Adjust if we're showing less than 3 middle pages
+      if (endPage - startPage < 2) {
+        if (page <= 3) {
+          endPage = Math.min(4, totalPages - 1);
+        } else {
+          startPage = Math.max(2, totalPages - 3);
+        }
+      }
+      
+      // Add separator if needed
+      if (startPage > 2) {
+        pages.push(-1); // Use -1 to indicate separator
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      // Add separator if needed
+      if (endPage < totalPages - 1) {
+        pages.push(-2); // Use -2 to indicate separator
+      }
+      
+      // Always show last page
+      pages.push(totalPages);
+    }
+    
+    return pages;
+  };
   
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-card border-t border-app rounded-b-lg theme-transition">
@@ -39,13 +88,15 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
       </div>
       
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm text-secondary">
-            Showing <span className="font-medium">{Math.min((page - 1) * 10 + 1, totalItems)}</span> to{' '}
-            <span className="font-medium">{Math.min(page * 10, totalItems)}</span> of{' '}
-            <span className="font-medium">{totalItems}</span> results
-          </p>
-        </div>
+        {totalItems && (
+          <div>
+            <p className="text-sm text-secondary">
+              Showing <span className="font-medium">{Math.min((page - 1) * 10 + 1, totalItems)}</span> to{' '}
+              <span className="font-medium">{Math.min(page * 10, totalItems)}</span> of{' '}
+              <span className="font-medium">{totalItems}</span> results
+            </p>
+          </div>
+        )}
         
         <div>
           <nav className="inline-flex rounded-md shadow-app-sm -space-x-px" aria-label="Pagination">
@@ -77,21 +128,16 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
               </svg>
             </button>
             
-            {/* Page buttons */}
-            {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-              // Logic to show pages around current page
-              let pageNum = 1;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (page <= 3) {
-                pageNum = i + 1;
-              } else if (page >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = page - 2 + i;
-              }
-              
-              return (
+            {/* Page buttons - using the improved algorithm */}
+            {getPageNumbers().map((pageNum, index) => (
+              pageNum < 0 ? (
+                <span 
+                  key={`separator-${index}`}
+                  className="relative inline-flex items-center px-4 py-2 border border-app bg-card text-sm font-medium text-secondary"
+                >
+                  ...
+                </span>
+              ) : (
                 <button
                   key={`page-${pageNum}`}
                   onClick={() => handlePageChange(pageNum)}
@@ -102,8 +148,8 @@ const Pagination = ({ page, totalPages, totalItems, handlePageChange }: Paginati
                 >
                   {pageNum}
                 </button>
-              );
-            })}
+              )
+            ))}
             
             <button
               onClick={() => handlePageChange(page + 1)}

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth/auth-context';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 import { FormField, MessageDisplay } from '@/components/ui';
 
 export default function RegisterForm() {
@@ -11,7 +11,7 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [messageState, setMessageState] = useState<{ type: 'success' | 'error', text: string } | null>(null);
-  const { signUp, error: authError, loadingState } = useAuth();
+  const { signUp, error: authError, isLoading } = useAuth();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,10 +141,10 @@ export default function RegisterForm() {
           <div>
             <button
               type="submit"
-              disabled={isSubmitting || loadingState.signUp}
+              disabled={isSubmitting || isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ai-vertise-gradient-bg hover:opacity-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting || loadingState.signUp ? (
+              {isSubmitting || isLoading ? (
                 <span className="flex items-center">
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

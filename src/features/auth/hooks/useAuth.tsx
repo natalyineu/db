@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  // Get the singleton Supabase client instance (won't create duplicates)
   const supabase = createBrowserClient();
   const router = useRouter();
   
@@ -207,10 +208,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       setIsLoading(true);
-      await supabase.auth.signOut();
+      
+      // First perform client-side cleanup regardless of session state
+      // This ensures the user is always "logged out" from the app's perspective
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      
+      // Clear any stored auth data from local storage to be thorough
+      if (typeof window !== 'undefined') {
+        // Remove specific Supabase auth items from local storage
+        const keys = Object.keys(localStorage);
+        const supabaseKeys = keys.filter(key => key.startsWith('sb-') || key.includes('supabase'));
+        
+        for (const key of supabaseKeys) {
+          localStorage.removeItem(key);
+        }
+      }
+      
+      try {
+        // Try to sign out with Supabase - this might fail if there's no session
+        // We wrap this in its own try/catch to handle that specific error
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch (signOutError: any) {
+        // If we get AuthSessionMissingError, that's expected in some cases
+        // and we can ignore it since we've already cleared the client state
+        if (signOutError.name === 'AuthSessionMissingError') {
+          console.log('No active session found, but client-side logout completed');
+        } else {
+          // For other errors, log but don't throw - we still want to redirect
+          console.error('Supabase sign out error:', signOutError);
+        }
+      }
+      
+      // Always redirect to login page
       router.push('/login');
     } catch (error: any) {
-      setError(error.message || 'Failed to sign out');
+      console.error('Sign out process error:', error);
+      setError('Failed to complete sign out process');
+      
+      // Even if the process fails, try to redirect to login
+      router.push('/login');
     } finally {
       setIsLoading(false);
     }

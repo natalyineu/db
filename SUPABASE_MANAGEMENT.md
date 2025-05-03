@@ -77,4 +77,40 @@ The plans table has the following structure:
 - `impressions_limit`: Integer (required)
 - `features`: JSON object
 
-Remember to refresh your application after making changes to see them reflected in the UI. 
+Remember to refresh your application after making changes to see them reflected in the UI.
+
+## RLS Policies Fix
+
+If you're experiencing issues with Row Level Security policies in your Supabase project, you need to apply the RLS migration. There are two ways to do this:
+
+### Option 1: Using the Supabase Dashboard SQL Editor
+
+1. Log in to your Supabase dashboard
+2. Navigate to the SQL Editor
+3. Create a new query
+4. Copy and paste the contents of `src/migrations/supabase-rls-fix.sql` into the editor
+5. Run the query
+
+### Option 2: Using the Supabase CLI
+
+If you have the Supabase CLI installed, you can run:
+
+```bash
+supabase db push
+```
+
+This will apply all migrations to your project.
+
+## Common Errors
+
+### New row violates row-level security policy for table "profiles"
+
+This error occurs when Row Level Security policies prevent inserting new profiles. To fix this, apply the RLS migration which sets proper security policies for both profiles and briefs tables.
+
+### Error fetching campaigns: {}
+
+This usually happens when:
+1. Row Level Security policies are not properly set up for the briefs table
+2. You're trying to query the wrong table (campaigns vs briefs)
+
+The fixes in the RLS migration should address both of these issues. 

@@ -2,12 +2,6 @@ import { UserProfile } from '@/types';
 import { ProfileMapper } from '@/services/profile-mapper';
 
 /**
- * Map database profile data to UserProfile type
- * @deprecated Use ProfileMapper.mapProfileData instead
- */
-export const mapProfileData = ProfileMapper.mapProfileData;
-
-/**
  * Safely parses a profile JSON string
  * @param jsonString The JSON string to parse
  * @returns UserProfile object or null if invalid

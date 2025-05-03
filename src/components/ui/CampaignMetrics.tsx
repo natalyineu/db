@@ -3,32 +3,41 @@
 import React from 'react';
 
 interface CampaignMetricsProps {
-  budget: number;
-  spent: number;
-  roas?: number;
-  formatCurrency: (value: number) => string;
+  budget: string;
+  spent?: string;
+  impressions?: number;
+  clicks?: number;
+  conversions?: number;
 }
 
 const CampaignMetrics: React.FC<CampaignMetricsProps> = ({ 
   budget, 
   spent, 
-  roas, 
-  formatCurrency 
+  impressions,
+  clicks,
+  conversions
 }) => {
   return (
-    <div className="grid grid-cols-3 gap-4 mb-4">
+    <div className="grid grid-cols-3 gap-4 my-3">
       {[
-        { label: 'Budget', value: formatCurrency(budget) },
-        { label: 'Spent', value: formatCurrency(spent || 0) },
+        { label: 'Budget', value: budget },
+        { label: 'Spent', value: spent || '-' },
         { 
-          label: 'ROAS', 
-          value: roas ? `${roas.toFixed(1)}x` : 'N/A',
-          highlight: roas && roas > 2
+          label: 'Impressions', 
+          value: impressions ? impressions.toLocaleString() : '-'
+        },
+        {
+          label: 'Clicks',
+          value: clicks ? clicks.toLocaleString() : '-'
+        },
+        {
+          label: 'Conversions',
+          value: conversions ? conversions.toLocaleString() : '-'
         }
-      ].map((metric, index) => (
+      ].slice(0, 3).map((metric, index) => (
         <div key={index} className="text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">{metric.label}</p>
-          <p className={`text-sm font-semibold ${metric.highlight ? 'text-green-500' : 'text-gray-900 dark:text-white'}`}>
+          <p className="text-sm font-semibold text-gray-900 dark:text-white">
             {metric.value}
           </p>
         </div>

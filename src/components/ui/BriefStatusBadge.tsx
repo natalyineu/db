@@ -1,8 +1,7 @@
 import { BriefStatus } from '@/types';
 import React, { memo } from 'react';
 
-// Display status badge with appropriate color and better contrast
-const CampaignStatusBadge = memo(({ status }: { status: BriefStatus }) => {
+const BriefStatusBadge = memo(({ status }: { status: BriefStatus }) => {
   // Determine the appropriate color based on status
   const getStatusColor = () => {
     switch (status) {
@@ -33,6 +32,6 @@ const CampaignStatusBadge = memo(({ status }: { status: BriefStatus }) => {
   );
 });
 
-CampaignStatusBadge.displayName = 'CampaignStatusBadge';
+BriefStatusBadge.displayName = 'BriefStatusBadge';
 
-export default CampaignStatusBadge; 
+export default BriefStatusBadge; 

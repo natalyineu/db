@@ -1,11 +1,8 @@
 import React from 'react';
 
+// Simple placeholder component since we're removing the debug functionality
 const CheckProfileButton: React.FC = () => {
-  return (
-    <div className="mt-2">
-      {/* All plan tools and schema functionality removed */}
-    </div>
-  );
+  return null;
 };
 
 export default CheckProfileButton; 

@@ -119,10 +119,37 @@ Visit [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## Recent Improvements
 
-- **Improved Error Handling**: Enhanced error handling with contextual error objects that preserve stack traces and original errors
-- **Code Reusability**: Reduced code duplication in profile mapping with utility functions
-- **Environment Variables**: Added environment variable control for auth bypass in development mode with `NEXT_PUBLIC_BYPASS_AUTH`
-- **Consistent Error Handling**: Standardized error handling across API client and services
+The codebase has undergone significant refactoring to improve maintainability and reduce redundancy:
+
+### Phase 1: Core Architecture
+
+1. **Centralized Services**:
+   - Unified Supabase client management
+   - Consolidated profile management logic
+   - Standardized API error handling
+
+2. **Improved Architecture**:
+   - Clear separation between client/server utilities
+   - Single source of truth for profile operations
+   - Consistent error handling across API routes
+
+### Phase 2: Type Safety & Standardization
+
+1. **Enhanced Type System**:
+   - Dedicated type definitions for profiles
+   - Type-safe update operations
+   - Standardized error responses
+
+2. **Data Consistency**:
+   - Profile mapper utility for reliable data conversion
+   - Consistent status representation
+   - Database-to-application type mapping
+
+3. **Testing Framework**:
+   - Unit tests for utilities
+   - Improved error handling
+
+For details on the refactoring changes and how to use the new utilities, see [REFACTORING.md](REFACTORING.md).
 
 # AI-Vertise Platform
 

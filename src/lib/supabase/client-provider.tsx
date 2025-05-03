@@ -1,6 +1,6 @@
 'use client';
 
-import { createBrowserClient } from '@/lib/supabase';
+import { createBrowserClient } from './client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -13,8 +13,8 @@ const Context = createContext<SupabaseContext | undefined>(undefined);
 
 // Provider component to wrap the app with
 export function SupabaseProvider({ children }: { children: ReactNode }) {
-  // Create the client once
-  const [supabase] = useState(() => createBrowserClient());
+  // Get the singleton client instance
+  const supabase = createBrowserClient();
 
   return (
     <Context.Provider value={{ supabase }}>

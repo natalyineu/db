@@ -4,8 +4,7 @@ export * from './profile';
 /**
  * TERMINOLOGY STANDARDIZATION:
  * This codebase consistently uses "Brief" terminology.
- * The "Campaign" types are maintained for backward compatibility but are deprecated.
- * All new code should use the Brief-related types directly.
+ * All code uses the Brief-related types directly.
  */
 
 export interface ErrorResponse {
@@ -53,13 +52,3 @@ export interface Brief {
   platforms?: string[];
   performance_score?: number;
 } 
-
-// Legacy type aliases for backward compatibility
-// @deprecated - Use BriefAsset instead
-export type CampaignAsset = BriefAsset;
-// @deprecated - Use BriefStatus instead
-export type CampaignStatus = BriefStatus;
-// @deprecated - Use BriefType instead
-export type CampaignType = BriefType;
-// @deprecated - Use Brief instead
-export type Campaign = Brief; 

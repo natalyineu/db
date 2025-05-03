@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { SupabaseProvider } from '@/lib/supabase/client-provider';
-import { AuthProvider } from '@/lib/auth/auth-context';
+import { AuthProvider } from '@/features/auth/hooks/useAuth';
 import { ThemeProvider } from '@/lib/ThemeContext';
 
 export default function ClientProviders({ children }: { children: ReactNode }) {

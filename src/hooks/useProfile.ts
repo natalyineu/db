@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/lib/auth';
-import { fetchProfileDirect } from '@/utils';
+import { useAuth } from '@/features/auth/hooks/useAuth';
+import { ProfileApi } from '@/services/profile-api';
 import { UserProfile } from '@/types';
 
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
 
+/**
+ * @deprecated This hook is deprecated. Please use "@/features/profile/hooks/useProfile" instead.
+ */
 interface UseProfileReturn {
   profile: UserProfile | null;
   loading: boolean;
@@ -16,7 +19,12 @@ interface UseProfileReturn {
   retry: () => void;
 }
 
+/**
+ * @deprecated This hook is deprecated. Please use "@/features/profile/hooks/useProfile" instead.
+ */
 export function useProfile(maxRetries = 3): UseProfileReturn {
+  console.warn('[DEPRECATED] The useProfile hook in src/hooks/useProfile.ts is deprecated. Please use "@/features/profile/hooks/useProfile" instead.');
+  
   const { profile, user, isLoading, isAuthenticated, refreshProfile, error: authError } = useAuth();
   const [retryCount, setRetryCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -36,9 +44,14 @@ export function useProfile(maxRetries = 3): UseProfileReturn {
     
     try {
       if (DEBUG) console.log('Making direct database call to profiles table');
-      const userProfile = await fetchProfileDirect(user.id);
+      const userProfile = await ProfileApi.fetchProfileDirectly(user.id);
       
       if (userProfile) {
+        // Log the plan data for debugging
+        if (DEBUG) {
+          console.log('Profile data retrieved directly:', userProfile);
+          console.log('Plan data:', userProfile.plan);
+        }
         setLocalProfile(userProfile);
         setError(null);
       } else {
@@ -51,6 +64,14 @@ export function useProfile(maxRetries = 3): UseProfileReturn {
       setLoading(false);
     }
   }, [user]);
+  
+  // Log profile data when it changes
+  useEffect(() => {
+    if (DEBUG && profile) {
+      console.log('Profile data from auth context:', profile);
+      console.log('Plan data from auth context:', profile.plan);
+    }
+  }, [profile]);
   
   // Simple retry logic
   useEffect(() => {
