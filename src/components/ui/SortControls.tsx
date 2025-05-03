@@ -1,13 +1,19 @@
 import React from 'react';
-import { Campaign } from '@/types';
+import { Brief } from '@/types';
+
+/**
+ * TERMINOLOGY STANDARDIZATION:
+ * This codebase consistently uses "Brief" terminology.
+ * This component has been updated to use Brief instead of Campaign.
+ */
 
 interface SortControlsProps {
   totalItems: number;
   selectedStatus: string | null;
   setSelectedStatus: (status: string | null) => void;
-  sortField: keyof Campaign;
+  sortField: keyof Brief;
   sortDirection: 'asc' | 'desc';
-  handleSortChange: (field: keyof Campaign) => void;
+  handleSortChange: (field: keyof Brief) => void;
 }
 
 const SortControls = ({
@@ -23,7 +29,7 @@ const SortControls = ({
   return (
     <div className="bg-card border-b border-app rounded-t-lg flex flex-wrap justify-between items-center px-6 py-4 theme-transition">
       <div className="flex items-center space-x-2">
-        <h2 className="text-lg font-medium text-primary">Campaigns</h2>
+        <h2 className="text-lg font-medium text-primary">Briefs</h2>
         <span className="bg-hover dark:bg-dark-hover text-secondary py-0.5 px-2 rounded-full text-xs font-medium">
           {totalItems}
         </span>
@@ -57,7 +63,7 @@ const SortControls = ({
           <select
             id="sort-field"
             value={sortField}
-            onChange={(e) => handleSortChange(e.target.value as keyof Campaign)}
+            onChange={(e) => handleSortChange(e.target.value as keyof Brief)}
             className="block w-full rounded-md border-app bg-card text-primary py-1.5 shadow-sm focus:border-primary-400 focus:ring focus:ring-primary-200 focus:ring-opacity-50 sm:text-sm theme-transition"
           >
             <option value="name">Name</option>

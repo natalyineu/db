@@ -1,6 +1,13 @@
 import type { Brief, BriefAsset, BriefStatus, BriefType } from '@/types';
 import { createBrowserClient } from '@/lib/supabase';
 
+/**
+ * TERMINOLOGY STANDARDIZATION:
+ * This codebase consistently uses "Brief" terminology.
+ * The "briefs" table in Supabase is used for storing brief data.
+ * All CRUD operations use Brief terminology.
+ */
+
 // Only log in development
 const DEBUG = process.env.NODE_ENV !== 'production';
 
@@ -274,7 +281,4 @@ export class BriefService {
       updated_at: asset.updated_at ? String(asset.updated_at) : undefined
     };
   }
-}
-
-// For backward compatibility
-export const CampaignService = BriefService; 
+} 
