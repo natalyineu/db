@@ -148,8 +148,8 @@ export default function AccountOverviewPage() {
     }
   };
 
-  // Combined loading state
-  const isLoading = authLoading || profileLoading;
+  // Combined loading state - fix to prevent spinner when data is actually loaded
+  const isLoading = (authLoading || profileLoading) && !profile;
 
   if (isLoading) {
     return (
@@ -212,7 +212,7 @@ export default function AccountOverviewPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-sm p-5 border border-gray-100 hover:shadow-md transition-shadow duration-300 relative overflow-hidden">
             <div className="z-10 relative">
-              <div className="text-sm font-medium text-gray-500 mb-1">Campaign Status</div>
+              <div className="text-sm font-medium text-gray-500 mb-1">Brief Status</div>
               <div className="text-xl font-semibold text-gray-800 capitalize flex items-center gap-2">
                 {campaignStatus}
                 <span className={`inline-block h-2 w-2 rounded-full ${
@@ -242,31 +242,31 @@ export default function AccountOverviewPage() {
           {/* Left Column - Brief and Account Info */}
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             {/* Campaign Brief Section */}
-            <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-4 px-1">Campaign Brief</h2>
-          <BriefSection
-            brief={brief}
-            isEditing={isEditing}
-            formData={{
-              platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
-              target_audience: formData.targetAudience || '',
-              location: formData.location || '',
-              start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
-              end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
-              description: formData.additionalNotes || '',
-              consent: formData.consent || false,
-              name: formData.businessName || ''
-            }}
-            formErrors={Object.fromEntries(
-              Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
-            )}
-            isSubmitting={isSubmitting}
-            onEdit={handleEditBrief}
-            onDelete={handleDeleteBrief}
-            handleChange={handleChange}
-            handleCheckboxChange={handleCheckboxChange}
-            handleSubmit={handleSubmit}
-          />
+            <div className="h-full">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 px-1">Brief</h2>
+              <BriefSection
+                brief={brief}
+                isEditing={isEditing}
+                formData={{
+                  platforms: [formData.landingPageUrl || '', formData.creativesLink || ''],
+                  target_audience: formData.targetAudience || '',
+                  location: formData.location || '',
+                  start_date: formData.start_date || new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0],
+                  end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
+                  description: formData.additionalNotes || '',
+                  consent: formData.consent || false,
+                  name: formData.businessName || ''
+                }}
+                formErrors={Object.fromEntries(
+                  Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]
+                )}
+                isSubmitting={isSubmitting}
+                onEdit={handleEditBrief}
+                onDelete={handleDeleteBrief}
+                handleChange={handleChange}
+                handleCheckboxChange={handleCheckboxChange}
+                handleSubmit={handleSubmit}
+              />
             </div>
             
             {/* Account Information */}
@@ -323,7 +323,7 @@ export default function AccountOverviewPage() {
                     {briefStatus === 'Yes' ? '✓' : '1'}
                   </div>
                   <div>
-                    <div className="font-medium text-gray-800">Create Campaign Brief</div>
+                    <div className="font-medium text-gray-800">Create Brief</div>
                     <div className="text-sm text-gray-600 mt-1">
                       {briefStatus === 'Yes' ? 'Completed' : briefStatus === 'In Progress' ? 'In progress' : 'Set up your marketing requirements'}
                     </div>
@@ -347,9 +347,9 @@ export default function AccountOverviewPage() {
                     {campaignStatus === 'online' ? '✓' : '3'}
                   </div>
                   <div>
-                    <div className="font-medium text-gray-800">Campaign Launch</div>
+                    <div className="font-medium text-gray-800">Brief Launch</div>
                     <div className="text-sm text-gray-600 mt-1">
-                      {campaignStatus === 'online' ? 'Campaign is live' : campaignStatus === 'in progress' ? 'Campaign is being prepared' : 'Launch your campaign'}
+                      {campaignStatus === 'online' ? 'Brief is live' : campaignStatus === 'in progress' ? 'Brief is being prepared' : 'Launch your brief'}
                     </div>
                   </div>
                 </div>

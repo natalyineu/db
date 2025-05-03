@@ -9,8 +9,8 @@ import AuthLinks from "@/components/AuthLinks";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "AI-Vertise - AI-Powered Campaign Management",
-  description: "The most advanced AI campaign management platform for 2025",
+  title: "AI-Vertise - AI-Powered Brief Management",
+  description: "The most advanced AI brief management platform for 2025",
   other: {
     "referrer": "no-referrer"
   }
@@ -25,6 +25,7 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} suppressHydrationWarning>
       <head>
         <meta name="referrer" content="no-referrer" />
+        <meta name="description" content="The most advanced AI-powered brief management platform, designed for the digital marketers of 2025." />
       </head>
       <body className="min-h-screen theme-transition bg-gray-50 flex flex-col" suppressHydrationWarning>
         <ClientProviders>
@@ -43,7 +44,7 @@ export default function RootLayout({
               {/* Desktop Navigation */}
               <nav className="hidden ml-12 md:flex space-x-8">
                 {[
-                  { label: 'Campaigns', href: '/data' },
+                  { label: 'Briefs', href: '/data' },
                 ].map((item, index) => (
                   <Link
                     key={index}

@@ -85,7 +85,7 @@ export default function RegisterForm() {
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">Create Your Account</h1>
-          <p className="mt-2 text-gray-600">Join us to create and manage effective ad campaigns</p>
+          <p className="mt-2 text-gray-600">Join us to create and manage effective ad briefs</p>
         </div>
         
         {messageForDisplay && (
@@ -164,9 +164,13 @@ export default function RegisterForm() {
               Log in
             </Link>
           </p>
-          <p className="mt-2 text-gray-500 text-xs">
-            By signing up, you'll get access to our campaign management tools, detailed reports, and expert ad optimization services.
-          </p>
+          <div className="text-center mt-6 mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900">Create an Account</h2>
+            <p className="mt-2 text-gray-600">Join us to create and manage effective ad briefs</p>
+          </div>
+          <div className="mt-6 text-sm text-gray-600 text-center">
+            By signing up, you'll get access to our brief management tools, detailed reports, and expert ad optimization services.
+          </div>
         </div>
       </div>
     </main>
