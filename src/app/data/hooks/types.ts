@@ -25,7 +25,7 @@ export interface SubmissionData {
   user_id: string;
   name: string;
   status: string;
-  type: string;
+  type?: string;
   budget: number;
   start_date?: string;
   end_date?: string;

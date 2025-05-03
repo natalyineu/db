@@ -52,7 +52,7 @@ export class BriefService {
         name: briefData.name,
         status: briefData.status,
         user_id: briefData.user_id,
-        type: briefData.type || 'awareness' as BriefType, // Use provided type or default
+        goal: briefData.goal || 'Awareness', // Prioritize goal field
         budget: 0, // Default budget
         ...(briefData.start_date && { start_date: briefData.start_date }),
         ...(briefData.end_date && { end_date: briefData.end_date })
@@ -247,8 +247,7 @@ export class BriefService {
       id: String(item.id || ''),
       name: String(item.name || ''),
       status: (item.status as BriefStatus) || 'draft',
-      type: (item.type as BriefType) || 'display',
-      goal: item.goal || 'Awareness',
+      goal: item.goal || 'Awareness', // Always set goal field
       created_at: String(item.created_at || new Date().toISOString()),
       updated_at: item.updated_at ? String(item.updated_at) : undefined,
       start_date: item.start_date ? String(item.start_date) : undefined,

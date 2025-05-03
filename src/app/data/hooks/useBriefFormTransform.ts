@@ -32,7 +32,6 @@ export function transformFormDataForSubmission(
     user_id: userId,
     name: formData.businessName?.trim() || "New Campaign",
     status: 'draft', // Default to draft status
-    type: 'awareness', // Default to awareness as the campaign type
     goal: formData.goal || 'Awareness', // Use the goal from form data or default to Awareness
     budget: 0, // Default budget value
     // Always set dates, using defaults if not provided

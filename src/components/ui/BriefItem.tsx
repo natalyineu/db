@@ -57,33 +57,24 @@ const BriefItem = ({
     }
   };
 
-  // Get type display information
-  const getTypeInfo = (type: BriefType) => {
-    switch (type) {
-      case 'awareness':
-        return { icon: '👁️', label: 'Awareness' };
-      case 'consideration':
-        return { icon: '🤔', label: 'Consideration' };
-      case 'conversion':
-        return { icon: '💰', label: 'Conversion' };
-      case 'social':
-        return { icon: '👥', label: 'Social' };
-      case 'email':
-        return { icon: '📧', label: 'Email' };
-      case 'display':
-        return { icon: '🖼️', label: 'Display' };
-      case 'search':
-        return { icon: '🔍', label: 'Search' };
-      case 'video':
-        return { icon: '📹', label: 'Video' };
-      default:
-        return { icon: '📝', label: type };
-    }
-  };
-
   // Get the status display
   const statusInfo = getStatusInfo(brief.status);
-  const typeInfo = getTypeInfo(brief.type);
+  
+  // Instead of using type, show goal
+  const getGoalInfo = (goal: string) => {
+    switch (goal) {
+      case 'Awareness':
+        return { icon: '👁️', label: 'Awareness' };
+      case 'Consideration':
+        return { icon: '🤔', label: 'Consideration' };
+      case 'Conversions':
+        return { icon: '💰', label: 'Conversions' };
+      default:
+        return { icon: '📝', label: goal };
+    }
+  };
+  
+  const goalInfo = getGoalInfo(brief.goal || 'Awareness');
 
   // Handle view action
   const handleView = () => {
@@ -131,7 +122,7 @@ const BriefItem = ({
           <div className="flex items-start space-x-4">
             {/* Type icon */}
             <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-xl">
-              <span role="img" aria-label={typeInfo.label}>{typeInfo.icon}</span>
+              <span role="img" aria-label={goalInfo.label}>{goalInfo.icon}</span>
             </div>
             
             <div>

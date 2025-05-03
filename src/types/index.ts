@@ -25,6 +25,7 @@ export interface BriefAsset {
 
 export type BriefStatus = 'draft' | 'active' | 'paused' | 'completed';
 
+// This is being deprecated in favor of GoalType
 export type BriefType = 'awareness' | 'consideration' | 'conversion' | 'social' | 'email' | 'display' | 'search' | 'video';
 
 export type GoalType = 'Awareness' | 'Consideration' | 'Conversions';
@@ -33,8 +34,8 @@ export interface Brief {
   id: string;
   name: string;
   status: BriefStatus;
-  type: BriefType;
-  goal: GoalType;  // New field for campaign goal
+  type?: BriefType;  // Optional now, as we're migrating to goal
+  goal: GoalType;    // Primary campaign objective
   created_at: string;
   updated_at?: string;
   start_date?: string;

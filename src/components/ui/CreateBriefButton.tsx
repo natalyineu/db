@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { BriefService } from '@/services/brief-service';
-import type { BriefStatus, BriefType } from '@/types';
+import type { BriefStatus, GoalType } from '@/types';
 
 /**
  * TERMINOLOGY STANDARDIZATION:
@@ -20,7 +20,7 @@ export default function CreateBriefButton({ userId, onBriefCreated }: CreateBrie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [name, setName] = useState('');
   const [status, setStatus] = useState<BriefStatus>('draft');
-  const [type, setType] = useState<BriefType>('awareness');
+  const [goal, setGoal] = useState<GoalType>('Awareness');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,14 +38,14 @@ export default function CreateBriefButton({ userId, onBriefCreated }: CreateBrie
       await BriefService.createBrief({
         name,
         status,
-        type,
+        goal,
         user_id: userId
       });
       
       // Reset and close form
       setName('');
       setStatus('draft');
-      setType('awareness');
+      setGoal('Awareness');
       setShowForm(false);
       onBriefCreated();
     } catch (err) {
@@ -112,23 +112,18 @@ export default function CreateBriefButton({ userId, onBriefCreated }: CreateBrie
             </div>
             
             <div className="mb-4">
-              <label htmlFor="briefType" className="block text-sm font-medium text-gray-700 mb-1">
-                Brief Type
+              <label htmlFor="briefGoal" className="block text-sm font-medium text-gray-700 mb-1">
+                Campaign Goal
               </label>
               <select
-                id="briefType"
-                value={type}
-                onChange={(e) => setType(e.target.value as BriefType)}
+                id="briefGoal"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value as GoalType)}
                 className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
-                <option value="awareness">Awareness</option>
-                <option value="consideration">Consideration</option>
-                <option value="conversion">Conversion</option>
-                <option value="social">Social</option>
-                <option value="email">Email</option>
-                <option value="display">Display</option>
-                <option value="search">Search</option>
-                <option value="video">Video</option>
+                <option value="Awareness">Awareness</option>
+                <option value="Consideration">Consideration</option>
+                <option value="Conversions">Conversions</option>
               </select>
             </div>
             

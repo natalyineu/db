@@ -7,7 +7,6 @@ interface BriefDisplayProps {
     location?: string;
     start_date?: string;
     end_date?: string;
-    type?: string;
     goal?: string;
     description?: string;
   };
