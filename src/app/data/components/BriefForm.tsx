@@ -10,6 +10,7 @@ interface BriefFormProps {
     description: string;
     consent: boolean;
     name?: string;
+    goal: string;
   };
   formErrors: Record<string, string>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
@@ -52,6 +53,7 @@ const BriefForm: React.FC<BriefFormProps> = ({
     'start_date': 'When should your campaign begin? We recommend allowing at least 1-2 days for setup.',
     'end_date': 'When should your campaign end? A 30-day run typically provides the best data for optimization.',
     'description': 'Tell us any specific needs, goals, or campaign details.',
+    'goal': 'Select the primary goal for your campaign to help us optimize for the right outcomes.',
   };
 
   return (
@@ -111,6 +113,49 @@ const BriefForm: React.FC<BriefFormProps> = ({
           </div>
 
           <div className="relative">
+            <label htmlFor="goal" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
+              Campaign Goal
+              <button 
+                type="button"
+                className="ml-1.5 text-gray-400 hover:text-gray-500 focus:outline-none"
+                onMouseEnter={() => setHoveredTooltip('goal')}
+                onMouseLeave={() => setHoveredTooltip(null)}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              {hoveredTooltip === 'goal' && (
+                <div className="absolute z-10 top-0 left-36 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg">
+                  {tooltips['goal']}
+                </div>
+              )}
+            </label>
+            <select
+              id="goal"
+              name="goal"
+              className={`w-full px-4 py-3 border rounded-lg text-base transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none ${
+                focusedField === 'goal' ? 'border-indigo-500' : 'border-gray-300'
+              }`}
+              value={formData.goal}
+              onChange={handleChange}
+              onFocus={() => setFocusedField('goal')}
+              onBlur={() => setFocusedField(null)}
+            >
+              <option value="Awareness">Brand Awareness</option>
+              <option value="Consideration">Consideration</option>
+              <option value="Conversions">Conversions</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {formData.goal === 'Awareness' && 'Increase visibility and reach for your brand'}
+              {formData.goal === 'Consideration' && 'Drive engagement and interest in your products/services'}
+              {formData.goal === 'Conversions' && 'Focus on sales, sign-ups, or lead generation'}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="relative">
             <label htmlFor="platforms-0" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
               Landing Page URL <span className="text-red-500 ml-0.5">*</span>
               <button 
@@ -149,46 +194,46 @@ const BriefForm: React.FC<BriefFormProps> = ({
               <p className="mt-1 text-xs text-gray-500">Where your customers will go after clicking your ad</p>
             )}
           </div>
-        </div>
 
-        <div className="relative">
-          <label htmlFor="platforms-1" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
-            Creatives Link
-            <button 
-              type="button"
-              className="ml-1.5 text-gray-400 hover:text-gray-500 focus:outline-none"
-              onMouseEnter={() => setHoveredTooltip('platforms[1]')}
-              onMouseLeave={() => setHoveredTooltip(null)}
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-            {hoveredTooltip === 'platforms[1]' && (
-              <div className="absolute z-10 top-0 left-36 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg">
-                {tooltips['platforms[1]']}
-              </div>
+          <div className="relative">
+            <label htmlFor="platforms-1" className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
+              Creatives Link
+              <button 
+                type="button"
+                className="ml-1.5 text-gray-400 hover:text-gray-500 focus:outline-none"
+                onMouseEnter={() => setHoveredTooltip('platforms[1]')}
+                onMouseLeave={() => setHoveredTooltip(null)}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              {hoveredTooltip === 'platforms[1]' && (
+                <div className="absolute z-10 top-0 left-36 w-64 px-3 py-2 bg-gray-800 text-white text-xs rounded shadow-lg">
+                  {tooltips['platforms[1]']}
+                </div>
+              )}
+            </label>
+            <input
+              type="text"
+              id="platforms-1"
+              name="platforms[1]"
+              className={`w-full px-4 py-3 border rounded-lg text-base transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none ${
+                focusedField === 'platforms[1]' ? 'border-indigo-500' : 
+                (formErrors['platforms[1]'] || formErrors.creativesLink) ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Type 'no' for AI-generated creatives, or add your link"
+              value={formData.platforms[1] || ''}
+              onChange={handleChange}
+              onFocus={() => setFocusedField('platforms[1]')}
+              onBlur={() => setFocusedField(null)}
+            />
+            {(formErrors['platforms[1]'] || formErrors.creativesLink) ? (
+              <p className="mt-1.5 text-sm text-red-600">{formErrors['platforms[1]'] || formErrors.creativesLink}</p>
+            ) : (
+              <p className="mt-1 text-xs text-gray-500">Leave empty or type "no" to have our AI create your ads</p>
             )}
-          </label>
-          <input
-            type="text"
-            id="platforms-1"
-            name="platforms[1]"
-            className={`w-full px-4 py-3 border rounded-lg text-base transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none ${
-              focusedField === 'platforms[1]' ? 'border-indigo-500' : 
-              (formErrors['platforms[1]'] || formErrors.creativesLink) ? 'border-red-500' : 'border-gray-300'
-            }`}
-            placeholder="Type 'no' for AI-generated creatives, or add your link"
-            value={formData.platforms[1] || ''}
-            onChange={handleChange}
-            onFocus={() => setFocusedField('platforms[1]')}
-            onBlur={() => setFocusedField(null)}
-          />
-          {(formErrors['platforms[1]'] || formErrors.creativesLink) ? (
-            <p className="mt-1.5 text-sm text-red-600">{formErrors['platforms[1]'] || formErrors.creativesLink}</p>
-          ) : (
-            <p className="mt-1 text-xs text-gray-500">Leave empty or type "no" to have our AI create your ads</p>
-          )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

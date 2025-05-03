@@ -33,6 +33,7 @@ export function transformFormDataForSubmission(
     name: formData.businessName?.trim() || "New Campaign",
     status: 'draft', // Default to draft status
     type: 'awareness', // Default to awareness as the campaign type
+    goal: formData.goal || 'Awareness', // Use the goal from form data or default to Awareness
     budget: 0, // Default budget value
     // Always set dates, using defaults if not provided
     start_date: formData.start_date || formatDate(defaultStartDate),
@@ -70,6 +71,7 @@ export function mapBriefToFormData(brief: any): BriefFormData {
       consent: false,
       start_date: '',
       end_date: '',
+      goal: 'Awareness', // Default goal
     };
   }
 
@@ -85,5 +87,6 @@ export function mapBriefToFormData(brief: any): BriefFormData {
     consent: brief.consent || false,
     start_date: brief.start_date || '',
     end_date: brief.end_date || '',
+    goal: brief.goal || 'Awareness', // Map goal from brief or default to Awareness
   };
 } 

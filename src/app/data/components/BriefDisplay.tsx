@@ -8,6 +8,7 @@ interface BriefDisplayProps {
     start_date?: string;
     end_date?: string;
     type?: string;
+    goal?: string;
     description?: string;
   };
 }
@@ -77,7 +78,7 @@ const BriefDisplay: React.FC<BriefDisplayProps> = ({ brief }) => {
       
       <div>
         <h3 className="text-sm font-medium text-gray-500">Goal:</h3>
-        <p className="mt-0.5 capitalize">{brief.type || "Awareness"}</p>
+        <p className="mt-0.5 capitalize">{brief.goal || "Awareness"}</p>
       </div>
       
       {brief.description && (

@@ -255,7 +255,8 @@ export default function AccountOverviewPage() {
                   end_date: formData.end_date || new Date(new Date().setDate(new Date().getDate() + 31)).toISOString().split('T')[0],
                   description: formData.additionalNotes || '',
                   consent: formData.consent || false,
-                  name: formData.businessName || ''
+                  name: formData.businessName || '',
+                  goal: formData.goal || 'Awareness'
                 }}
                 formErrors={Object.fromEntries(
                   Object.entries(formErrors).filter(([_, v]) => v !== undefined) as [string, string][]

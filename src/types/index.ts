@@ -27,11 +27,14 @@ export type BriefStatus = 'draft' | 'active' | 'paused' | 'completed';
 
 export type BriefType = 'awareness' | 'consideration' | 'conversion' | 'social' | 'email' | 'display' | 'search' | 'video';
 
+export type GoalType = 'Awareness' | 'Consideration' | 'Conversions';
+
 export interface Brief {
   id: string;
   name: string;
   status: BriefStatus;
   type: BriefType;
+  goal: GoalType;  // New field for campaign goal
   created_at: string;
   updated_at?: string;
   start_date?: string;

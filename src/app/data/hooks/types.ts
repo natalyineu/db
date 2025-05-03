@@ -11,6 +11,7 @@ export interface BriefFormData {
   consent: boolean;
   start_date: string;
   end_date: string;
+  goal: 'Awareness' | 'Consideration' | 'Conversions';
 }
 
 // Interface for form errors
@@ -28,6 +29,7 @@ export interface SubmissionData {
   budget: number;
   start_date?: string;
   end_date?: string;
+  goal: 'Awareness' | 'Consideration' | 'Conversions';
   
   // Optional fields that might be accepted
   description?: string;

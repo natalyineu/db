@@ -15,6 +15,7 @@ interface BriefSectionProps {
     description: string;
     consent: boolean;
     name?: string;
+    goal: string;
   };
   formErrors: Record<string, string>;
   isSubmitting: boolean;

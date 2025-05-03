@@ -19,6 +19,7 @@ interface CreateBriefData {
   name: string;
   status: BriefStatus;
   type?: BriefType;
+  goal?: string;
   user_id: string;
   start_date?: string;
   end_date?: string;
@@ -247,6 +248,7 @@ export class BriefService {
       name: String(item.name || ''),
       status: (item.status as BriefStatus) || 'draft',
       type: (item.type as BriefType) || 'display',
+      goal: item.goal || 'Awareness',
       created_at: String(item.created_at || new Date().toISOString()),
       updated_at: item.updated_at ? String(item.updated_at) : undefined,
       start_date: item.start_date ? String(item.start_date) : undefined,
