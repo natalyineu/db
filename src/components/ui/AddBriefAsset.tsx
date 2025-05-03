@@ -1,14 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-import { CampaignService } from '@/services/campaign-service';
+import { BriefService } from '@/services/brief-service';
 
-type AddCampaignAssetProps = {
-  campaignId: string;
+/**
+ * TERMINOLOGY STANDARDIZATION:
+ * This codebase consistently uses "Brief" terminology.
+ * This component replaces the previous AddCampaignAsset component.
+ */
+
+type AddBriefAssetProps = {
+  briefId: string;
   onAssetAdded: () => void;
 };
 
-export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampaignAssetProps) {
+export default function AddBriefAsset({ briefId, onAssetAdded }: AddBriefAssetProps) {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [url, setUrl] = useState('https://google.com');
@@ -28,8 +34,8 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
     setIsSubmitting(true);
     
     try {
-      await CampaignService.addCampaignAsset({
-        campaign_id: campaignId,
+      await BriefService.addBriefAsset({
+        brief_id: briefId,
         url,
         drive_link: driveLink || undefined,
         notes: notes || undefined
@@ -43,7 +49,7 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
       onAssetAdded();
     } catch (err) {
       setError('Failed to add asset. Please try again.');
-      console.error('Error adding campaign asset:', err);
+      console.error('Error adding brief asset:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -64,7 +70,7 @@ export default function AddCampaignAsset({ campaignId, onAssetAdded }: AddCampai
       ) : (
         <div className="bg-gray-50 rounded-lg border border-gray-200 p-4 mt-3">
           <form onSubmit={handleSubmit}>
-            <h4 className="text-sm font-medium text-gray-800 mb-3">Add Campaign Asset</h4>
+            <h4 className="text-sm font-medium text-gray-800 mb-3">Add Brief Asset</h4>
             
             {error && (
               <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-red-600 text-xs">

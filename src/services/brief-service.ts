@@ -271,9 +271,12 @@ export class BriefService {
    * Helper function to transform raw asset data into the BriefAsset type
    */
   private static transformAssetData(asset: RawAssetData): BriefAsset {
+    // Handle legacy data where the field might be named campaign_id instead of brief_id
+    const briefId = asset.brief_id || asset.campaign_id || '';
+    
     return {
       id: String(asset.id || ''),
-      brief_id: String(asset.brief_id || asset.campaign_id || ''), // Handle both field names for compatibility
+      brief_id: String(briefId),
       url: String(asset.url || ''),
       drive_link: asset.drive_link,
       notes: asset.notes,

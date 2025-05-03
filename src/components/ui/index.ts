@@ -2,6 +2,7 @@ export { default as BriefList } from './BriefList';
 export { default as BriefItem } from './BriefItem';
 export { default as BriefMetrics } from './BriefMetrics';
 export { default as CreateBriefButton } from './CreateBriefButton';
+export { default as AddBriefAsset } from './AddBriefAsset';
 export { default as Pagination } from './Pagination';
 export { default as SortControls } from './SortControls';
 export { default as UserMenu } from './UserMenu';
