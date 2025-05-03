@@ -241,7 +241,7 @@ export default function AccountOverviewPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Brief and Account Info */}
           <div className="lg:col-span-2 space-y-6 lg:space-y-8">
-            {/* Campaign Brief Section */}
+            {/* Brief Section */}
             <div className="h-full">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 px-1">Brief</h2>
               <BriefSection
@@ -308,9 +308,9 @@ export default function AccountOverviewPage() {
           </div>
           
           {/* Right Column - Plans, Next Steps and Resources */}
-          <div className="space-y-6 lg:space-y-8">
-          {/* Next Steps */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-shadow duration-300 hover:shadow-md">
+          <div className="flex flex-col space-y-6 lg:space-y-8">
+            {/* Next Steps */}
+            <div className="flex-grow bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-shadow duration-300 hover:shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
@@ -357,7 +357,7 @@ export default function AccountOverviewPage() {
             </div>
             
             {/* Resources Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-shadow duration-300 hover:shadow-md">
+            <div className="flex-grow bg-white rounded-xl shadow-sm border border-gray-100 p-6 sm:p-8 transition-shadow duration-300 hover:shadow-md">
               <h2 className="text-lg font-semibold text-gray-800 mb-5 flex items-center">
                 <svg className="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
@@ -391,7 +391,7 @@ export default function AccountOverviewPage() {
                   </div>
                   <div>
                     <div className="font-medium">Guides & Tutorials</div>
-                    <div className="text-sm text-gray-500">Learn how to maximize your campaigns</div>
+                    <div className="text-sm text-gray-500">Learn how to maximize your briefs</div>
                   </div>
                 </a>
                 

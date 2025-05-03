@@ -145,11 +145,7 @@ export default function LoginForm() {
               Sign up
             </Link>
           </p>
-          <div className="text-center mt-6 mb-8">
-            <h2 className="text-2xl font-semibold text-gray-900">Sign In</h2>
-            <p className="mt-2 text-gray-600">Access your brief dashboard</p>
-          </div>
-          <div className="mt-2 text-gray-500 text-xs">
+          <div className="mt-3 text-gray-500 text-xs">
             Sign in to manage your briefs, view analytics, and optimize your advertising performance.
           </div>
         </div>

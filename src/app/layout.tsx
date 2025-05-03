@@ -85,7 +85,7 @@ export default function RootLayout({
                     <span className="ai-vertise-gradient-text">AI-Vertise</span>
                   </span>
                   <p className="mt-2 text-sm text-gray-500 max-w-md">
-                    The most advanced AI-powered campaign management platform, designed for the digital marketers of 2025.
+                    The most advanced AI-powered brief management platform, designed for the digital marketers of 2025.
                   </p>
                 </div>
               </div>
